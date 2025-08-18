@@ -77,6 +77,13 @@ function noteName(pcVal, preferFlats = false) {
   return (preferFlats ? FLAT : SHARP)[pcVal];
 }
 
+/* NEW: MIDI → note name (with octave) */
+function midiToNoteName(midi, preferFlats = false, withOctave = true) {
+  const name = noteName(pc(midi), preferFlats);
+  const oct = Math.floor(midi / 12) - 1; // MIDI octave convention
+  return withOctave ? `${name}${oct}` : name;
+}
+
 /* ---------- Built-in defaults (fallbacks if JSON missing) ---------- */
 const DEFAULT_SCALES = [
   { name: "None (no scale)", intervals: null },
@@ -288,6 +295,19 @@ const mainGrid = document.getElementById("mainGrid");
 const pianoCard = document.getElementById("pianoCard");
 const fretCard = document.getElementById("fretCard");
 
+/* NEW: lazy-created single-note badge after "Active notes: []" */
+function getSingleNoteSpan() {
+  let el = document.getElementById("singleNote");
+  if (!el) {
+    el = document.createElement("span");
+    el.id = "singleNote";
+    el.className = "small";
+    el.style.marginLeft = "12px";
+    activeNotes.parentElement.appendChild(el);
+  }
+  return el;
+}
+
 /* ---------- Populate selectors ---------- */
 function populateSelectors() {
   keySel.innerHTML = "";
@@ -399,6 +419,8 @@ function onMIDI(e) {
   Piano.draw(document.getElementById("piano"), state);
   Guitar.draw(document.getElementById("fretboard"), state);
 }
+
+/* ---------- Readouts (updated to show single-note name) ---------- */
 function updateReadouts() {
   const notes = [...state.down.keys()].sort((a, b) => a - b);
   activeNotes.textContent = JSON.stringify(notes);
@@ -407,18 +429,27 @@ function updateReadouts() {
   if (!detail) {
     chordName.textContent = "—";
     if (bigChordName) bigChordName.textContent = "—";
-    return;
+  } else {
+    const numeral = romanForChord(
+      detail.rootPc,
+      detail.quality,
+      state.keyPc,
+      state.keyMask,
+    );
+    const inv = detail.inversion ? ` (${detail.inversion})` : "";
+    const rn = numeral ? ` — ${numeral}` : "";
+    chordName.textContent = detail.label;
+    if (bigChordName) bigChordName.textContent = `${detail.label}${inv}${rn}`;
   }
-  const numeral = romanForChord(
-    detail.rootPc,
-    detail.quality,
-    state.keyPc,
-    state.keyMask,
-  );
-  const inv = detail.inversion ? ` (${detail.inversion})` : "";
-  const rn = numeral ? ` — ${numeral}` : "";
-  chordName.textContent = detail.label;
-  if (bigChordName) bigChordName.textContent = `${detail.label}${inv}${rn}`;
+
+  // Single-note label only when exactly one key is down
+  const singleEl = getSingleNoteSpan();
+  if (notes.length === 1) {
+    const preferFlats = state.keyMask ? preferFlatsForKey(state.keyPc) : false;
+    singleEl.textContent = `• Note: ${midiToNoteName(notes[0], preferFlats, true)}`;
+  } else {
+    singleEl.textContent = "";
+  }
 }
 
 /* ---------- Init ---------- */
