@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChordWatch – VPC1 Visualizer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="piano.js"></script>
+    <script defer src="guitar.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="bar">
+        <div class="title">ChordWatch</div>
+
+        <label
+          >MIDI In:
+          <select id="midiIn"></select>
+        </label>
+
+        <label
+          >Key:
+          <select id="keySel"></select>
+        </label>
+
+        <label
+          >Scale:
+          <select id="scaleSel"></select>
+        </label>
+
+        <label
+          >Tuning:
+          <select id="tuningSel">
+            <option value="40,45,50,55,59,64">Guitar EADGBE (std)</option>
+            <option value="38,45,50,55,59,64">Drop D</option>
+            <option value="43,48,53,58,62,67">FADGCF</option>
+          </select>
+        </label>
+
+        <label
+          >View:
+          <select id="viewSel">
+            <option value="both">Both</option>
+            <option value="piano">Piano only</option>
+            <option value="fret">Fretboard only</option>
+          </select>
+        </label>
+
+        <span class="small" id="latencyText"></span>
+      </div>
+
+      <div class="grid" id="mainGrid">
+        <div class="card" id="pianoCard">
+          <div class="stat">
+            <div>Chord: <span id="chordName" class="title">—</span></div>
+            <div class="small">
+              Active notes: <span id="activeNotes">[]</span>
+            </div>
+          </div>
+          <canvas id="piano" width="1320" height="160"></canvas>
+          <div class="legend small">
+            <span
+              ><span class="dot" style="background: #6aa0ff"></span
+              >Pressed</span
+            >
+            <span
+              ><span class="dot" style="background: #58d68d"></span>In
+              scale</span
+            >
+            <span
+              ><span class="dot" style="background: #f5b041"></span>Root</span
+            >
+          </div>
+          <div class="big-chord">
+            <span class="label">Chord:</span>
+            <span id="bigChordName" class="name">—</span>
+          </div>
+        </div>
+
+        <div class="card" id="fretCard">
+          <div class="stat">
+            <div>Fretboard</div>
+            <div class="small">24 frets</div>
+          </div>
+          <canvas id="fretboard" width="1100" height="280"></canvas>
+        </div>
+      </div>
+
+      <div class="card small">
+        Tips: Select the <b>IAC Driver</b> as MIDI input. Your VPC1 plays SINE
+        in MainStage; the same notes appear here.
+      </div>
+
+      <footer>
+        © you • This is a local prototype. Web MIDI works best in Chrome.
+      </footer>
+    </div>
+  </body>
+</html>
