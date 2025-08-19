@@ -1,7 +1,5 @@
 /* =========================
-   ChordWatch – app.js (slim)
-   Loads theory from JSON (with fallbacks), WebMIDI input,
-   view switching, big chord banner, and uses Piano/Guitar modules to draw
+   Tonika – app.js (UI prefix-aware + recorder wiring)
    ========================= */
 
 /* ---------- Utilities ---------- */
@@ -77,10 +75,10 @@ function noteName(pcVal, preferFlats = false) {
   return (preferFlats ? FLAT : SHARP)[pcVal];
 }
 
-/* NEW: MIDI → note name (with octave) */
+/* MIDI → note name (with octave) */
 function midiToNoteName(midi, preferFlats = false, withOctave = true) {
   const name = noteName(pc(midi), preferFlats);
-  const oct = Math.floor(midi / 12) - 1; // MIDI octave convention
+  const oct = Math.floor(midi / 12) - 1;
   return withOctave ? `${name}${oct}` : name;
 }
 
@@ -141,7 +139,7 @@ async function loadTheory() {
     );
 }
 
-/* ---------- Rich chord detection (quality + inversion + slash) ---------- */
+/* ---------- Rich chord detection ---------- */
 function detectChordDetail(activeMidiSet, keyPc, keyMask) {
   const midiNotes = [...activeMidiSet].sort((a, b) => a - b);
   if (!midiNotes.length) return null;
@@ -250,6 +248,40 @@ function detectChordDetail(activeMidiSet, keyPc, keyMask) {
   };
 }
 
+/* ----- Fallback labelling when no chord matches ----- */
+function intervalName(semi) {
+  const N = [
+    "P1",
+    "m2",
+    "M2",
+    "m3",
+    "M3",
+    "P4",
+    "TT",
+    "P5",
+    "m6",
+    "M6",
+    "m7",
+    "M7",
+  ];
+  return N[pc(semi)];
+}
+function pcsToNames(pcs, preferFlats) {
+  return pcs.map((p) => noteName(p, preferFlats)).join("–");
+}
+function fallbackLabelForSet(pcs, bassPc, keyPc, keyMask) {
+  const preferFlats = keyMask ? preferFlatsForKey(keyPc) : false;
+  if (pcs.length === 1) return `Note: ${noteName(pcs[0], preferFlats)}`;
+  if (pcs.length === 2) {
+    const root = bassPc,
+      other = pcs.find((p) => p !== root) ?? root;
+    const iv = intervalName(pc(other - root));
+    return `Interval: ${noteName(root, preferFlats)}–${noteName(other, preferFlats)} (${iv})`;
+  }
+  const ordered = [...pcs].sort((a, b) => a - b);
+  return `Cluster: ${pcsToNames(ordered, preferFlats)}`;
+}
+
 /* Roman numerals when a scale is active */
 function romanForChord(rootPc, quality, keyPc, keyMask) {
   if (!keyMask) return null;
@@ -286,16 +318,33 @@ const midiInSel = document.getElementById("midiIn");
 const keySel = document.getElementById("keySel");
 const scaleSel = document.getElementById("scaleSel");
 const tuningSel = document.getElementById("tuningSel");
-const chordName = document.getElementById("chordName"); // small line
-const bigChordName = document.getElementById("bigChordName"); // big banner
+const chordName = document.getElementById("chordName");
+const bigChordName = document.getElementById("bigChordName");
 const activeNotes = document.getElementById("activeNotes");
 const latencyText = document.getElementById("latencyText");
 const viewSel = document.getElementById("viewSel");
 const mainGrid = document.getElementById("mainGrid");
 const pianoCard = document.getElementById("pianoCard");
 const fretCard = document.getElementById("fretCard");
+const recStatusEl = document.getElementById("recStatus");
+const saveTakesBtn = document.getElementById("saveTakes");
+/* NEW: prefix spans for small/big lines */
+const smallPrefix = document.getElementById("smallPrefix");
+const bigPrefix = document.getElementById("bigPrefix");
 
-/* NEW: lazy-created single-note badge after "Active notes: []" */
+/* helper to set/hide a prefix */
+function setPrefix(el, kind) {
+  if (!el) return;
+  if (!kind) {
+    el.style.visibility = "hidden";
+    el.textContent = "";
+    return;
+  }
+  el.style.visibility = "visible";
+  el.textContent = `${kind}:`;
+}
+
+/* lazy-created single-note badge after "Active notes: []" */
 function getSingleNoteSpan() {
   let el = document.getElementById("singleNote");
   if (!el) {
@@ -407,42 +456,78 @@ function onMIDI(e) {
   const [st, d1, d2] = e.data,
     cmd = st & 0xf0,
     ts = e.timeStamp;
+
   latencyText.textContent = `msg Δ=${(ts - lastTs).toFixed(1)}ms`;
   lastTs = ts;
+
   if (cmd === 0x90 && d2 > 0) {
     state.down.set(d1, d2);
     state.lastNoteMs = performance.now();
+    if (window.Recorder) Recorder.onMidi("on", d1, d2, ts);
   } else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) {
     state.down.delete(d1);
+    if (window.Recorder) Recorder.onMidi("off", d1, 0, ts);
+  } else {
+    // if (window.Recorder) Recorder.onMidi("raw", st, d1, ts);
   }
+
   updateReadouts();
   Piano.draw(document.getElementById("piano"), state);
   Guitar.draw(document.getElementById("fretboard"), state);
 }
 
-/* ---------- Readouts (updated to show single-note name) ---------- */
+/* ---------- Readouts (prefix-aware) ---------- */
 function updateReadouts() {
   const notes = [...state.down.keys()].sort((a, b) => a - b);
   activeNotes.textContent = JSON.stringify(notes);
 
-  const detail = detectChordDetail(new Set(notes), state.keyPc, state.keyMask);
-  if (!detail) {
-    chordName.textContent = "—";
-    if (bigChordName) bigChordName.textContent = "—";
-  } else {
-    const numeral = romanForChord(
-      detail.rootPc,
-      detail.quality,
+  let kind = null; // "Chord" | "Note" | "Interval" | "Cluster" | null
+  let small = ""; // value only
+  let big = "";
+
+  if (notes.length) {
+    const detail = detectChordDetail(
+      new Set(notes),
       state.keyPc,
       state.keyMask,
     );
-    const inv = detail.inversion ? ` (${detail.inversion})` : "";
-    const rn = numeral ? ` — ${numeral}` : "";
-    chordName.textContent = detail.label;
-    if (bigChordName) bigChordName.textContent = `${detail.label}${inv}${rn}`;
-  }
+    if (detail) {
+      kind = "Chord";
+      const numeral = romanForChord(
+        detail.rootPc,
+        detail.quality,
+        state.keyPc,
+        state.keyMask,
+      );
+      const inv = detail.inversion ? ` (${detail.inversion})` : "";
+      const rn = numeral ? ` — ${numeral}` : "";
+      small = detail.label;
+      big = `${detail.label}${inv}${rn}`;
+    } else {
+      const pcs = pcsFromNotes(new Set(notes));
+      const bassPc = pc(notes[0]);
+      const fb = fallbackLabelForSet(pcs, bassPc, state.keyPc, state.keyMask); // e.g. "Interval: C–D (M2)"
+      const m = fb.match(/^(\w+):\s*(.*)$/);
+      if (m) {
+        const k = m[1];
+        if (k === "Note" || k === "Interval" || k === "Cluster") kind = k;
+        small = m[2];
+        big = m[2];
+      } else {
+        kind = "Cluster";
+        small = fb;
+        big = fb;
+      }
+    }
+  } // else leave kind=null (blank)
 
-  // Single-note label only when exactly one key is down
+  // Apply prefixes + texts
+  setPrefix(smallPrefix, kind);
+  setPrefix(bigPrefix, kind);
+  chordName.textContent = small || "—";
+  if (bigChordName) bigChordName.textContent = big || "—";
+
+  // Single-note helper beside "Active notes"
   const singleEl = getSingleNoteSpan();
   if (notes.length === 1) {
     const preferFlats = state.keyMask ? preferFlatsForKey(state.keyPc) : false;
@@ -457,5 +542,12 @@ function updateReadouts() {
   await loadTheory();
   populateSelectors();
   setupMIDI();
-  updateScaleMask(); // draws initial views
+  updateScaleMask();
+
+  // Initialize the recorder (if script is present in HTML)
+  if (window.Recorder) {
+    const statusEl = recStatusEl;
+    const saveBtn = saveTakesBtn;
+    window.Recorder.init({ statusEl, saveBtn, silenceMs: 2500 });
+  }
 })();

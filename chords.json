@@ -4,16 +4,31 @@
     { "name": "min", "intervals": [0, 3, 7] },
     { "name": "dim", "intervals": [0, 3, 6] },
     { "name": "aug", "intervals": [0, 4, 8] },
+
     { "name": "sus2", "intervals": [0, 2, 7] },
     { "name": "sus4", "intervals": [0, 5, 7] },
+
+    { "name": "6", "intervals": [0, 4, 7, 9] },
+    { "name": "m6", "intervals": [0, 3, 7, 9] },
+
     { "name": "7", "intervals": [0, 4, 7, 10] },
     { "name": "maj7", "intervals": [0, 4, 7, 11] },
     { "name": "m7", "intervals": [0, 3, 7, 10] },
     { "name": "mMaj7", "intervals": [0, 3, 7, 11] },
-    { "name": "6", "intervals": [0, 4, 7, 9] },
-    { "name": "m6", "intervals": [0, 3, 7, 9] },
+
+    { "name": "9", "intervals": [0, 4, 7, 10, 14] },
+    { "name": "maj9", "intervals": [0, 4, 7, 11, 14] },
+    { "name": "m9", "intervals": [0, 3, 7, 10, 14] },
+    { "name": "11", "intervals": [0, 4, 7, 10, 14, 17] },
+    { "name": "13", "intervals": [0, 4, 7, 10, 14, 17, 21] },
+
     { "name": "add9", "intervals": [0, 4, 7, 14] },
     { "name": "madd9", "intervals": [0, 3, 7, 14] },
-    { "name": "6/9", "intervals": [0, 4, 7, 9, 14] }
+    { "name": "6/9", "intervals": [0, 4, 7, 9, 14] },
+
+    { "name": "5", "intervals": [0, 7] },
+    { "name": "5 add9", "intervals": [0, 7, 14] },
+    { "name": "5 add11", "intervals": [0, 7, 17] },
+    { "name": "5 add13", "intervals": [0, 7, 21] }
   ]
 }

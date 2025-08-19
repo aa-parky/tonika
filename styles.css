@@ -8,6 +8,8 @@
   --warn: #f5b041;
   --bad: #ec7063;
 }
+
+/* base */
 html,
 body {
   height: 100%;
@@ -22,6 +24,7 @@ body {
     Helvetica,
     Arial;
 }
+
 .wrap {
   display: grid;
   grid-template-rows: auto auto 1fr auto;
@@ -30,14 +33,17 @@ body {
   margin: 10px auto;
   padding: 10px;
 }
+
+/* top bar – only controls */
 .bar {
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
   background: var(--panel);
   border-radius: 10px;
   padding: 10px;
 }
+
 select,
 button {
   background: #222;
@@ -46,6 +52,8 @@ button {
   border-radius: 6px;
   padding: 6px 8px;
 }
+
+/* layout */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -54,11 +62,13 @@ button {
 .grid.onecol {
   grid-template-columns: 1fr;
 }
+
 .card {
   background: var(--panel);
   border-radius: 10px;
   padding: 10px;
 }
+
 canvas {
   display: block;
   width: 100%;
@@ -66,10 +76,42 @@ canvas {
   background: #000;
   border-radius: 8px;
 }
+
+/* header rows inside cards */
 .stat {
   display: flex;
-  gap: 16px;
   align-items: center;
+  justify-content: space-between; /* left + right */
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* left cluster stays as a small group */
+.stat-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* right cluster: recorder + save + latency */
+.stat-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+#latencyText {
+  min-width: 90px; /* fixed box so digits don't move layout */
+  text-align: right;
+}
+
+/* legend */
+.legend {
+  display: flex;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .dot {
@@ -80,11 +122,8 @@ canvas {
   display: inline-block;
   margin-right: 6px;
 }
-.legend {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+
+/* helpers */
 .small {
   font-size: 12px;
   color: var(--muted);
@@ -101,12 +140,12 @@ footer {
   display: none !important;
 }
 
+/* big chord line */
 .big-chord {
   margin-top: 12px;
   background: var(--panel);
   border-radius: 10px;
   padding: 14px 16px;
-  /* responsive, large */
   font-size: clamp(28px, 6vw, 96px);
   line-height: 1.1;
 }
@@ -116,7 +155,50 @@ footer {
 }
 .big-chord .name {
   font-weight: 700;
-  /* a bright, musical accent; tweak if you prefer */
   color: #54e6d5;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* recorder bits */
+#recStatus {
+  margin-left: 8px;
+  opacity: 0.8;
+}
+#recStatus.rec {
+  color: #ff6b6b;
+} /* red dot when recording */
+#recStatus.idle {
+  color: #888;
+}
+
+.btn.small {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: #ddd;
+}
+
+/* optional polish */
+#takesPanel .takes-list {
+  list-style: decimal inside;
+  padding: 0;
+  margin: 6px 0 0;
+}
+#takesPanel li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  border-top: 1px solid #2a2a2a;
+}
+#takesPanel li:first-child {
+  border-top: 0;
+}
+.take-left .take-name {
+  font-weight: 600;
+}
+.take-actions {
+  display: flex;
+  gap: 8px;
 }

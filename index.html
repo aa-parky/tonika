@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="styles.css" />
     <script defer src="piano.js"></script>
     <script defer src="guitar.js"></script>
+    <script defer src="recorder.js"></script>
+    <script defer src="takes.js"></script>
     <script defer src="app.js"></script>
   </head>
   <body>
     <div class="wrap">
+      <!-- Top bar: only controls now -->
       <div class="bar">
         <div class="title">Tonika</div>
 
@@ -46,19 +49,33 @@
             <option value="fret">Fretboard only</option>
           </select>
         </label>
-
-        <span class="small" id="latencyText"></span>
       </div>
 
       <div class="grid" id="mainGrid">
+        <!-- Piano card -->
         <div class="card" id="pianoCard">
           <div class="stat">
-            <div>Chord: <span id="chordName" class="title">—</span></div>
-            <div class="small">
-              Active notes: <span id="activeNotes">[]</span>
+            <!-- left side: label + active notes -->
+            <div class="stat-left">
+              <div>
+                <span id="smallPrefix"></span>
+                <span id="chordName" class="title"></span>
+              </div>
+              <div class="small">
+                Active notes: <span id="activeNotes">[]</span>
+              </div>
+            </div>
+
+            <!-- right side: recorder + latency -->
+            <div class="stat-right">
+              <span id="recStatus" class="small idle">● idle</span>
+              <button id="saveTakes" class="btn small">Save takes</button>
+              <span id="latencyText" class="small"></span>
             </div>
           </div>
+
           <canvas id="piano" width="1320" height="160"></canvas>
+
           <div class="legend small">
             <span
               ><span class="dot" style="background: #6aa0ff"></span
@@ -72,12 +89,14 @@
               ><span class="dot" style="background: #f5b041"></span>Root</span
             >
           </div>
+
           <div class="big-chord">
-            <span class="label">Chord:</span>
-            <span id="bigChordName" class="name">—</span>
+            <span id="bigPrefix" class="label"></span>
+            <span id="bigChordName" class="name"></span>
           </div>
         </div>
 
+        <!-- Fretboard card -->
         <div class="card" id="fretCard">
           <div class="stat">
             <div>Fretboard</div>
