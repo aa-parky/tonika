@@ -337,6 +337,12 @@ const bigPrefix = document.getElementById("bigPrefix");
 const pianoCanvas = document.getElementById("piano");
 const fretboardCanvas = document.getElementById("fretboard");
 
+/* --- Settings dialog elements (HTML adds a ⚙︎ button + <dialog>) --- */
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsDialog = document.getElementById("settingsDialog");
+const bigChordScale = document.getElementById("bigChordScale");
+const bigChordScaleVal = document.getElementById("bigChordScaleVal");
+
 /* helper to set/hide a prefix */
 function setPrefix(el, kind) {
   if (!el) return;
@@ -463,7 +469,6 @@ function chooseInput(id) {
 const A0_MIDI = 21;
 const TOTAL_KEYS = 88;
 function centerViewportAround(midi) {
-  // center the window around the target note with slight look-ahead
   const targetOffset = midi - A0_MIDI - Math.floor(state.pianoView.keys * 0.5);
   state.pianoView.offset = clamp(
     targetOffset,
@@ -474,32 +479,25 @@ function centerViewportAround(midi) {
 function ensurePianoVisible(midi) {
   const start = A0_MIDI + state.pianoView.offset;
   const end = start + state.pianoView.keys - 1;
-  if (midi < start + 2 || midi > end - 2) {
-    // with 2-key padding
-    centerViewportAround(midi);
-  }
+  if (midi < start + 2 || midi > end - 2) centerViewportAround(midi);
 }
 
 function onMIDI(e) {
   const [st, d1, d2] = e.data,
     cmd = st & 0xf0,
     ts = e.timeStamp;
-
   latencyText.textContent = `msg Δ=${(ts - lastTs).toFixed(1)}ms`;
   lastTs = ts;
 
   if (cmd === 0x90 && d2 > 0) {
     state.down.set(d1, d2);
     state.lastNoteMs = performance.now();
-    ensurePianoVisible(d1); // <-- auto-scroll to show note
+    ensurePianoVisible(d1);
     if (window.Recorder) Recorder.onMidi("on", d1, d2, ts);
   } else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) {
     state.down.delete(d1);
     if (window.Recorder) Recorder.onMidi("off", d1, 0, ts);
-  } else {
-    // if(window.Recorder) Recorder.onMidi("raw", st, d1, ts);
   }
-
   updateReadouts();
   Piano.draw(pianoCanvas, state, state.pianoView);
   Guitar.draw(fretboardCanvas, state);
@@ -556,7 +554,7 @@ function updateReadouts() {
     } else {
       const pcs = pcsFromNotes(new Set(notes));
       const bassPc = pc(notes[0]);
-      const fb = fallbackLabelForSet(pcs, bassPc, state.keyPc, state.keyMask); // e.g. "Interval: C–D (M2)"
+      const fb = fallbackLabelForSet(pcs, bassPc, state.keyPc, state.keyMask);
       const m = fb.match(/^(\w+):\s*(.*)$/);
       if (m) {
         const k = m[1];
@@ -570,7 +568,6 @@ function updateReadouts() {
       }
     }
   }
-  // Apply prefixes + texts
   setPrefix(smallPrefix, kind);
   setPrefix(bigPrefix, kind);
   chordName.textContent = small || "—";
@@ -586,10 +583,37 @@ function updateReadouts() {
   }
 }
 
+/* ---------- Settings handling (big chord scale) ---------- */
+function applyBigChordScale(v) {
+  const num = Math.max(0.6, Math.min(1.6, parseFloat(v) || 1));
+  document.documentElement.style.setProperty("--bigChordScale", num);
+  if (bigChordScale) bigChordScale.value = String(num);
+  if (bigChordScaleVal)
+    bigChordScaleVal.textContent = `${Math.round(num * 100)}%`;
+  try {
+    localStorage.setItem("tonika.bigChordScale", String(num));
+  } catch {}
+}
+function wireSettings() {
+  if (settingsBtn && settingsDialog) {
+    settingsBtn.addEventListener("click", () => {
+      const saved = localStorage.getItem("tonika.bigChordScale");
+      applyBigChordScale(saved || bigChordScale?.value || 1);
+      settingsDialog.showModal();
+    });
+  }
+  if (bigChordScale) {
+    bigChordScale.addEventListener("input", (e) =>
+      applyBigChordScale(e.target.value),
+    );
+  }
+}
+
 /* ---------- Init ---------- */
 (async function init() {
   await loadTheory();
   populateSelectors();
+
   // center ~4.5 octaves around middle C (60)
   state.pianoView.keys = 56;
   state.pianoView.offset = clamp(
@@ -597,6 +621,11 @@ function updateReadouts() {
     0,
     88 - state.pianoView.keys,
   );
+
+  // Settings: apply saved scale and wire dialog
+  const savedScale = localStorage.getItem("tonika.bigChordScale");
+  applyBigChordScale(savedScale || 1);
+  wireSettings();
 
   setupMIDI();
   updateScaleMask();

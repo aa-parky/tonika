@@ -49,6 +49,8 @@
             <option value="fret">Fretboard only</option>
           </select>
         </label>
+        <!-- inside .bar (top controls), after the View selector -->
+        <button id="settingsBtn" class="btn small">⚙︎ Settings</button>
       </div>
 
       <div class="grid" id="mainGrid">
@@ -114,6 +116,30 @@
       <footer>
         © you • This is a local prototype. Web MIDI works best in Chrome.
       </footer>
+
+      <!-- just before </div> that closes .wrap -->
+      <dialog id="settingsDialog">
+        <form method="dialog" class="settings-form">
+          <h3>Settings</h3>
+
+          <label class="row">
+            <span>Big chord size</span>
+            <input
+              id="bigChordScale"
+              type="range"
+              min="0.6"
+              max="1.6"
+              step="0.05"
+              value="1"
+            />
+            <span id="bigChordScaleVal" class="value">100%</span>
+          </label>
+
+          <div class="buttons">
+            <button value="cancel" class="btn small">Close</button>
+          </div>
+        </form>
+      </dialog>
     </div>
   </body>
 </html>

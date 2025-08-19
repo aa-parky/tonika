@@ -12,7 +12,7 @@
   const COL_OUT_B = "#222222";
   const COL_SCALE = "#58d68d";
   const COL_PRESSED = "#1e3a8a";
-  const COL_ROOT = "#ff9200";
+  const COL_ROOT = "#f43f5e";
   const COL_LABEL = "#b9c1c9";
 
   // Helper functions
@@ -231,7 +231,7 @@
 
       // Scale tint
       if (state.keyMask && state.keyMask & (1 << n)) {
-        ctx.globalAlpha = 0.22;
+        ctx.globalAlpha = 0.8;
         ctx.fillStyle = COL_SCALE;
         ctx.fillRect(blackX, 0, blackW, blackH);
         ctx.globalAlpha = 1;
@@ -239,7 +239,7 @@
 
       // Root tint
       if (state.keyMask && n === state.keyPc) {
-        ctx.globalAlpha = 0.3;
+        ctx.globalAlpha = 0.7;
         ctx.fillStyle = COL_ROOT;
         ctx.fillRect(blackX, 0, blackW, blackH);
         ctx.globalAlpha = 1;
