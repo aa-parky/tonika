@@ -2,7 +2,6 @@
 // Tonika – session Takes panel (renders from Recorder.getTakes()).
 
 (function () {
-  // Wait until DOM and Recorder exist
   function ready(fn) {
     if (document.readyState !== "loading") fn();
     else document.addEventListener("DOMContentLoaded", fn);
@@ -17,12 +16,8 @@
     const mss = msr.toString().padStart(3, "0");
     return `${mm}:${ss}.${mss}`;
   }
-
   function fmtStamp(take) {
-    return new Date(take.startedAt)
-      .toISOString()
-      .replace("T", " ")
-      .replace("Z", "Z");
+    return new Date(take.startedAt).toISOString(); // e.g. 2025-08-19T10:21:29.354Z
   }
 
   function renderList(container) {
@@ -72,11 +67,9 @@
   }
 
   function buildPanel() {
-    // Insert after the piano card
     const pianoCard = document.getElementById("pianoCard");
-    if (!pianoCard) return;
+    if (!pianoCard) return null;
 
-    // If card already exists, reuse
     let takesCard = document.getElementById("takesCard");
     if (!takesCard) {
       takesCard = document.createElement("div");
@@ -85,25 +78,35 @@
       takesCard.innerHTML = `
 		<div class="stat">
 		  <div class="title">Takes</div>
-		  <div class="small" id="takesHint">Auto-captured this session</div>
+		  <div class="stat-right">
+			<div class="small">Auto-captured this session</div>
+			<button id="clearTakesBtn" class="btn small">Clear all</button>
+		  </div>
 		</div>
 		<div id="takesPanel"></div>
 	  `;
-      // Place after piano card
       pianoCard.parentElement.insertBefore(takesCard, pianoCard.nextSibling);
     }
-    return document.getElementById("takesPanel");
+    return {
+      panel: document.getElementById("takesPanel"),
+      clearBtn: document.getElementById("clearTakesBtn"),
+    };
   }
 
   ready(() => {
-    const panel = buildPanel();
-    if (!panel) return;
+    const ui = buildPanel();
+    if (!ui || !ui.panel) return;
 
-    // Initial render
-    renderList(panel);
+    // Initial render (also catches restored takes from storage)
+    renderList(ui.panel);
+
+    // Button: Clear all takes
+    if (ui.clearBtn) ui.clearBtn.onclick = () => Recorder.clear();
 
     // Re-render on any recorder updates
-    window.addEventListener("recorder:take", () => renderList(panel));
-    window.addEventListener("recorder:takeschanged", () => renderList(panel));
+    window.addEventListener("recorder:take", () => renderList(ui.panel));
+    window.addEventListener("recorder:takeschanged", () =>
+      renderList(ui.panel),
+    );
   });
 })();

@@ -1,9 +1,11 @@
 // recorder.js
-// Tonika – lightweight always-on MIDI recorder (auto-start, auto-stop-on-silence)
-// Exposes a global `Recorder` with init/onMidi/getTakes/exportJSON/clear,
-// and dispatches 'recorder:take' / 'recorder:takeschanged' CustomEvents.
+// Tonika – always‑on MIDI recorder with localStorage persistence
+// Emits 'recorder:take' and 'recorder:takeschanged' CustomEvents.
 
 (function (global) {
+  const STORAGE_KEY = "tonika_takes_v1";
+  const MAX_TAKES = 500; // safety cap
+
   const Recorder = {
     SILENCE_MS: 2500,
     active: false,
@@ -20,6 +22,11 @@
       if (typeof silenceMs === "number") this.SILENCE_MS = silenceMs;
       this._setUI(false);
 
+      // Load any prior session takes
+      this._loadFromStorage();
+      // Notify UI on boot so panels render immediately
+      window.dispatchEvent(new CustomEvent("recorder:takeschanged"));
+
       if (this.saveBtn) {
         this.saveBtn.onclick = () => this.exportJSON();
       }
@@ -35,7 +42,7 @@
       this._armSilence();
     },
 
-    // ----- session helpers -----
+    /* ------------ session helpers ------------ */
     getTakes() {
       return this.takes.slice();
     },
@@ -43,11 +50,12 @@
     clear() {
       this.current = [];
       this.takes = [];
+      this._saveToStorage();
       this._setUI(false);
       window.dispatchEvent(new CustomEvent("recorder:takeschanged"));
     },
 
-    // Export ALL takes as one JSON file
+    // Export ALL takes as a single JSON file
     exportJSON() {
       const data = JSON.stringify(this.takes, null, 2);
       const blob = new Blob([data], { type: "application/json" });
@@ -60,7 +68,7 @@
       URL.revokeObjectURL(url);
     },
 
-    // Export a single take
+    // Export just one take
     exportTake(index) {
       const take = this.takes[index];
       if (!take) return;
@@ -77,14 +85,14 @@
       URL.revokeObjectURL(url);
     },
 
-    // Delete a single take
     deleteTake(index) {
       if (index < 0 || index >= this.takes.length) return;
       this.takes.splice(index, 1);
+      this._saveToStorage();
       window.dispatchEvent(new CustomEvent("recorder:takeschanged"));
     },
 
-    // ----- internals -----
+    /* --------------- internals --------------- */
     _start(ts) {
       this.active = true;
       this.startTime = ts;
@@ -104,7 +112,11 @@
           events: this.current,
         };
         this.takes.push(take);
-        // notify UIs
+        if (this.takes.length > MAX_TAKES)
+          this.takes.splice(0, this.takes.length - MAX_TAKES);
+        this._saveToStorage();
+
+        // Notify any UIs
         window.dispatchEvent(
           new CustomEvent("recorder:take", {
             detail: { index: this.takes.length - 1, take },
@@ -126,6 +138,31 @@
       this.statusEl.textContent = isRec ? "● rec" : "● idle";
       this.statusEl.classList.toggle("rec", isRec);
       this.statusEl.classList.toggle("idle", !isRec);
+    },
+
+    _saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.takes));
+      } catch {
+        /* ignore quota errors */
+      }
+    },
+
+    _loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          // quick validation (very light)
+          this.takes = arr.filter(
+            (t) =>
+              t && typeof t.startedAt === "number" && Array.isArray(t.events),
+          );
+        }
+      } catch {
+        /* ignore parse errors */
+      }
     },
   };
 
