@@ -1,5 +1,5 @@
 /* =========================
-   Tonika – app.js (UI prefix-aware + recorder wiring)
+   Tonika – app.js (viewported piano + auto‑scroll, UI prefix-aware + recorder wiring)
    ========================= */
 
 /* ---------- Utilities ---------- */
@@ -25,6 +25,7 @@ const transposeSet = (arr, by) =>
   arr.map((x) => pc(x - by)).sort((a, b) => a - b);
 const toMask = (arr) => arr.reduce((m, p) => m | (1 << pc(p)), 0);
 const setHas = (mask, v) => (mask & (1 << v)) !== 0;
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 /* flat/sharp preference for note labels */
 const FLAT_KEYS = new Set([
@@ -74,7 +75,6 @@ function noteName(pcVal, preferFlats = false) {
   ];
   return (preferFlats ? FLAT : SHARP)[pcVal];
 }
-
 /* MIDI → note name (with octave) */
 function midiToNoteName(midi, preferFlats = false, withOctave = true) {
   const name = noteName(pc(midi), preferFlats);
@@ -82,7 +82,7 @@ function midiToNoteName(midi, preferFlats = false, withOctave = true) {
   return withOctave ? `${name}${oct}` : name;
 }
 
-/* ---------- Built-in defaults (fallbacks if JSON missing) ---------- */
+/* ---------- Built‑in defaults (fallbacks) ---------- */
 const DEFAULT_SCALES = [
   { name: "None (no scale)", intervals: null },
   { name: "Major (Ionian)", intervals: [0, 2, 4, 5, 7, 9, 11] },
@@ -116,7 +116,6 @@ const DEFAULT_CHORDS = [
 
 /* ---------- Theory (loaded) ---------- */
 let THEORY = { scales: DEFAULT_SCALES, chords: DEFAULT_CHORDS };
-
 async function loadTheory() {
   async function safeFetch(url) {
     try {
@@ -311,6 +310,9 @@ const state = {
   scaleName: "None (no scale)",
   tuning: [40, 45, 50, 55, 59, 64],
   keyMask: 0,
+
+  /* Piano viewport (zoom): show ~2 octaves by default, centred near middle C (60) */
+  pianoView: { offset: 0, keys: 28 }, // filled properly in init()
 };
 
 /* ---------- DOM ---------- */
@@ -331,6 +333,9 @@ const saveTakesBtn = document.getElementById("saveTakes");
 /* NEW: prefix spans for small/big lines */
 const smallPrefix = document.getElementById("smallPrefix");
 const bigPrefix = document.getElementById("bigPrefix");
+/* Canvas refs (used for wheel scrolling) */
+const pianoCanvas = document.getElementById("piano");
+const fretboardCanvas = document.getElementById("fretboard");
 
 /* helper to set/hide a prefix */
 function setPrefix(el, kind) {
@@ -393,8 +398,8 @@ function updateScaleMask() {
     keySel.disabled = false;
     state.keyMask = toMask(sel.intervals.map((x) => pc(x + state.keyPc)));
   }
-  Piano.draw(document.getElementById("piano"), state);
-  Guitar.draw(document.getElementById("fretboard"), state);
+  Piano.draw(pianoCanvas, state, state.pianoView);
+  Guitar.draw(fretboardCanvas, state);
 }
 
 /* ---------- View switching ---------- */
@@ -414,8 +419,8 @@ function setView(mode) {
     mainGrid.classList.remove("onecol");
   }
   requestAnimationFrame(() => {
-    Piano.draw(document.getElementById("piano"), state);
-    Guitar.draw(document.getElementById("fretboard"), state);
+    Piano.draw(pianoCanvas, state, state.pianoView);
+    Guitar.draw(fretboardCanvas, state);
   });
 }
 setView("both");
@@ -424,6 +429,7 @@ setView("both");
 let midiAccess = null,
   chosenInput = null,
   lastTs = 0;
+
 function setupMIDI() {
   if (!navigator.requestMIDIAccess) {
     alert("Web MIDI not supported in this browser.");
@@ -452,6 +458,28 @@ function chooseInput(id) {
   chosenInput = midiAccess.inputs.get(id);
   if (chosenInput) chosenInput.onmidimessage = onMIDI;
 }
+
+/* --- viewport helpers --- */
+const A0_MIDI = 21;
+const TOTAL_KEYS = 88;
+function centerViewportAround(midi) {
+  // center the window around the target note with slight look-ahead
+  const targetOffset = midi - A0_MIDI - Math.floor(state.pianoView.keys * 0.5);
+  state.pianoView.offset = clamp(
+    targetOffset,
+    0,
+    TOTAL_KEYS - state.pianoView.keys,
+  );
+}
+function ensurePianoVisible(midi) {
+  const start = A0_MIDI + state.pianoView.offset;
+  const end = start + state.pianoView.keys - 1;
+  if (midi < start + 2 || midi > end - 2) {
+    // with 2-key padding
+    centerViewportAround(midi);
+  }
+}
+
 function onMIDI(e) {
   const [st, d1, d2] = e.data,
     cmd = st & 0xf0,
@@ -463,17 +491,39 @@ function onMIDI(e) {
   if (cmd === 0x90 && d2 > 0) {
     state.down.set(d1, d2);
     state.lastNoteMs = performance.now();
+    ensurePianoVisible(d1); // <-- auto-scroll to show note
     if (window.Recorder) Recorder.onMidi("on", d1, d2, ts);
   } else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) {
     state.down.delete(d1);
     if (window.Recorder) Recorder.onMidi("off", d1, 0, ts);
   } else {
-    // if (window.Recorder) Recorder.onMidi("raw", st, d1, ts);
+    // if(window.Recorder) Recorder.onMidi("raw", st, d1, ts);
   }
 
   updateReadouts();
-  Piano.draw(document.getElementById("piano"), state);
-  Guitar.draw(document.getElementById("fretboard"), state);
+  Piano.draw(pianoCanvas, state, state.pianoView);
+  Guitar.draw(fretboardCanvas, state);
+}
+
+/* Optional: trackpad/mouse wheel pan on the piano */
+if (pianoCanvas) {
+  pianoCanvas.addEventListener(
+    "wheel",
+    (e) => {
+      const horizontal = e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY);
+      const step = horizontal ? e.deltaX : e.deltaY;
+      if (Math.abs(step) < 1) return;
+      const deltaKeys = step > 0 ? 3 : -3;
+      state.pianoView.offset = clamp(
+        state.pianoView.offset + deltaKeys,
+        0,
+        TOTAL_KEYS - state.pianoView.keys,
+      );
+      Piano.draw(pianoCanvas, state, state.pianoView);
+      e.preventDefault();
+    },
+    { passive: false },
+  );
 }
 
 /* ---------- Readouts (prefix-aware) ---------- */
@@ -482,8 +532,8 @@ function updateReadouts() {
   activeNotes.textContent = JSON.stringify(notes);
 
   let kind = null; // "Chord" | "Note" | "Interval" | "Cluster" | null
-  let small = ""; // value only
-  let big = "";
+  let small = "",
+    big = "";
 
   if (notes.length) {
     const detail = detectChordDetail(
@@ -519,8 +569,7 @@ function updateReadouts() {
         big = fb;
       }
     }
-  } // else leave kind=null (blank)
-
+  }
   // Apply prefixes + texts
   setPrefix(smallPrefix, kind);
   setPrefix(bigPrefix, kind);
@@ -541,13 +590,21 @@ function updateReadouts() {
 (async function init() {
   await loadTheory();
   populateSelectors();
+  // center ~2 octaves around middle C (60)
+  state.pianoView.keys = 28;
+  state.pianoView.offset = clamp(
+    60 - 21 - Math.floor(state.pianoView.keys / 2),
+    0,
+    88 - state.pianoView.keys,
+  );
+
   setupMIDI();
   updateScaleMask();
 
   // Initialize the recorder (if script is present in HTML)
   if (window.Recorder) {
-    const statusEl = recStatusEl;
-    const saveBtn = saveTakesBtn;
+    const statusEl = recStatusEl,
+      saveBtn = saveTakesBtn;
     window.Recorder.init({ statusEl, saveBtn, silenceMs: 2500 });
   }
 })();
