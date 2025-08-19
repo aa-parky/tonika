@@ -590,8 +590,8 @@ function updateReadouts() {
 (async function init() {
   await loadTheory();
   populateSelectors();
-  // center ~2 octaves around middle C (60)
-  state.pianoView.keys = 28;
+  // center ~4.5 octaves around middle C (60)
+  state.pianoView.keys = 56;
   state.pianoView.offset = clamp(
     60 - 21 - Math.floor(state.pianoView.keys / 2),
     0,
