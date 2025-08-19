@@ -11,8 +11,8 @@
   const COL_OUT_W = "#444444";
   const COL_OUT_B = "#222222";
   const COL_SCALE = "#58d68d";
-  const COL_PRESSED = "#6aa0ff";
-  const COL_ROOT = "#f5b041";
+  const COL_PRESSED = "#1e3a8a";
+  const COL_ROOT = "#ff9200";
   const COL_LABEL = "#b9c1c9";
 
   // Helper functions
