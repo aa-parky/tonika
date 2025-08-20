@@ -82,60 +82,30 @@ function midiToNoteName(midi, preferFlats = false, withOctave = true) {
   return withOctave ? `${name}${oct}` : name;
 }
 
-/* ---------- Built‑in defaults (fallbacks) ---------- */
-const DEFAULT_SCALES = [
-  { name: "None (no scale)", intervals: null },
-  { name: "Major (Ionian)", intervals: [0, 2, 4, 5, 7, 9, 11] },
-  { name: "Natural Minor (Aeolian)", intervals: [0, 2, 3, 5, 7, 8, 10] },
-  { name: "Dorian", intervals: [0, 2, 3, 5, 7, 9, 10] },
-  { name: "Mixolydian", intervals: [0, 2, 4, 5, 7, 9, 10] },
-  { name: "Lydian", intervals: [0, 2, 4, 6, 7, 9, 11] },
-  { name: "Phrygian", intervals: [0, 1, 3, 5, 7, 8, 10] },
-  { name: "Locrian", intervals: [0, 1, 3, 5, 6, 8, 10] },
-  { name: "Pentatonic Major", intervals: [0, 2, 4, 7, 9] },
-  { name: "Pentatonic Minor", intervals: [0, 3, 5, 7, 10] },
-  { name: "Chromatic", intervals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
-];
-const DEFAULT_CHORDS = [
-  { name: "maj", intervals: [0, 4, 7] },
-  { name: "min", intervals: [0, 3, 7] },
-  { name: "dim", intervals: [0, 3, 6] },
-  { name: "aug", intervals: [0, 4, 8] },
-  { name: "sus2", intervals: [0, 2, 7] },
-  { name: "sus4", intervals: [0, 5, 7] },
-  { name: "7", intervals: [0, 4, 7, 10] },
-  { name: "maj7", intervals: [0, 4, 7, 11] },
-  { name: "m7", intervals: [0, 3, 7, 10] },
-  { name: "mMaj7", intervals: [0, 3, 7, 11] },
-  { name: "6", intervals: [0, 4, 7, 9] },
-  { name: "m6", intervals: [0, 3, 7, 9] },
-  { name: "add9", intervals: [0, 4, 7, 14] },
-  { name: "madd9", intervals: [0, 3, 7, 14] },
-  { name: "6/9", intervals: [0, 4, 7, 9, 14] },
-];
-
-/* ---------- Theory (loaded) ---------- */
-let THEORY = { scales: DEFAULT_SCALES, chords: DEFAULT_CHORDS };
+/* ---------- Theory (loaded from JSON files) ---------- */
+let THEORY = { scales: [], chords: [] };
 async function loadTheory() {
-  async function safeFetch(url) {
-    try {
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error(res.statusText);
-      return await res.json();
-    } catch (_e) {
-      return null;
-    }
-  }
-  const s = await safeFetch("theory/scales.json");
-  const c = await safeFetch("theory/chords.json");
-  if (s && Array.isArray(s.scales))
-    THEORY.scales = s.scales.filter(
+  try {
+    const [scalesRes, chordsRes] = await Promise.all([
+      fetch("theory/scales.json", { cache: "no-store" }),
+      fetch("theory/chords.json", { cache: "no-store" }),
+    ]);
+
+    const scalesData = await scalesRes.json();
+    const chordsData = await chordsRes.json();
+
+    THEORY.scales = scalesData.scales.filter(
       (x) => x && typeof x.name === "string" && "intervals" in x,
     );
-  if (c && Array.isArray(c.chords))
-    THEORY.chords = c.chords.filter(
+    THEORY.chords = chordsData.chords.filter(
       (x) => x && typeof x.name === "string" && Array.isArray(x.intervals),
     );
+  } catch (error) {
+    console.error("Failed to load theory data:", error);
+    // Provide minimal fallback
+    THEORY.scales = [{ name: "None (no scale)", intervals: null }];
+    THEORY.chords = [{ name: "maj", intervals: [0, 4, 7] }];
+  }
 }
 
 /* ---------- Rich chord detection ---------- */
@@ -310,6 +280,7 @@ const state = {
   scaleName: "None (no scale)",
   tuning: [40, 45, 50, 55, 59, 64],
   keyMask: 0,
+  bassNote: null, // MIDI number of the current bass note for inversion visualization
 
   /* Piano viewport (zoom): show ~2 octaves by default, centred near middle C (60) */
   pianoView: { offset: 0, keys: 28 }, // filled properly in init()
@@ -541,6 +512,12 @@ function updateReadouts() {
     );
     if (detail) {
       kind = "Chord";
+      // Set the bass note for inversion visualization
+      state.bassNote =
+        detail.bassPc !== undefined
+          ? notes.find((n) => pc(n) === detail.bassPc)
+          : notes[0];
+
       const numeral = romanForChord(
         detail.rootPc,
         detail.quality,
@@ -552,6 +529,8 @@ function updateReadouts() {
       small = detail.label;
       big = `${detail.label}${inv}${rn}`;
     } else {
+      // Clear bass note when no chord is detected
+      state.bassNote = null;
       const pcs = pcsFromNotes(new Set(notes));
       const bassPc = pc(notes[0]);
       const fb = fallbackLabelForSet(pcs, bassPc, state.keyPc, state.keyMask);
@@ -567,6 +546,9 @@ function updateReadouts() {
         big = fb;
       }
     }
+  } else {
+    // Clear bass note when no notes are being played
+    state.bassNote = null;
   }
   setPrefix(smallPrefix, kind);
   setPrefix(bigPrefix, kind);

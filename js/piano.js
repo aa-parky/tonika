@@ -189,6 +189,18 @@
         ctx.fillStyle = COL_PRESSED;
         ctx.fillRect(key.x, 0, key.width, H);
         ctx.globalAlpha = 1;
+
+        // Bass note border (orange border for bass notes in chords)
+        if (state.bassNote && key.midi === state.bassNote) {
+          ctx.strokeStyle = "#f5b041"; // Orange border
+          ctx.lineWidth = 4;
+          ctx.strokeRect(
+            Math.floor(key.x) + 2,
+            2,
+            Math.ceil(key.width) - 4,
+            H - 4,
+          );
+        }
       }
 
       // Border
@@ -251,6 +263,18 @@
         ctx.fillStyle = COL_PRESSED;
         ctx.fillRect(blackX, 0, blackW, blackH);
         ctx.globalAlpha = 1;
+
+        // Bass note border (orange border for bass notes in chords)
+        if (state.bassNote && midi === state.bassNote) {
+          ctx.strokeStyle = "#f5b041"; // Orange border
+          ctx.lineWidth = 3;
+          ctx.strokeRect(
+            Math.floor(blackX) + 1,
+            1,
+            Math.ceil(blackW) - 2,
+            blackH - 2,
+          );
+        }
       }
 
       // Border

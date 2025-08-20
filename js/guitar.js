@@ -71,6 +71,8 @@
         const inScale = state.keyMask && (state.keyMask & (1 << npc)) !== 0;
         const isRoot = state.keyMask && npc === state.keyPc;
         const isPressedPc = pressedPcs.has(npc);
+        const isBassNote = state.bassNote && m === state.bassNote;
+
         if (inScale || isPressedPc) {
           const x = sx(f),
             y = sy(s);
@@ -78,7 +80,16 @@
           ctx.arc(x, y, isPressedPc ? 7 : 5, 0, Math.PI * 2);
           ctx.fillStyle = isPressedPc ? "#6aa0ff" : "#58d68d";
           ctx.fill();
-          if (isRoot) {
+
+          // Bass note border (orange border for bass notes in chords)
+          if (isBassNote && isPressedPc) {
+            ctx.strokeStyle = "#f5b041"; // Orange border
+            ctx.lineWidth = 3;
+            ctx.stroke();
+          }
+
+          // Root note ring (existing logic, but only if not already showing bass border)
+          if (isRoot && !(isBassNote && isPressedPc)) {
             ctx.strokeStyle = "#f5b041";
             ctx.lineWidth = 2;
             ctx.stroke();
