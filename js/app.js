@@ -108,112 +108,269 @@ async function loadTheory() {
   }
 }
 
-/* ---------- Rich chord detection ---------- */
+/* ---------- Professional Jazz Chord Detection ---------- */
+
+/**
+ * Analyzes chord structure and returns jazz notation components
+ * @param {Set} intervalSet - Set of intervals in the chord
+ * @returns {object} - Chord structure analysis
+ */
+function analyzeChordStructure(intervalSet) {
+  const has = (interval) => intervalSet.has(pc(interval));
+
+  // Basic triad analysis
+  const hasMinor3 = has(3);
+  const hasMajor3 = has(4);
+  const hasDim5 = has(6);
+  const hasPerfect5 = has(7);
+  const hasAug5 = has(8);
+
+  // Seventh analysis
+  const hasMinor7 = has(10);
+  const hasMajor7 = has(11);
+  const hasDim7 = has(9);
+
+  // Extension analysis
+  const hasFlat9 = has(1);
+  const hasNatural9 = has(2);
+  const hasSharp9 = has(3) && hasMajor3; // #9 only if major 3rd present
+  const hasNatural11 = has(5);
+  const hasSharp11 = has(6) && hasPerfect5; // #11 only if perfect 5th present
+  const hasFlat13 = has(8) && hasPerfect5; // b13 only if perfect 5th present
+  const hasNatural13 = has(9);
+
+  let symbol = "";
+  let quality = "";
+  let extensions = [];
+  let alterations = [];
+
+  // Determine basic chord type
+  if (hasMinor3 && hasDim5 && hasDim7) {
+    // Diminished 7th
+    symbol = "dim7";
+    quality = "diminished";
+  } else if (hasMinor3 && hasDim5 && hasMinor7) {
+    // Half-diminished 7th
+    symbol = "m7b5";
+    quality = "half-diminished";
+  } else if (hasMinor3 && hasDim5) {
+    // Diminished triad
+    symbol = "dim";
+    quality = "diminished";
+  } else if (hasMajor3 && hasAug5) {
+    // Augmented
+    symbol = "aug";
+    quality = "augmented";
+    if (hasMinor7) {
+      symbol = "7#5";
+      quality = "dominant";
+    } else if (hasMajor7) {
+      symbol = "maj7#5";
+      quality = "major";
+    }
+  } else if (hasMinor3) {
+    // Minor chord family
+    quality = "minor";
+    if (hasMajor7) {
+      symbol = "mMaj7";
+    } else if (hasMinor7) {
+      symbol = "m7";
+    } else {
+      symbol = "m";
+    }
+  } else if (hasMajor3) {
+    // Major chord family
+    quality = "major";
+    if (hasMajor7) {
+      symbol = "maj7";
+    } else if (hasMinor7) {
+      symbol = "7";
+      quality = "dominant";
+    } else {
+      symbol = "";
+    }
+  } else {
+    // No third - power chord or sus chord
+    if (has(2)) {
+      symbol = "sus2";
+      quality = "suspended";
+    } else if (has(5)) {
+      symbol = "sus4";
+      quality = "suspended";
+    } else {
+      symbol = "5";
+      quality = "power";
+    }
+  }
+
+  // Determine highest extension for chord symbol
+  let highestExt = "";
+  if (hasNatural13 || hasFlat13) {
+    highestExt = "13";
+  } else if (hasNatural11 || hasSharp11) {
+    highestExt = "11";
+  } else if (hasNatural9 || hasFlat9 || hasSharp9) {
+    highestExt = "9";
+  }
+
+  // Apply jazz naming conventions
+  if (quality === "dominant" && highestExt) {
+    // For dominant chords, replace '7' with highest extension
+    symbol = highestExt;
+  } else if (quality === "major" && highestExt) {
+    // For major chords, add extension to maj7
+    if (symbol === "maj7") {
+      symbol = "maj" + highestExt;
+    }
+  } else if (quality === "minor" && highestExt) {
+    // For minor chords, add extension to m7
+    if (symbol === "m7") {
+      symbol = "m" + highestExt;
+    } else if (symbol === "mMaj7") {
+      symbol = "mMaj" + highestExt;
+    }
+  }
+
+  // Add alterations (only for chords with extensions)
+  if (highestExt) {
+    if (hasDim5 && quality === "dominant") alterations.push("b5");
+    if (hasSharp11 && quality === "dominant") alterations.push("#11");
+    if (hasFlat9) alterations.push("b9");
+    if (hasSharp9) alterations.push("#9");
+    if (hasFlat13) alterations.push("b13");
+  }
+
+  return {
+    symbol,
+    quality,
+    extensions,
+    alterations,
+  };
+}
+
+/**
+ * Determines the standard jazz notation name for a chord based on intervals
+ * @param {number} rootPc - Root note pitch class (0-11)
+ * @param {number[]} intervals - Array of intervals from root
+ * @param {number} bassPc - Bass note pitch class
+ * @param {boolean} preferFlats - Whether to use flat notation
+ * @returns {object} - {name: string, quality: string, extensions: string[]}
+ */
+function getStandardJazzName(rootPc, intervals, bassPc, preferFlats = false) {
+  const rootName = noteName(rootPc, preferFlats);
+  const bassName = noteName(bassPc, preferFlats);
+  const intervalSet = new Set(intervals.map((i) => pc(i)));
+
+  // Determine basic chord quality
+  const chordInfo = analyzeChordStructure(intervalSet);
+
+  // Build standard jazz name
+  let chordName = rootName + chordInfo.symbol;
+
+  // Add alterations
+  if (chordInfo.alterations.length > 0) {
+    chordName += "(" + chordInfo.alterations.join(",") + ")";
+  }
+
+  // Add slash bass if needed
+  if (bassPc !== rootPc) {
+    chordName += "/" + bassName;
+  }
+
+  return {
+    name: chordName,
+    quality: chordInfo.quality,
+    extensions: chordInfo.extensions,
+    alterations: chordInfo.alterations,
+  };
+}
+
+/**
+ * Enhanced chord detection with professional jazz notation
+ * Replaces the existing detectChordDetail function
+ */
 function detectChordDetail(activeMidiSet, keyPc, keyMask) {
   const midiNotes = [...activeMidiSet].sort((a, b) => a - b);
   if (!midiNotes.length) return null;
+
   const pcs = pcsFromNotes(activeMidiSet);
-  const bassMidi = midiNotes[0],
-    bassPc = pc(bassMidi);
+  const bassMidi = midiNotes[0];
+  const bassPc = pc(bassMidi);
 
-  let best = null;
+  // Try each note as potential root
+  let bestMatch = null;
+  let bestScore = -1;
+
   for (const rootCandidate of pcs) {
-    const relSet = transposeSet(pcs, rootCandidate);
-    for (const ch of THEORY.chords) {
-      const target = new Set(ch.intervals.map(pc));
-      const have = new Set(relSet);
-      const coverage = [...target].filter((t) => have.has(t)).length;
-      const minNeeded = Math.min(3, target.size);
-      if (coverage < minNeeded) continue;
+    const intervals = pcs
+      .map((p) => pc(p - rootCandidate))
+      .sort((a, b) => a - b);
 
-      const extras = [...have].filter((t) => !target.has(t));
-      const missing = [...target].filter((t) => !have.has(t));
+    // Score this root candidate
+    let score = 0;
 
-      let score = coverage * 10 - extras.length * 1.5 - missing.length * 2;
-      const relBass = pc(bassPc - rootCandidate);
-      const bassRank =
-        relBass === 0
-          ? 3
-          : relBass === 4 || relBass === 3
-            ? 2
-            : relBass === 7 || relBass === 6 || relBass === 8
-              ? 1
-              : 0;
-      score += bassRank;
-      if (keyMask && setHas(keyMask, rootCandidate)) score += 0.5;
+    // Prefer root position (bass note = root)
+    if (bassPc === rootCandidate) score += 10;
 
-      if (!best || score > best.score) {
-        best = {
-          score,
-          rootPc: rootCandidate,
-          baseName: ch.name,
-          relSet,
-          extras,
-          missing,
-          bassPc,
-        };
-      }
+    // Prefer notes in the current key
+    if (keyMask && setHas(keyMask, rootCandidate)) score += 5;
+
+    // Prefer common chord structures
+    const intervalSet = new Set(intervals);
+    if (intervalSet.has(0) && intervalSet.has(4) && intervalSet.has(7))
+      score += 8; // Major triad
+    if (intervalSet.has(0) && intervalSet.has(3) && intervalSet.has(7))
+      score += 8; // Minor triad
+    if (intervalSet.has(10) || intervalSet.has(11)) score += 3; // Has 7th
+    if (intervalSet.has(2)) score += 2; // Has 9th
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = {
+        rootPc: rootCandidate,
+        intervals: intervals,
+        bassPc: bassPc,
+        pcs: pcs,
+      };
     }
   }
-  if (!best) return null;
 
-  const relBass = pc(best.bassPc - best.rootPc);
-  const has3 = best.relSet.includes(3) || best.relSet.includes(4);
-  const has5 =
-    best.relSet.includes(7) ||
-    best.relSet.includes(6) ||
-    best.relSet.includes(8);
-  const has7 = best.relSet.includes(10) || best.relSet.includes(11);
+  if (!bestMatch) return null;
 
-  let inversion = "slash";
-  if (relBass === 0) inversion = "root";
-  else if (has3 && (relBass === 3 || relBass === 4)) inversion = "1st";
-  else if (has5 && (relBass === 7 || relBass === 6 || relBass === 8))
-    inversion = "2nd";
-  else if (has7 && (relBass === 10 || relBass === 11)) inversion = "3rd";
-
-  const EXT_MAP = [
-    { name: "b9", pc: 1 },
-    { name: "9", pc: 2 },
-    { name: "#9", pc: 3 },
-    { name: "11", pc: 5 },
-    { name: "#11", pc: 6 },
-    { name: "b13", pc: 8 },
-    { name: "13", pc: 9 },
-  ];
-  const extNames = EXT_MAP.filter((e) => best.relSet.includes(e.pc)).map(
-    (e) => e.name,
+  // Generate jazz notation name
+  const preferFlats = keyMask ? preferFlatsForKey(keyPc) : false;
+  const jazzName = getStandardJazzName(
+    bestMatch.rootPc,
+    bestMatch.intervals,
+    bestMatch.bassPc,
+    preferFlats,
   );
 
-  const flats = preferFlatsForKey(keyPc);
-  const rootName = noteName(best.rootPc, flats);
-  const bassName = noteName(best.bassPc, flats);
+  // Determine inversion
+  const relBass = pc(bestMatch.bassPc - bestMatch.rootPc);
+  let inversion = null;
+  if (relBass !== 0) {
+    const intervalSet = new Set(bestMatch.intervals);
+    if (relBass === 3 || relBass === 4) inversion = "1st inv";
+    else if (relBass === 7 || relBass === 6 || relBass === 8)
+      inversion = "2nd inv";
+    else if (relBass === 10 || relBass === 11) inversion = "3rd inv";
+    else inversion = "slash bass";
+  }
 
-  let quality = best.baseName;
-  if (extNames.length) quality += " " + extNames.join(",");
-
-  const label =
-    inversion === "root"
-      ? `${rootName} ${quality}`
-      : `${rootName} ${quality}/${bassName}`;
-  const invPretty =
-    inversion === "root"
-      ? null
-      : inversion === "1st"
-        ? "1st inv"
-        : inversion === "2nd"
-          ? "2nd inv"
-          : inversion === "3rd"
-            ? "3rd inv"
-            : "slash bass";
+  // Generate Roman numeral if in key (future enhancement)
+  // const numeral = romanForChord(bestMatch.rootPc, jazzName.quality, keyPc, keyMask);
 
   return {
-    label: label.trim(),
-    rootPc: best.rootPc,
-    bassPc: best.bassPc,
-    inversion: invPretty,
-    quality,
-    pcs,
+    label: jazzName.name,
+    rootPc: bestMatch.rootPc,
+    bassPc: bestMatch.bassPc,
+    inversion: inversion,
+    quality: jazzName.quality,
+    pcs: bestMatch.pcs,
+    extensions: jazzName.extensions,
+    alterations: jazzName.alterations,
+    // roman: numeral
   };
 }
 
