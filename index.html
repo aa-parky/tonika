@@ -9,6 +9,7 @@
     <script defer src="js/guitar.js"></script>
     <script defer src="js/recorder.js"></script>
     <script defer src="js/takes.js"></script>
+    <script defer src="js/theory-analysis.js"></script>
     <script defer src="js/app.js"></script>
   </head>
   <body>
@@ -95,6 +96,30 @@
           <div class="big-chord">
             <span id="bigPrefix" class="label"></span>
             <span id="bigChordName" class="name"></span>
+          </div>
+
+          <!-- Theory Analysis Display -->
+          <div id="theory-analysis" class="theory-analysis hidden">
+            <div class="theory-item">
+              <span class="theory-label">Roman</span>
+              <span class="theory-value roman" id="roman-numeral">-</span>
+            </div>
+            <div class="theory-item">
+              <span class="theory-label">Function</span>
+              <span class="theory-value function" id="chord-function">-</span>
+            </div>
+            <div class="theory-item">
+              <span class="theory-label">Tensions</span>
+              <span class="theory-value tensions" id="available-tensions"
+                >-</span
+              >
+            </div>
+            <div class="theory-item">
+              <span class="theory-label">Progression</span>
+              <span class="theory-value progression" id="progression-pattern"
+                >-</span
+              >
+            </div>
           </div>
         </div>
 

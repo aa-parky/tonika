@@ -248,3 +248,159 @@ footer {
 .settings-form .buttons {
   text-align: right;
 }
+/* =========================
+   Theory Analysis Styles
+   Add these styles to your existing styles.css
+   ========================= */
+
+/* Theory Analysis Container */
+.theory-analysis {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 14px;
+  gap: 16px;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Individual Theory Items */
+.theory-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0; /* Allows flex items to shrink */
+}
+
+/* Theory Labels */
+.theory-label {
+  font-size: 10px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* Theory Values */
+.theory-value {
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  word-wrap: break-word;
+}
+
+/* Color Coding for Different Theory Elements */
+.roman {
+  color: #4caf50; /* Green - structural foundation */
+}
+
+.function {
+  color: #2196f3; /* Blue - functional purpose */
+}
+
+.tensions {
+  color: #ff9800; /* Orange - colorful extensions */
+}
+
+.progression {
+  color: #9c27b0; /* Purple - pattern recognition */
+}
+
+/* Hidden State */
+.theory-analysis.hidden {
+  display: none;
+}
+
+/* Hover Effects */
+.theory-item:hover .theory-value {
+  opacity: 0.8;
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Animation for Updates */
+.theory-value.updated {
+  animation: highlight 0.5s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .theory-analysis {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .theory-item {
+    flex: 0 0 48%;
+    min-width: 120px;
+  }
+
+  .theory-value {
+    font-size: 12px;
+  }
+
+  .theory-label {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 480px) {
+  .theory-analysis {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .theory-item {
+    flex: none;
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .theory-label {
+    text-align: left;
+  }
+
+  .theory-value {
+    text-align: right;
+  }
+}
+
+/* Dark Theme Adjustments (if your app has dark theme) */
+@media (prefers-color-scheme: dark) {
+  .theory-analysis {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Light Theme Adjustments (if your app has light theme) */
+@media (prefers-color-scheme: light) {
+  .theory-analysis {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .theory-label {
+    opacity: 0.7;
+  }
+}

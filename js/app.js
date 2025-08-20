@@ -429,6 +429,80 @@ function romanForChord(rootPc, quality, keyPc, keyMask) {
   return decorate(base, quality);
 }
 
+/* ---------- Theory Analysis Functions ---------- */
+
+/**
+ * Update the theory analysis display
+ */
+function updateTheoryAnalysis(chordResult, keyPc, keyMask) {
+  const theoryContainer = document.getElementById("theory-analysis");
+
+  if (!chordResult || keyPc === undefined) {
+    // Hide theory analysis when no chord is detected
+    if (theoryContainer) {
+      theoryContainer.classList.add("hidden");
+    }
+    return;
+  }
+
+  try {
+    // Call the theory analysis engine (if available)
+    if (window.TheoryAnalysis) {
+      const theoryData = window.TheoryAnalysis.analyze(
+        chordResult,
+        keyPc,
+        keyMask,
+      );
+
+      // Update Roman numeral
+      const romanElement = document.getElementById("roman-numeral");
+      updateTheoryElement(romanElement, theoryData.roman || "-");
+
+      // Update chord function
+      const functionElement = document.getElementById("chord-function");
+      updateTheoryElement(functionElement, theoryData.function || "-");
+
+      // Update available tensions
+      const tensionsElement = document.getElementById("available-tensions");
+      const tensionsText =
+        theoryData.tensions.length > 0 ? theoryData.tensions.join(",") : "-";
+      updateTheoryElement(tensionsElement, tensionsText);
+
+      // Update progression (Phase 2 feature - placeholder for now)
+      const progressionElement = document.getElementById("progression-pattern");
+      updateTheoryElement(progressionElement, theoryData.progression || "-");
+
+      // Show the theory analysis container
+      if (theoryContainer) {
+        theoryContainer.classList.remove("hidden");
+      }
+    }
+  } catch (error) {
+    console.error("Theory analysis error:", error);
+    if (theoryContainer) {
+      theoryContainer.classList.add("hidden");
+    }
+  }
+}
+
+/**
+ * Helper function to update theory elements with animation
+ */
+function updateTheoryElement(element, newValue) {
+  if (!element) return;
+
+  const currentValue = element.textContent;
+  if (currentValue !== newValue) {
+    element.textContent = newValue;
+
+    // Add update animation
+    element.classList.add("updated");
+    setTimeout(() => {
+      element.classList.remove("updated");
+    }, 500);
+  }
+}
+
 /* ---------- State ---------- */
 const state = {
   down: new Map(),
@@ -534,6 +608,17 @@ function updateScaleMask() {
   }
   Piano.draw(pianoCanvas, state, state.pianoView);
   Guitar.draw(fretboardCanvas, state);
+
+  // Update theory analysis when key/scale changes
+  const notes = [...state.down.keys()];
+  if (notes.length > 0) {
+    const chordResult = detectChordDetail(
+      new Set(notes),
+      state.keyPc,
+      state.keyMask,
+    );
+    updateTheoryAnalysis(chordResult, state.keyPc, state.keyMask);
+  }
 }
 
 /* ---------- View switching ---------- */
@@ -685,6 +770,9 @@ function updateReadouts() {
       const rn = numeral ? ` — ${numeral}` : "";
       small = detail.label;
       big = `${detail.label}${inv}${rn}`;
+
+      // Update theory analysis
+      updateTheoryAnalysis(detail, state.keyPc, state.keyMask);
     } else {
       // Clear bass note when no chord is detected
       state.bassNote = null;
@@ -702,10 +790,16 @@ function updateReadouts() {
         small = fb;
         big = fb;
       }
+
+      // Hide theory analysis for non-chord content
+      updateTheoryAnalysis(null, state.keyPc, state.keyMask);
     }
   } else {
     // Clear bass note when no notes are being played
     state.bassNote = null;
+
+    // Hide theory analysis when no notes are playing
+    updateTheoryAnalysis(null, state.keyPc, state.keyMask);
   }
   setPrefix(smallPrefix, kind);
   setPrefix(bigPrefix, kind);
@@ -748,6 +842,33 @@ function wireSettings() {
   }
 }
 
+/* ---------- Debugging Helper ---------- */
+function debugTheoryAnalysis() {
+  console.log("=== Theory Analysis Debug ===");
+  console.log("Current key PC:", state.keyPc);
+  console.log("Current key mask:", state.keyMask);
+  console.log("Active MIDI notes:", [...state.down.keys()]);
+
+  const notes = [...state.down.keys()];
+  if (notes.length > 0) {
+    const chordResult = detectChordDetail(
+      new Set(notes),
+      state.keyPc,
+      state.keyMask,
+    );
+    console.log("Chord result:", chordResult);
+
+    if (chordResult && window.TheoryAnalysis) {
+      const theoryData = window.TheoryAnalysis.analyze(
+        chordResult,
+        state.keyPc,
+        state.keyMask,
+      );
+      console.log("Theory analysis:", theoryData);
+    }
+  }
+}
+
 /* ---------- Init ---------- */
 (async function init() {
   await loadTheory();
@@ -774,5 +895,11 @@ function wireSettings() {
     const statusEl = recStatusEl,
       saveBtn = saveTakesBtn;
     window.Recorder.init({ statusEl, saveBtn, silenceMs: 2500 });
+  }
+
+  // Initialize theory analysis display as hidden
+  const theoryContainer = document.getElementById("theory-analysis");
+  if (theoryContainer) {
+    theoryContainer.classList.add("hidden");
   }
 })();
