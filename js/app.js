@@ -126,8 +126,8 @@ async function loadTheory() {
       return null;
     }
   }
-  const s = await safeFetch("scales.json");
-  const c = await safeFetch("chords.json");
+  const s = await safeFetch("theory/scales.json");
+  const c = await safeFetch("theory/chords.json");
   if (s && Array.isArray(s.scales))
     THEORY.scales = s.scales.filter(
       (x) => x && typeof x.name === "string" && "intervals" in x,
