@@ -7,6 +7,7 @@
   --ok: #58d68d;
   --warn: #f5b041;
   --bad: #ec7063;
+  --bigChordScale: 1;
 }
 
 /* base */
@@ -146,7 +147,7 @@ footer {
   background: var(--panel);
   border-radius: 10px;
   padding: 14px 16px;
-  font-size: clamp(28px, 6vw, 96px);
+  font-size: calc(clamp(28px, 6vw, 96px) * var(--bigChordScale));
   line-height: 1.1;
 }
 .big-chord .label {
@@ -203,21 +204,6 @@ footer {
   gap: 8px;
 }
 
-:root {
-  /* ...existing vars... */
-  --bigChordScale: 1;
-}
-
-/* big chord line */
-.big-chord {
-  margin-top: 12px;
-  background: var(--panel);
-  border-radius: 10px;
-  padding: 14px 16px;
-  font-size: calc(clamp(28px, 6vw, 96px) * var(--bigChordScale));
-  line-height: 1.1;
-}
-
 /* settings dialog */
 #settingsDialog {
   border: 1px solid #333;
@@ -248,22 +234,21 @@ footer {
 .settings-form .buttons {
   text-align: right;
 }
+
 /* =========================
-   Theory Analysis Styles
-   Add these styles to your existing styles.css
+   FIXED Theory Analysis Styles - Single Clean Version
    ========================= */
 
-/* Theory Analysis Container */
+/* Theory Analysis Container - GRID LAYOUT */
 .theory-analysis {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
   padding: 12px;
   margin-top: 12px;
   font-size: 14px;
-  gap: 16px;
   transition: all 0.3s ease-in-out;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -274,7 +259,6 @@ footer {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  flex: 1;
   min-width: 0; /* Allows flex items to shrink */
 }
 
@@ -287,130 +271,56 @@ footer {
   font-weight: 500;
 }
 
-/* Theory Values */
+/* Theory Values with FIXED Tooltip Support */
 .theory-value {
   font-weight: 500;
   font-size: 14px;
   text-align: center;
   word-wrap: break-word;
-}
-
-/* Color Coding for Different Theory Elements */
-.roman {
-  color: #4caf50; /* Green - structural foundation */
-}
-
-.function {
-  color: #2196f3; /* Blue - functional purpose */
-}
-
-.tensions {
-  color: #ff9800; /* Orange - colorful extensions */
-}
-
-.progression {
-  color: #9c27b0; /* Purple - pattern recognition */
-}
-
-/* Hidden State */
-.theory-analysis.hidden {
-  display: none;
-}
-
-/* Hover Effects */
-.theory-item:hover .theory-value {
-  opacity: 0.8;
-  transform: scale(1.05);
+  cursor: help;
+  position: relative;
+  padding: 2px 4px;
+  border-radius: 3px;
   transition: all 0.2s ease-in-out;
 }
 
-/* Animation for Updates */
-.theory-value.updated {
-  animation: highlight 0.5s ease-in-out;
+/* FIXED Tooltip Styles - Properly Positioned */
+.theory-value[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: normal;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  max-width: 200px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
 }
 
-@keyframes highlight {
-  0% {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-  }
-  100% {
-    background: transparent;
-  }
+.theory-value[title]:hover::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  pointer-events: none;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .theory-analysis {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px;
-  }
-
-  .theory-item {
-    flex: 0 0 48%;
-    min-width: 120px;
-  }
-
-  .theory-value {
-    font-size: 12px;
-  }
-
-  .theory-label {
-    font-size: 9px;
-  }
-}
-
-@media (max-width: 480px) {
-  .theory-analysis {
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px;
-  }
-
-  .theory-item {
-    flex: none;
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .theory-label {
-    text-align: left;
-  }
-
-  .theory-value {
-    text-align: right;
-  }
-}
-
-/* Dark Theme Adjustments (if your app has dark theme) */
-@media (prefers-color-scheme: dark) {
-  .theory-analysis {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-}
-
-/* Light Theme Adjustments (if your app has light theme) */
-@media (prefers-color-scheme: light) {
-  .theory-analysis {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: rgba(0, 0, 0, 0.1);
-  }
-
-  .theory-label {
-    opacity: 0.7;
-  }
-}
-/* =========================
-   Theory Descriptions Enhancement CSS
-   Add these styles to your existing styles.css
-   ========================= */
-
-/* Theory Description Area */
+/* Theory Description Area - FIXED */
 .theory-description {
+  grid-column: 1 / -1; /* Span full width of theory analysis grid */
   margin-top: 8px;
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.03);
@@ -420,7 +330,6 @@ footer {
   line-height: 1.4;
   transition: all 0.3s ease-in-out;
   border-left: 2px solid rgba(255, 255, 255, 0.1);
-  grid-column: 1 / -1; /* Span full width of theory analysis grid */
 }
 
 .theory-description.hidden {
@@ -455,80 +364,11 @@ footer {
   user-select: none;
 }
 
-/* Enhanced Theory Analysis Grid */
-.theory-analysis {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 12px;
-  font-size: 14px;
-  transition: all 0.3s ease-in-out;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Individual Theory Items */
-.theory-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 0; /* Allows flex items to shrink */
-}
-
-/* Theory Labels */
-.theory-label {
-  font-size: 10px;
-  opacity: 0.6;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-/* Theory Values with Tooltip Support */
-.theory-value {
-  font-weight: 500;
-  font-size: 14px;
-  text-align: center;
-  word-wrap: break-word;
-  cursor: help;
-  position: relative;
-  padding: 2px 4px;
-  border-radius: 3px;
-  transition: all 0.2s ease-in-out;
-}
-
-/* Tooltip Styles */
-.theory-value[title]:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.9);
-  color: white;
-  padding: 6px 8px;
+.settings-toggle:hover {
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 4px;
-  font-size: 11px;
-  font-weight: normal;
-  white-space: nowrap;
-  z-index: 1000;
-  pointer-events: none;
-  margin-bottom: 4px;
-}
-
-.theory-value[title]:hover::before {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 4px solid transparent;
-  border-top-color: rgba(0, 0, 0, 0.9);
-  z-index: 1000;
-  pointer-events: none;
+  margin: 12px -4px;
+  padding: 8px 4px;
 }
 
 /* Color Coding for Different Theory Elements */
@@ -599,6 +439,11 @@ footer {
     font-size: 11px;
     padding: 6px 8px;
   }
+
+  .theory-value[title]:hover::after {
+    max-width: 150px;
+    font-size: 10px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -628,7 +473,7 @@ footer {
   }
 }
 
-/* Dark Theme Adjustments (if your app has dark theme) */
+/* Dark Theme Adjustments */
 @media (prefers-color-scheme: dark) {
   .theory-analysis {
     background: rgba(255, 255, 255, 0.08);
@@ -641,7 +486,7 @@ footer {
   }
 }
 
-/* Light Theme Adjustments (if your app has light theme) */
+/* Light Theme Adjustments */
 @media (prefers-color-scheme: light) {
   .theory-analysis {
     background: rgba(0, 0, 0, 0.05);
@@ -664,24 +509,4 @@ footer {
   .theory-value[title]:hover::before {
     border-top-color: rgba(0, 0, 0, 0.8);
   }
-}
-
-/* Settings Form Enhancements */
-.settings-form {
-  min-width: 300px;
-}
-
-.settings-form .row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 12px 0;
-  gap: 12px;
-}
-
-.settings-toggle:hover {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 4px;
-  margin: 12px -4px;
-  padding: 8px 4px;
 }

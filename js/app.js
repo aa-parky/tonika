@@ -104,10 +104,11 @@ async function loadTheory() {
       (x) => x && typeof x.name === "string" && Array.isArray(x.intervals),
     );
 
-    // Load function descriptions if available
+    // FIXED: Load function descriptions from the correct path in JSON
     if (functionsRes) {
       const functionsData = await functionsRes.json();
-      FUNCTION_DESCRIPTIONS = functionsData.functions || {};
+      FUNCTION_DESCRIPTIONS = functionsData.descriptions || {}; // Changed from .functions to .descriptions
+      console.log("Loaded function descriptions:", FUNCTION_DESCRIPTIONS); // Debug log
     }
   } catch (error) {
     console.error("Failed to load theory data:", error);
