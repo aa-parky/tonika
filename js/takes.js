@@ -34,29 +34,45 @@
       return;
     }
 
+    // Get sort preference
+    const sortSelect = document.getElementById("takesSortSelect");
+    const sortOrder = sortSelect ? sortSelect.value : getSortPreference();
+
+    // Sort takes based on preference
+    const sortedTakes = [...takes].sort((a, b) => {
+      if (sortOrder === "oldest") {
+        return a.startedAt - b.startedAt; // Oldest first
+      } else {
+        return b.startedAt - a.startedAt; // Newest first (default)
+      }
+    });
+
     const ol = document.createElement("ol");
     ol.className = "takes-list";
-    takes.forEach((t, i) => {
+    sortedTakes.forEach((t, originalIndex) => {
+      // Find the original index in the unsorted array for proper deletion
+      const actualIndex = takes.indexOf(t);
+
       const li = document.createElement("li");
 
       const left = document.createElement("div");
       left.className = "take-left";
       left.innerHTML = `
-		<div class="take-name">tonika_take_${fmtStamp(t)}</div>
-		<div class="small">Duration: ${fmtDuration(t.durationMs)} • Events: ${t.events.length}</div>
-	  `;
+    <div class="take-name">tonika_take_${fmtStamp(t)}</div>
+    <div class="small">Duration: ${fmtDuration(t.durationMs)} • Events: ${t.events.length}</div>
+    `;
 
       const right = document.createElement("div");
       right.className = "take-actions";
       const btnExport = document.createElement("button");
       btnExport.className = "btn small";
       btnExport.textContent = "Export";
-      btnExport.onclick = () => Recorder.exportTake(i);
+      btnExport.onclick = () => Recorder.exportTake(actualIndex);
 
       const btnDelete = document.createElement("button");
       btnDelete.className = "btn small";
       btnDelete.textContent = "Delete";
-      btnDelete.onclick = () => Recorder.deleteTake(i);
+      btnDelete.onclick = () => Recorder.deleteTake(actualIndex);
 
       right.append(btnExport, btnDelete);
       li.append(left, right);
@@ -66,36 +82,59 @@
     container.appendChild(ol);
   }
 
-  function buildPanel() {
-    const pianoCard = document.getElementById("pianoCard");
-    if (!pianoCard) return null;
+  function getSortPreference() {
+    return localStorage.getItem("tonika-takes-sort") || "newest";
+  }
 
-    let takesCard = document.getElementById("takesCard");
-    if (!takesCard) {
-      takesCard = document.createElement("div");
-      takesCard.className = "card";
-      takesCard.id = "takesCard";
-      takesCard.innerHTML = `
-		<div class="stat">
-		  <div class="title">Takes</div>
-		  <div class="stat-right">
-			<div class="small">Auto-captured this session</div>
-			<button id="clearTakesBtn" class="btn small">Clear all</button>
-		  </div>
-		</div>
-		<div id="takesPanel"></div>
-	  `;
-      pianoCard.parentElement.insertBefore(takesCard, pianoCard.nextSibling);
+  function setSortPreference(sortOrder) {
+    localStorage.setItem("tonika-takes-sort", sortOrder);
+  }
+
+  function initializeSortControl() {
+    const sortSelect = document.getElementById("takesSortSelect");
+    if (!sortSelect) return;
+
+    // Restore saved sort preference
+    const savedSort = getSortPreference();
+    sortSelect.value = savedSort;
+
+    // Add event listener for sort changes
+    sortSelect.addEventListener("change", () => {
+      const newSort = sortSelect.value;
+      setSortPreference(newSort);
+
+      // Re-render the list with new sort order
+      const takesPanel = document.getElementById("takesPanel");
+      if (takesPanel) {
+        renderList(takesPanel);
+      }
+    });
+  }
+
+  function buildPanel() {
+    // Use the existing takesPanel in the tab structure
+    const takesPanel = document.getElementById("takesPanel");
+    const clearBtn = document.getElementById("clearTakesBtn");
+
+    if (!takesPanel) {
+      console.warn(
+        "takesPanel not found - tab structure may not be loaded yet",
+      );
+      return null;
     }
+
     return {
-      panel: document.getElementById("takesPanel"),
-      clearBtn: document.getElementById("clearTakesBtn"),
+      panel: takesPanel,
+      clearBtn: clearBtn,
     };
   }
 
   ready(() => {
     const ui = buildPanel();
     if (!ui || !ui.panel) return;
+
+    // Initialize sort control
+    initializeSortControl();
 
     // Initial render (also catches restored takes from storage)
     renderList(ui.panel);

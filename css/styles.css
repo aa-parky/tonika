@@ -473,6 +473,188 @@ footer {
   }
 }
 
+/* ===== TAB SYSTEM ===== */
+.supporting-area {
+  margin-top: 10px;
+}
+
+.tab-header {
+  display: flex;
+  border-bottom: 1px solid #333;
+  margin-bottom: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tab-btn:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(106, 160, 255, 0.1);
+}
+
+.tab-content {
+  min-height: 200px;
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.tab-panel {
+  display: none;
+  height: 100%;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.tab-scroll {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 10px 0;
+}
+
+.tab-scroll h4 {
+  color: var(--accent);
+  margin: 16px 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tab-scroll h4:first-child {
+  margin-top: 0;
+}
+
+.tab-scroll p {
+  margin: 8px 0;
+  line-height: 1.5;
+  color: var(--ink);
+  opacity: 0.9;
+}
+
+.tab-scroll ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.tab-scroll li {
+  margin: 6px 0;
+  line-height: 1.4;
+  color: var(--ink);
+  opacity: 0.9;
+}
+
+.tab-scroll li strong {
+  color: var(--accent);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 8px 0;
+}
+
+.settings-row span:first-child {
+  min-width: 120px;
+  color: var(--ink);
+}
+
+.settings-row input[type="range"] {
+  flex: 1;
+  margin: 0 8px;
+}
+
+.settings-row .value {
+  min-width: 50px;
+  text-align: right;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Custom scrollbar for tab content */
+.tab-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tab-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.tab-scroll::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.tab-scroll::-webkit-scrollbar-thumb:hover {
+  background: #5a8fff;
+}
+
+/* Sort control styling */
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 8px;
+}
+
+.small-select {
+  background: #222;
+  color: var(--ink);
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 11px;
+  min-width: 100px;
+}
+
+.small-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Responsive adjustments for tabs */
+@media (max-width: 768px) {
+  .tab-header {
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .tab-content {
+    max-height: 250px;
+  }
+
+  .tab-scroll {
+    max-height: 190px;
+  }
+}
+
 /* Dark Theme Adjustments */
 @media (prefers-color-scheme: dark) {
   .theory-analysis {

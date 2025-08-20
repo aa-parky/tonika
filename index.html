@@ -10,6 +10,7 @@
     <script defer src="js/recorder.js"></script>
     <script defer src="js/takes.js"></script>
     <script defer src="js/theory-analysis.js"></script>
+    <script defer src="js/tabs.js"></script>
     <script defer src="js/app.js"></script>
   </head>
   <body>
@@ -151,6 +152,178 @@
             <div class="small">24 frets</div>
           </div>
           <canvas id="fretboard" width="1100" height="280"></canvas>
+        </div>
+      </div>
+
+      <!-- Supporting Area with Tabs -->
+      <div class="card supporting-area">
+        <div class="tab-header">
+          <button class="tab-btn active" data-tab="takes">Takes</button>
+          <button class="tab-btn" data-tab="theory">Theory</button>
+          <button class="tab-btn" data-tab="scales">Scales</button>
+          <button class="tab-btn" data-tab="progressions">Progressions</button>
+          <button class="tab-btn" data-tab="settings">Settings</button>
+        </div>
+
+        <div class="tab-content">
+          <!-- Takes Tab -->
+          <div class="tab-panel active" id="tab-takes">
+            <div class="stat">
+              <div class="title">Takes</div>
+              <div class="stat-right">
+                <div class="small">Auto-captured this session</div>
+                <label class="sort-control">
+                  Sort:
+                  <select id="takesSortSelect" class="small-select">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+                </label>
+                <button id="clearTakesBtn" class="btn small">Clear all</button>
+              </div>
+            </div>
+            <div class="tab-scroll">
+              <div id="takesPanel"></div>
+            </div>
+          </div>
+
+          <!-- Theory Tab -->
+          <div class="tab-panel" id="tab-theory">
+            <div class="stat">
+              <div class="title">Theory Reference</div>
+            </div>
+            <div class="tab-scroll">
+              <h4>Chord Functions</h4>
+              <p>
+                Tonic chords provide stability and rest. Dominant chords create
+                tension that wants to resolve. Subdominant chords provide motion
+                away from tonic.
+              </p>
+
+              <h4>Roman Numeral Analysis</h4>
+              <p>
+                Roman numerals show the relationship of chords to the key
+                center. Uppercase numerals indicate major chords, lowercase
+                indicate minor chords.
+              </p>
+
+              <h4>Available Tensions</h4>
+              <p>
+                Extensions like 9th, 11th, and 13th can be added to chords to
+                create more sophisticated harmonies. Some tensions may clash and
+                should be avoided.
+              </p>
+            </div>
+          </div>
+
+          <!-- Scales Tab -->
+          <div class="tab-panel" id="tab-scales">
+            <div class="stat">
+              <div class="title">Scale Reference</div>
+            </div>
+            <div class="tab-scroll">
+              <h4>Major Scale Modes</h4>
+              <ul>
+                <li><strong>Ionian (Major):</strong> Bright, happy sound</li>
+                <li><strong>Dorian:</strong> Minor with raised 6th</li>
+                <li><strong>Phrygian:</strong> Minor with flat 2nd</li>
+                <li><strong>Lydian:</strong> Major with raised 4th</li>
+                <li><strong>Mixolydian:</strong> Major with flat 7th</li>
+                <li>
+                  <strong>Aeolian (Natural Minor):</strong> Dark, sad sound
+                </li>
+                <li><strong>Locrian:</strong> Diminished, unstable</li>
+              </ul>
+
+              <h4>Pentatonic Scales</h4>
+              <ul>
+                <li>
+                  <strong>Major Pentatonic:</strong> 1-2-3-5-6, great for
+                  melodies
+                </li>
+                <li>
+                  <strong>Minor Pentatonic:</strong> 1-b3-4-5-b7, blues and rock
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Progressions Tab -->
+          <div class="tab-panel" id="tab-progressions">
+            <div class="stat">
+              <div class="title">Common Progressions</div>
+            </div>
+            <div class="tab-scroll">
+              <h4>Jazz Progressions</h4>
+              <ul>
+                <li>
+                  <strong>ii-V-I:</strong> The most common jazz progression
+                </li>
+                <li>
+                  <strong>vi-ii-V-I:</strong> Extended ii-V-I with relative
+                  minor
+                </li>
+                <li>
+                  <strong>I-vi-ii-V:</strong> Circle of fifths progression
+                </li>
+              </ul>
+
+              <h4>Pop Progressions</h4>
+              <ul>
+                <li><strong>I-V-vi-IV:</strong> Very popular in pop music</li>
+                <li><strong>vi-IV-I-V:</strong> Alternative ordering</li>
+                <li><strong>I-vi-IV-V:</strong> Classic 50s progression</li>
+              </ul>
+
+              <h4>Blues Progressions</h4>
+              <ul>
+                <li>
+                  <strong>12-bar Blues:</strong> I-I-I-I-IV-IV-I-I-V-IV-I-V
+                </li>
+                <li><strong>8-bar Blues:</strong> Shorter form</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Settings Tab -->
+          <div class="tab-panel" id="tab-settings">
+            <div class="stat">
+              <div class="title">Application Settings</div>
+            </div>
+            <div class="tab-scroll">
+              <h4>Display Options</h4>
+              <label class="settings-row">
+                <span>Big chord size</span>
+                <input
+                  id="bigChordScaleTab"
+                  type="range"
+                  min="0.6"
+                  max="1.6"
+                  step="0.05"
+                  value="1"
+                />
+                <span id="bigChordScaleTabVal" class="value">100%</span>
+              </label>
+
+              <label class="settings-toggle">
+                <input id="showTheoryExplanationsTab" type="checkbox" />
+                <span>Show theory explanations</span>
+              </label>
+
+              <h4>MIDI Settings</h4>
+              <p>
+                Select your MIDI input device from the dropdown in the top menu
+                bar. For VPC1 users, select the IAC Driver.
+              </p>
+
+              <h4>Keyboard Shortcuts</h4>
+              <ul>
+                <li><strong>Space:</strong> Start/stop recording</li>
+                <li><strong>Tab:</strong> Switch between tabs</li>
+                <li><strong>Esc:</strong> Clear current chord</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
