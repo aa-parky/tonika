@@ -201,6 +201,18 @@
             H - 4,
           );
         }
+
+        // Root note ring (orange ring for root notes)
+        if (state.keyMask && n === state.keyPc) {
+          ctx.strokeStyle = "#f5b041"; // Orange ring
+          ctx.lineWidth = 3;
+          ctx.strokeRect(
+            Math.floor(key.x) + 6,
+            6,
+            Math.ceil(key.width) - 12,
+            H - 12,
+          );
+        }
       }
 
       // Border
@@ -273,6 +285,18 @@
             1,
             Math.ceil(blackW) - 2,
             blackH - 2,
+          );
+        }
+
+        // Root note ring (orange ring for root notes)
+        if (state.keyMask && n === state.keyPc) {
+          ctx.strokeStyle = "#f5b041"; // Orange ring
+          ctx.lineWidth = 2;
+          ctx.strokeRect(
+            Math.floor(blackX) + 3,
+            3,
+            Math.ceil(blackW) - 6,
+            blackH - 6,
           );
         }
       }
