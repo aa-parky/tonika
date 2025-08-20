@@ -404,3 +404,284 @@ footer {
     opacity: 0.7;
   }
 }
+/* =========================
+   Theory Descriptions Enhancement CSS
+   Add these styles to your existing styles.css
+   ========================= */
+
+/* Theory Description Area */
+.theory-description {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.4;
+  transition: all 0.3s ease-in-out;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  grid-column: 1 / -1; /* Span full width of theory analysis grid */
+}
+
+.theory-description.hidden {
+  display: none;
+}
+
+.description-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-style: italic;
+}
+
+/* Settings Toggle Styling */
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4caf50;
+  cursor: pointer;
+}
+
+.settings-toggle span {
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Enhanced Theory Analysis Grid */
+.theory-analysis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Individual Theory Items */
+.theory-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0; /* Allows flex items to shrink */
+}
+
+/* Theory Labels */
+.theory-label {
+  font-size: 10px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* Theory Values with Tooltip Support */
+.theory-value {
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  word-wrap: break-word;
+  cursor: help;
+  position: relative;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Tooltip Styles */
+.theory-value[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: normal;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  margin-bottom: 4px;
+}
+
+.theory-value[title]:hover::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Color Coding for Different Theory Elements */
+.roman {
+  color: #4caf50; /* Green - structural foundation */
+}
+
+.function {
+  color: #2196f3; /* Blue - functional purpose */
+}
+
+.tensions {
+  color: #ff9800; /* Orange - colorful extensions */
+}
+
+.progression {
+  color: #9c27b0; /* Purple - pattern recognition */
+}
+
+/* Hidden State */
+.theory-analysis.hidden {
+  display: none;
+}
+
+/* Hover Effects */
+.theory-item:hover .theory-value {
+  opacity: 0.8;
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Animation for Updates */
+.theory-value.updated {
+  animation: highlight 0.5s ease-in-out;
+}
+
+.description-text.updated {
+  animation: highlight 0.5s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .theory-analysis {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .theory-value {
+    font-size: 12px;
+  }
+
+  .theory-label {
+    font-size: 9px;
+  }
+
+  .theory-description {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .theory-analysis {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .theory-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .theory-label {
+    text-align: left;
+  }
+
+  .theory-value {
+    text-align: right;
+  }
+
+  .theory-description {
+    margin-top: 6px;
+    font-size: 10px;
+  }
+}
+
+/* Dark Theme Adjustments (if your app has dark theme) */
+@media (prefers-color-scheme: dark) {
+  .theory-analysis {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .theory-description {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Light Theme Adjustments (if your app has light theme) */
+@media (prefers-color-scheme: light) {
+  .theory-analysis {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .theory-description {
+    background: rgba(0, 0, 0, 0.03);
+    border-left-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .theory-label {
+    opacity: 0.7;
+  }
+
+  .theory-value[title]:hover::after {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .theory-value[title]:hover::before {
+    border-top-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Settings Form Enhancements */
+.settings-form {
+  min-width: 300px;
+}
+
+.settings-form .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0;
+  gap: 12px;
+}
+
+.settings-toggle:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  margin: 12px -4px;
+  padding: 8px 4px;
+}

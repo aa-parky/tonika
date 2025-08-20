@@ -84,11 +84,14 @@ function midiToNoteName(midi, preferFlats = false, withOctave = true) {
 
 /* ---------- Theory (loaded from JSON files) ---------- */
 let THEORY = { scales: [], chords: [] };
+let FUNCTION_DESCRIPTIONS = {};
+
 async function loadTheory() {
   try {
-    const [scalesRes, chordsRes] = await Promise.all([
+    const [scalesRes, chordsRes, functionsRes] = await Promise.all([
       fetch("theory/scales.json", { cache: "no-store" }),
       fetch("theory/chords.json", { cache: "no-store" }),
+      fetch("theory/functions.json", { cache: "no-store" }).catch(() => null),
     ]);
 
     const scalesData = await scalesRes.json();
@@ -100,11 +103,18 @@ async function loadTheory() {
     THEORY.chords = chordsData.chords.filter(
       (x) => x && typeof x.name === "string" && Array.isArray(x.intervals),
     );
+
+    // Load function descriptions if available
+    if (functionsRes) {
+      const functionsData = await functionsRes.json();
+      FUNCTION_DESCRIPTIONS = functionsData.functions || {};
+    }
   } catch (error) {
     console.error("Failed to load theory data:", error);
     // Provide minimal fallback
     THEORY.scales = [{ name: "None (no scale)", intervals: null }];
     THEORY.chords = [{ name: "maj", intervals: [0, 4, 7] }];
+    FUNCTION_DESCRIPTIONS = {};
   }
 }
 
@@ -436,6 +446,7 @@ function romanForChord(rootPc, quality, keyPc, keyMask) {
  */
 function updateTheoryAnalysis(chordResult, keyPc, keyMask) {
   const theoryContainer = document.getElementById("theory-analysis");
+  const descriptionContainer = document.getElementById("theory-description");
 
   if (!chordResult || keyPc === undefined) {
     // Hide theory analysis when no chord is detected
@@ -472,6 +483,9 @@ function updateTheoryAnalysis(chordResult, keyPc, keyMask) {
       const progressionElement = document.getElementById("progression-pattern");
       updateTheoryElement(progressionElement, theoryData.progression || "-");
 
+      // Update function description if explanations are enabled
+      updateFunctionDescription(theoryData.function);
+
       // Show the theory analysis container
       if (theoryContainer) {
         theoryContainer.classList.remove("hidden");
@@ -482,6 +496,30 @@ function updateTheoryAnalysis(chordResult, keyPc, keyMask) {
     if (theoryContainer) {
       theoryContainer.classList.add("hidden");
     }
+  }
+}
+
+/**
+ * Update the function description display
+ */
+function updateFunctionDescription(functionName) {
+  const descriptionElement = document.getElementById("function-description");
+  const descriptionContainer = document.getElementById("theory-description");
+  const showExplanations = getShowTheoryExplanations();
+
+  if (!descriptionElement || !descriptionContainer) return;
+
+  if (
+    showExplanations &&
+    functionName &&
+    functionName !== "-" &&
+    FUNCTION_DESCRIPTIONS[functionName]
+  ) {
+    const description = FUNCTION_DESCRIPTIONS[functionName];
+    updateTheoryElement(descriptionElement, description);
+    descriptionContainer.classList.remove("hidden");
+  } else {
+    descriptionContainer.classList.add("hidden");
   }
 }
 
@@ -500,6 +538,47 @@ function updateTheoryElement(element, newValue) {
     setTimeout(() => {
       element.classList.remove("updated");
     }, 500);
+  }
+}
+
+/* ---------- Settings Functions ---------- */
+
+/**
+ * Get the current state of theory explanations setting
+ */
+function getShowTheoryExplanations() {
+  try {
+    const saved = localStorage.getItem("tonika.showTheoryExplanations");
+    return saved === "true";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Set the theory explanations setting
+ */
+function setShowTheoryExplanations(enabled) {
+  try {
+    localStorage.setItem("tonika.showTheoryExplanations", String(enabled));
+  } catch {}
+
+  // Update current display if there's an active chord
+  const notes = [...state.down.keys()];
+  if (notes.length > 0) {
+    const chordResult = detectChordDetail(
+      new Set(notes),
+      state.keyPc,
+      state.keyMask,
+    );
+    if (chordResult && window.TheoryAnalysis) {
+      const theoryData = window.TheoryAnalysis.analyze(
+        chordResult,
+        state.keyPc,
+        state.keyMask,
+      );
+      updateFunctionDescription(theoryData.function);
+    }
   }
 }
 
@@ -544,6 +623,9 @@ const settingsBtn = document.getElementById("settingsBtn");
 const settingsDialog = document.getElementById("settingsDialog");
 const bigChordScale = document.getElementById("bigChordScale");
 const bigChordScaleVal = document.getElementById("bigChordScaleVal");
+const showTheoryExplanationsCheckbox = document.getElementById(
+  "showTheoryExplanations",
+);
 
 /* helper to set/hide a prefix */
 function setPrefix(el, kind) {
@@ -816,7 +898,7 @@ function updateReadouts() {
   }
 }
 
-/* ---------- Settings handling (big chord scale) ---------- */
+/* ---------- Settings handling ---------- */
 function applyBigChordScale(v) {
   const num = Math.max(0.6, Math.min(1.6, parseFloat(v) || 1));
   document.documentElement.style.setProperty("--bigChordScale", num);
@@ -827,18 +909,34 @@ function applyBigChordScale(v) {
     localStorage.setItem("tonika.bigChordScale", String(num));
   } catch {}
 }
+
 function wireSettings() {
   if (settingsBtn && settingsDialog) {
     settingsBtn.addEventListener("click", () => {
-      const saved = localStorage.getItem("tonika.bigChordScale");
-      applyBigChordScale(saved || bigChordScale?.value || 1);
+      // Load saved settings
+      const savedScale = localStorage.getItem("tonika.bigChordScale");
+      const savedExplanations = getShowTheoryExplanations();
+
+      applyBigChordScale(savedScale || bigChordScale?.value || 1);
+
+      if (showTheoryExplanationsCheckbox) {
+        showTheoryExplanationsCheckbox.checked = savedExplanations;
+      }
+
       settingsDialog.showModal();
     });
   }
+
   if (bigChordScale) {
     bigChordScale.addEventListener("input", (e) =>
       applyBigChordScale(e.target.value),
     );
+  }
+
+  if (showTheoryExplanationsCheckbox) {
+    showTheoryExplanationsCheckbox.addEventListener("change", (e) => {
+      setShowTheoryExplanations(e.target.checked);
+    });
   }
 }
 
@@ -848,6 +946,7 @@ function debugTheoryAnalysis() {
   console.log("Current key PC:", state.keyPc);
   console.log("Current key mask:", state.keyMask);
   console.log("Active MIDI notes:", [...state.down.keys()]);
+  console.log("Show explanations:", getShowTheoryExplanations());
 
   const notes = [...state.down.keys()];
   if (notes.length > 0) {
@@ -865,6 +964,10 @@ function debugTheoryAnalysis() {
         state.keyMask,
       );
       console.log("Theory analysis:", theoryData);
+      console.log(
+        "Function description:",
+        FUNCTION_DESCRIPTIONS[theoryData.function],
+      );
     }
   }
 }
@@ -901,5 +1004,11 @@ function debugTheoryAnalysis() {
   const theoryContainer = document.getElementById("theory-analysis");
   if (theoryContainer) {
     theoryContainer.classList.add("hidden");
+  }
+
+  // Initialize theory description as hidden
+  const descriptionContainer = document.getElementById("theory-description");
+  if (descriptionContainer) {
+    descriptionContainer.classList.add("hidden");
   }
 })();
