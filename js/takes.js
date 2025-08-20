@@ -20,6 +20,128 @@
     return new Date(take.startedAt).toISOString(); // e.g. 2025-08-19T10:21:29.354Z
   }
 
+  function convertToMIDI(takeData) {
+    if (!window.MidiWriter) {
+      console.error("MidiWriter library not loaded");
+      return null;
+    }
+
+    try {
+      const track = new MidiWriter.Track();
+
+      // Add track name and tempo
+      track.addTrackName(`Tonika Take ${fmtStamp(takeData)}`);
+      track.setTempo(120); // Default 120 BPM
+      track.setTimeSignature(4, 4); // 4/4 time signature
+
+      // Convert events to MIDI format
+      const noteOnEvents = new Map(); // Track note on events to calculate durations
+      const midiEvents = [];
+
+      // First pass: collect all events and pair note on/off
+      takeData.events.forEach((event) => {
+        if (event.type === "on") {
+          noteOnEvents.set(event.midi, {
+            ...event,
+            startTime: event.t,
+          });
+        } else if (event.type === "off") {
+          const noteOnEvent = noteOnEvents.get(event.midi);
+          if (noteOnEvent) {
+            const duration = Math.max(event.t - noteOnEvent.startTime, 50); // Minimum 50ms duration
+            midiEvents.push({
+              pitch: event.midi,
+              velocity: noteOnEvent.vel,
+              startTime: noteOnEvent.startTime,
+              duration: duration,
+            });
+            noteOnEvents.delete(event.midi);
+          }
+        }
+      });
+
+      // Handle any remaining note-on events (notes that didn't have note-off)
+      noteOnEvents.forEach((noteOnEvent, midi) => {
+        const duration = Math.max(
+          takeData.durationMs - noteOnEvent.startTime,
+          100,
+        );
+        midiEvents.push({
+          pitch: midi,
+          velocity: noteOnEvent.vel,
+          startTime: noteOnEvent.startTime,
+          duration: duration,
+        });
+      });
+
+      // Sort events by start time
+      midiEvents.sort((a, b) => a.startTime - b.startTime);
+
+      // Convert to MidiWriter format and add to track
+      let currentTime = 0;
+      midiEvents.forEach((event) => {
+        const waitTime = Math.max(0, event.startTime - currentTime);
+        const waitTicks = Math.round((waitTime / 1000) * 480); // Convert ms to ticks (480 ticks per quarter note)
+        const durationTicks = Math.round((event.duration / 1000) * 480);
+
+        track.addEvent(
+          new MidiWriter.NoteEvent({
+            pitch: event.pitch,
+            duration: `T${durationTicks}`, // Use explicit tick duration
+            velocity: Math.round((event.velocity / 127) * 100), // Convert to 0-100 range
+            wait: `T${waitTicks}`, // Wait time in ticks
+          }),
+        );
+
+        currentTime = event.startTime + event.duration;
+      });
+
+      // Create the MIDI file
+      const writer = new MidiWriter.Writer(track);
+      return writer.buildFile();
+    } catch (error) {
+      console.error("Error converting to MIDI:", error);
+      return null;
+    }
+  }
+
+  function downloadFile(data, filename, mimeType) {
+    const blob = new Blob([data], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  function exportTake(index, format = "json") {
+    const takes = (window.Recorder && Recorder.getTakes()) || [];
+    if (index < 0 || index >= takes.length) return;
+
+    const take = takes[index];
+    const timestamp = fmtStamp(take);
+
+    if (format === "midi") {
+      const midiData = convertToMIDI(take);
+      if (midiData) {
+        downloadFile(midiData, `tonika_take_${timestamp}.mid`, "audio/midi");
+      } else {
+        alert("Failed to convert to MIDI format");
+      }
+    } else {
+      // Default JSON export
+      const jsonData = JSON.stringify(take, null, 2);
+      downloadFile(
+        jsonData,
+        `tonika_take_${timestamp}.json`,
+        "application/json",
+      );
+    }
+  }
+
   function renderList(container) {
     const takes = (window.Recorder && Recorder.getTakes()) || [];
     container.innerHTML = "";
@@ -64,17 +186,85 @@
 
       const right = document.createElement("div");
       right.className = "take-actions";
-      const btnExport = document.createElement("button");
-      btnExport.className = "btn small";
-      btnExport.textContent = "Export";
-      btnExport.onclick = () => Recorder.exportTake(actualIndex);
+
+      // Create export dropdown
+      const exportDropdown = document.createElement("div");
+      exportDropdown.className = "export-dropdown";
+
+      const exportBtn = document.createElement("button");
+      exportBtn.className = "btn small export-btn";
+      exportBtn.textContent = "Export ▼";
+
+      const exportMenu = document.createElement("div");
+      exportMenu.className = "export-menu hidden";
+
+      const exportJSON = document.createElement("button");
+      exportJSON.className = "export-option";
+      exportJSON.textContent = "Export as JSON";
+      exportJSON.onclick = (e) => {
+        e.stopPropagation();
+        exportTake(actualIndex, "json");
+        exportMenu.classList.add("hidden");
+        exportDropdown.classList.remove("open");
+        li.classList.remove("dropdown-open");
+      };
+
+      const exportMIDI = document.createElement("button");
+      exportMIDI.className = "export-option";
+      exportMIDI.textContent = "Export as MIDI";
+      exportMIDI.onclick = (e) => {
+        e.stopPropagation();
+        exportTake(actualIndex, "midi");
+        exportMenu.classList.add("hidden");
+        exportDropdown.classList.remove("open");
+        li.classList.remove("dropdown-open");
+      };
+
+      exportMenu.appendChild(exportJSON);
+      exportMenu.appendChild(exportMIDI);
+
+      // Toggle dropdown on button click
+      exportBtn.onclick = (e) => {
+        e.stopPropagation();
+
+        // Close other open dropdowns first
+        document
+          .querySelectorAll(".export-menu:not(.hidden)")
+          .forEach((menu) => {
+            if (menu !== exportMenu) {
+              menu.classList.add("hidden");
+              // Remove stacking classes from other dropdowns
+              const otherDropdown = menu.closest(".export-dropdown");
+              const otherListItem = menu.closest("li");
+              if (otherDropdown) otherDropdown.classList.remove("open");
+              if (otherListItem)
+                otherListItem.classList.remove("dropdown-open");
+            }
+          });
+
+        // Toggle current dropdown
+        const isOpening = exportMenu.classList.contains("hidden");
+        exportMenu.classList.toggle("hidden");
+
+        // Manage stacking context classes
+        if (isOpening) {
+          exportDropdown.classList.add("open");
+          li.classList.add("dropdown-open");
+        } else {
+          exportDropdown.classList.remove("open");
+          li.classList.remove("dropdown-open");
+        }
+      };
+
+      exportDropdown.appendChild(exportBtn);
+      exportDropdown.appendChild(exportMenu);
 
       const btnDelete = document.createElement("button");
       btnDelete.className = "btn small";
       btnDelete.textContent = "Delete";
       btnDelete.onclick = () => Recorder.deleteTake(actualIndex);
 
-      right.append(btnExport, btnDelete);
+      right.append(exportDropdown, btnDelete);
       li.append(left, right);
       ol.appendChild(li);
     });
@@ -147,5 +337,21 @@
     window.addEventListener("recorder:takeschanged", () =>
       renderList(ui.panel),
     );
+
+    // Global click handler to close export dropdowns
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".export-dropdown")) {
+        document
+          .querySelectorAll(".export-menu:not(.hidden)")
+          .forEach((menu) => {
+            menu.classList.add("hidden");
+            // Clean up stacking classes
+            const dropdown = menu.closest(".export-dropdown");
+            const listItem = menu.closest("li");
+            if (dropdown) dropdown.classList.remove("open");
+            if (listItem) listItem.classList.remove("dropdown-open");
+          });
+      }
+    });
   });
 })();

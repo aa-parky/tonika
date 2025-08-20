@@ -793,6 +793,9 @@ function onMIDI(e) {
   } else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) {
     state.down.delete(d1);
     if (window.Recorder) Recorder.onMidi("off", d1, 0, ts);
+  } else if (cmd === 0xb0) {
+    // Control Change messages (including pedals)
+    if (window.Recorder) Recorder.onMidi("cc", d1, d2, ts);
   }
   updateReadouts();
   Piano.draw(pianoCanvas, state, state.pianoView);

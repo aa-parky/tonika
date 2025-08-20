@@ -15,6 +15,11 @@
     silenceTimer: null,
     statusEl: null,
     saveBtn: null,
+    activeNotes: new Set(), // Track currently held notes
+    activePedals: new Set(), // Track currently pressed pedals
+
+    // Common pedal CC numbers
+    PEDAL_CCS: new Set([64, 66, 67]), // Sustain, Sostenuto, Soft pedal
 
     init({ statusEl, saveBtn, silenceMs } = {}) {
       this.statusEl = statusEl || null;
@@ -33,13 +38,42 @@
     },
 
     onMidi(type, midi, vel, ts) {
-      // type: "on" | "off" | "raw"
-      if (type !== "on" && type !== "off" && type !== "raw") return;
+      // type: "on" | "off" | "cc" | "raw"
+      if (type !== "on" && type !== "off" && type !== "cc" && type !== "raw")
+        return;
 
       if (!this.active) this._start(ts);
       const t = +(ts - this.startTime).toFixed(1);
       this.current.push({ type, midi, vel, t });
-      this._armSilence();
+
+      // Track active notes for intelligent silence detection
+      if (type === "on" && vel > 0) {
+        this.activeNotes.add(midi);
+        // Cancel silence timer if we have active notes
+        if (this.silenceTimer) {
+          clearTimeout(this.silenceTimer);
+          this.silenceTimer = null;
+        }
+      } else if (type === "off" || (type === "on" && vel === 0)) {
+        this.activeNotes.delete(midi);
+      } else if (type === "cc" && this.PEDAL_CCS.has(midi)) {
+        // Track pedal states (CC 64, 66, 67)
+        if (vel >= 64) {
+          // Pedal pressed (MIDI convention: >= 64 is "on")
+          this.activePedals.add(midi);
+          // Cancel silence timer if pedal is pressed
+          if (this.silenceTimer) {
+            clearTimeout(this.silenceTimer);
+            this.silenceTimer = null;
+          }
+        } else {
+          // Pedal released
+          this.activePedals.delete(midi);
+        }
+      }
+
+      // Only start silence timer when no notes or pedals are active
+      this._armSilenceIfNeeded();
     },
 
     /* ------------ session helpers ------------ */
@@ -97,13 +131,16 @@
       this.active = true;
       this.startTime = ts;
       this.current = [];
+      this.activeNotes.clear(); // Clear any lingering active notes from previous session
+      this.activePedals.clear(); // Clear any lingering active pedals from previous session
       this._setUI(true);
-      this._armSilence();
     },
 
     _stop() {
       if (!this.active) return;
       this.active = false;
+      this.activeNotes.clear(); // Clear active notes when stopping
+      this.activePedals.clear(); // Clear active pedals when stopping
       if (this.current.length) {
         const dur = this.current.at(-1).t || 0;
         const take = {
@@ -128,9 +165,13 @@
       this._setUI(false);
     },
 
-    _armSilence() {
-      if (this.silenceTimer) clearTimeout(this.silenceTimer);
-      this.silenceTimer = setTimeout(() => this._stop(), this.SILENCE_MS);
+    _armSilenceIfNeeded() {
+      // Only start silence timer if no notes or pedals are currently active
+      if (this.activeNotes.size === 0 && this.activePedals.size === 0) {
+        if (this.silenceTimer) clearTimeout(this.silenceTimer);
+        this.silenceTimer = setTimeout(() => this._stop(), this.SILENCE_MS);
+      }
+      // If notes or pedals are active, the silence timer should already be cleared
     },
 
     _setUI(isRec) {
