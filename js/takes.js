@@ -34,18 +34,25 @@
       track.setTempo(120); // Default 120 BPM
       track.setTimeSignature(4, 4); // 4/4 time signature
 
-      // Convert events to MIDI format
+      // Convert events to MIDI format with chord detection
       const noteOnEvents = new Map(); // Track note on events to calculate durations
       const midiEvents = [];
+      const CHORD_THRESHOLD_MS = 50; // Notes within 50ms are considered simultaneous
 
-      // First pass: collect all events and pair note on/off
+      // First pass: collect all note events and pair note on/off
       takeData.events.forEach((event) => {
-        if (event.type === "on") {
+        // Skip CC events for MIDI note generation (they're recorded but don't create notes)
+        if (event.type !== "on" && event.type !== "off") return;
+
+        if (event.type === "on" && event.vel > 0) {
           noteOnEvents.set(event.midi, {
             ...event,
             startTime: event.t,
           });
-        } else if (event.type === "off") {
+        } else if (
+          event.type === "off" ||
+          (event.type === "on" && event.vel === 0)
+        ) {
           const noteOnEvent = noteOnEvents.get(event.midi);
           if (noteOnEvent) {
             const duration = Math.max(event.t - noteOnEvent.startTime, 50); // Minimum 50ms duration
@@ -77,23 +84,83 @@
       // Sort events by start time
       midiEvents.sort((a, b) => a.startTime - b.startTime);
 
-      // Convert to MidiWriter format and add to track
-      let currentTime = 0;
+      // Group simultaneous notes into chords
+      const chordGroups = [];
+      let currentGroup = [];
+      let currentGroupTime = -1;
+
       midiEvents.forEach((event) => {
-        const waitTime = Math.max(0, event.startTime - currentTime);
+        if (
+          currentGroupTime === -1 ||
+          Math.abs(event.startTime - currentGroupTime) <= CHORD_THRESHOLD_MS
+        ) {
+          // Add to current chord group
+          currentGroup.push(event);
+          if (currentGroupTime === -1) currentGroupTime = event.startTime;
+        } else {
+          // Start new chord group
+          if (currentGroup.length > 0) {
+            chordGroups.push({
+              startTime: currentGroupTime,
+              notes: [...currentGroup],
+            });
+          }
+          currentGroup = [event];
+          currentGroupTime = event.startTime;
+        }
+      });
+
+      // Don't forget the last group
+      if (currentGroup.length > 0) {
+        chordGroups.push({
+          startTime: currentGroupTime,
+          notes: [...currentGroup],
+        });
+      }
+
+      // Convert chord groups to MidiWriter format
+      let currentTime = 0;
+      chordGroups.forEach((group) => {
+        const waitTime = Math.max(0, group.startTime - currentTime);
         const waitTicks = Math.round((waitTime / 1000) * 480); // Convert ms to ticks (480 ticks per quarter note)
-        const durationTicks = Math.round((event.duration / 1000) * 480);
 
-        track.addEvent(
-          new MidiWriter.NoteEvent({
-            pitch: event.pitch,
-            duration: `T${durationTicks}`, // Use explicit tick duration
-            velocity: Math.round((event.velocity / 127) * 100), // Convert to 0-100 range
-            wait: `T${waitTicks}`, // Wait time in ticks
-          }),
-        );
+        if (group.notes.length === 1) {
+          // Single note
+          const note = group.notes[0];
+          const durationTicks = Math.round((note.duration / 1000) * 480);
 
-        currentTime = event.startTime + event.duration;
+          track.addEvent(
+            new MidiWriter.NoteEvent({
+              pitch: note.pitch,
+              duration: `T${durationTicks}`,
+              velocity: Math.round((note.velocity / 127) * 100),
+              wait: `T${waitTicks}`,
+            }),
+          );
+
+          currentTime = group.startTime + note.duration;
+        } else {
+          // Chord - multiple simultaneous notes
+          const pitches = group.notes.map((n) => n.pitch);
+          const velocities = group.notes.map((n) =>
+            Math.round((n.velocity / 127) * 100),
+          );
+          const avgDuration =
+            group.notes.reduce((sum, n) => sum + n.duration, 0) /
+            group.notes.length;
+          const durationTicks = Math.round((avgDuration / 1000) * 480);
+
+          track.addEvent(
+            new MidiWriter.NoteEvent({
+              pitch: pitches,
+              duration: `T${durationTicks}`,
+              velocity: velocities[0], // Use first note's velocity for the chord
+              wait: `T${waitTicks}`,
+            }),
+          );
+
+          currentTime = group.startTime + avgDuration;
+        }
       });
 
       // Create the MIDI file
