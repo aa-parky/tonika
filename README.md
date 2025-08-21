@@ -231,4 +231,12 @@ Tonika is released under the MIT License. Free for personal, educational, and co
 
 Built with passion for music education and open-source collaboration. Special thanks to the music theory community and educators who inspired this project.
 
+### **Dependencies**
+
+- **[MidiWriterJS](https://github.com/grimmdude/MidiWriterJS)** by Garrett Grimm (@grimmdude) — JavaScript library for generating expressive multi-track MIDI files (MIT License)
+
+### **Acknowledgments**
+
+Special thanks to the music theory community and educators who inspired this project.
+
 **Happy practicing!** 🎹🎸
