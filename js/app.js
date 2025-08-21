@@ -850,52 +850,126 @@ function updateReadouts() {
       updateTheoryAnalysis(null, state.keyPc, state.keyMask);
     } else {
       // Handle multiple notes (chords, intervals, clusters)
-      const detail = detectChordDetail(
-        new Set(notes),
-        state.keyPc,
-        state.keyMask,
-      );
-      if (detail) {
-        kind = "Chord";
-        // Set the bass note for inversion visualization
-        state.bassNote =
-          detail.bassPc !== undefined
-            ? notes.find((n) => pc(n) === detail.bassPc)
-            : notes[0];
-
-        const numeral = romanForChord(
-          detail.rootPc,
-          detail.quality,
+      if (notes.length === 2) {
+        // Special handling for two-note combinations
+        const detail = detectChordDetail(
+          new Set(notes),
           state.keyPc,
           state.keyMask,
         );
-        const inv = detail.inversion ? ` (${detail.inversion})` : "";
-        const rn = numeral ? ` — ${numeral}` : "";
-        small = detail.label;
-        big = `${detail.label}${inv}${rn}`;
 
-        // Update theory analysis
-        updateTheoryAnalysis(detail, state.keyPc, state.keyMask);
-      } else {
-        // Clear bass note when no chord is detected
-        state.bassNote = null;
-        const pcs = pcsFromNotes(new Set(notes));
-        const bassPc = pc(notes[0]);
-        const fb = fallbackLabelForSet(pcs, bassPc, state.keyPc, state.keyMask);
-        const m = fb.match(/^(\w+):\s*(.*)$/);
-        if (m) {
-          const k = m[1];
-          if (k === "Note" || k === "Interval" || k === "Cluster") kind = k;
-          small = m[2];
-          big = m[2];
+        // Only treat as chord if it's a functional chord type (sus2, sus4, etc.)
+        const isFunctionalChord =
+          detail &&
+          (detail.quality.includes("sus") ||
+            detail.quality.includes("dim") ||
+            detail.quality.includes("aug") ||
+            detail.quality.includes("add") ||
+            detail.quality === "m" ||
+            detail.quality === "M" ||
+            detail.quality === "");
+
+        if (isFunctionalChord) {
+          kind = "Chord";
+          // Set the bass note for inversion visualization
+          state.bassNote =
+            detail.bassPc !== undefined
+              ? notes.find((n) => pc(n) === detail.bassPc)
+              : notes[0];
+
+          const numeral = romanForChord(
+            detail.rootPc,
+            detail.quality,
+            state.keyPc,
+            state.keyMask,
+          );
+          const inv = detail.inversion ? ` (${detail.inversion})` : "";
+          const rn = numeral ? ` — ${numeral}` : "";
+          small = detail.label;
+          big = `${detail.label}${inv}${rn}`;
+
+          // Update theory analysis
+          updateTheoryAnalysis(detail, state.keyPc, state.keyMask);
         } else {
-          kind = "Cluster";
-          small = fb;
-          big = fb;
-        }
+          // Treat as interval for two-note combinations that aren't functional chords
+          state.bassNote = null;
+          const pcs = pcsFromNotes(new Set(notes));
+          const bassPc = pc(notes[0]);
+          const fb = fallbackLabelForSet(
+            pcs,
+            bassPc,
+            state.keyPc,
+            state.keyMask,
+          );
+          const m = fb.match(/^(\w+):\s*(.*)$/);
+          if (m) {
+            const k = m[1];
+            if (k === "Note" || k === "Interval" || k === "Cluster") kind = k;
+            small = m[2];
+            big = m[2];
+          } else {
+            kind = "Interval";
+            small = fb;
+            big = fb;
+          }
 
-        // Hide theory analysis when no chord is detected
-        updateTheoryAnalysis(null, state.keyPc, state.keyMask);
+          // Hide theory analysis for intervals
+          updateTheoryAnalysis(null, state.keyPc, state.keyMask);
+        }
+      } else {
+        // Handle 3+ note combinations (always try chord detection first)
+        const detail = detectChordDetail(
+          new Set(notes),
+          state.keyPc,
+          state.keyMask,
+        );
+        if (detail) {
+          kind = "Chord";
+          // Set the bass note for inversion visualization
+          state.bassNote =
+            detail.bassPc !== undefined
+              ? notes.find((n) => pc(n) === detail.bassPc)
+              : notes[0];
+
+          const numeral = romanForChord(
+            detail.rootPc,
+            detail.quality,
+            state.keyPc,
+            state.keyMask,
+          );
+          const inv = detail.inversion ? ` (${detail.inversion})` : "";
+          const rn = numeral ? ` — ${numeral}` : "";
+          small = detail.label;
+          big = `${detail.label}${inv}${rn}`;
+
+          // Update theory analysis
+          updateTheoryAnalysis(detail, state.keyPc, state.keyMask);
+        } else {
+          // Clear bass note when no chord is detected
+          state.bassNote = null;
+          const pcs = pcsFromNotes(new Set(notes));
+          const bassPc = pc(notes[0]);
+          const fb = fallbackLabelForSet(
+            pcs,
+            bassPc,
+            state.keyPc,
+            state.keyMask,
+          );
+          const m = fb.match(/^(\w+):\s*(.*)$/);
+          if (m) {
+            const k = m[1];
+            if (k === "Note" || k === "Interval" || k === "Cluster") kind = k;
+            small = m[2];
+            big = m[2];
+          } else {
+            kind = "Cluster";
+            small = fb;
+            big = fb;
+          }
+
+          // Hide theory analysis when no chord is detected
+          updateTheoryAnalysis(null, state.keyPc, state.keyMask);
+        }
       }
     }
   } else {
