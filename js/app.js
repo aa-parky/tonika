@@ -1,3 +1,23 @@
+// ---- DOM helper fallback (in case dom.js fails to load) ----
+(function () {
+  if (!window.qs) window.qs = (sel, ctx = document) => ctx.querySelector(sel);
+  if (!window.qsa)
+    window.qsa = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  if (!window.el)
+    window.el = (tag, props = {}) => {
+      const n = document.createElement(tag);
+      Object.assign(n, props);
+      return n;
+    };
+  if (!window.text) window.text = (t) => document.createTextNode(t);
+  if (!window.qsStrict)
+    window.qsStrict = (sel, ctx = document) => {
+      const node = (ctx || document).querySelector(sel);
+      if (!node)
+        throw new Error("qsStrict: element not found for selector: " + sel);
+      return node;
+    };
+})();
 /* =========================
    Tonika – app.js (viewported piano + auto‑scroll, UI prefix-aware + recorder wiring)
    ========================= */
@@ -446,8 +466,8 @@ function romanForChord(rootPc, quality, keyPc, keyMask) {
  * Update the theory analysis display
  */
 function updateTheoryAnalysis(chordResult, keyPc, keyMask) {
-  const theoryContainer = document.getElementById("theory-analysis");
-  const descriptionContainer = document.getElementById("theory-description");
+  const theoryContainer = qs("#theory-analysis");
+  const descriptionContainer = qs("#theory-description");
 
   if (!chordResult || keyPc === undefined) {
     // Hide theory analysis when no chord is detected
@@ -467,21 +487,21 @@ function updateTheoryAnalysis(chordResult, keyPc, keyMask) {
       );
 
       // Update Roman numeral
-      const romanElement = document.getElementById("roman-numeral");
+      const romanElement = qs("#roman-numeral");
       updateTheoryElement(romanElement, theoryData.roman || "-");
 
       // Update chord function
-      const functionElement = document.getElementById("chord-function");
+      const functionElement = qs("#chord-function");
       updateTheoryElement(functionElement, theoryData.function || "-");
 
       // Update available tensions
-      const tensionsElement = document.getElementById("available-tensions");
+      const tensionsElement = qs("#available-tensions");
       const tensionsText =
         theoryData.tensions.length > 0 ? theoryData.tensions.join(",") : "-";
       updateTheoryElement(tensionsElement, tensionsText);
 
       // Update progression (Phase 2 feature - placeholder for now)
-      const progressionElement = document.getElementById("progression-pattern");
+      const progressionElement = qs("#progression-pattern");
       updateTheoryElement(progressionElement, theoryData.progression || "-");
 
       // Update function description if explanations are enabled
@@ -504,8 +524,8 @@ function updateTheoryAnalysis(chordResult, keyPc, keyMask) {
  * Update the function description display
  */
 function updateFunctionDescription(functionName) {
-  const descriptionElement = document.getElementById("function-description");
-  const descriptionContainer = document.getElementById("theory-description");
+  const descriptionElement = qs("#function-description");
+  const descriptionContainer = qs("#theory-description");
   const showExplanations = getShowTheoryExplanations();
 
   if (!descriptionElement || !descriptionContainer) return;
@@ -598,32 +618,32 @@ const state = {
 };
 
 /* ---------- DOM ---------- */
-const midiInSel = document.getElementById("midiIn");
-const keySel = document.getElementById("keySel");
-const scaleSel = document.getElementById("scaleSel");
-const tuningSel = document.getElementById("tuningSel");
-const chordName = document.getElementById("chordName");
-const bigChordName = document.getElementById("bigChordName");
-const activeNotes = document.getElementById("activeNotes");
-const latencyText = document.getElementById("latencyText");
-const viewSel = document.getElementById("viewSel");
-const mainGrid = document.getElementById("mainGrid");
-const pianoCard = document.getElementById("pianoCard");
-const fretCard = document.getElementById("fretCard");
-const recStatusEl = document.getElementById("recStatus");
-const saveTakesBtn = document.getElementById("saveTakes");
+const midiInSel = qs("#midiIn");
+const keySel = qs("#keySel");
+const scaleSel = qs("#scaleSel");
+const tuningSel = qs("#tuningSel");
+const chordName = qs("#chordName");
+const bigChordName = qs("#bigChordName");
+const activeNotes = qs("#activeNotes");
+const latencyText = qs("#latencyText");
+const viewSel = qs("#viewSel");
+const mainGrid = qs("#mainGrid");
+const pianoCard = qs("#pianoCard");
+const fretCard = qs("#fretCard");
+const recStatusEl = qs("#recStatus");
+const saveTakesBtn = qs("#saveTakes");
 /* NEW: prefix spans for small/big lines */
-const smallPrefix = document.getElementById("smallPrefix");
-const bigPrefix = document.getElementById("bigPrefix");
+const smallPrefix = qs("#smallPrefix");
+const bigPrefix = qs("#bigPrefix");
 /* Canvas refs (used for wheel scrolling) */
-const pianoCanvas = document.getElementById("piano");
-const fretboardCanvas = document.getElementById("fretboard");
+const pianoCanvas = qs("#piano");
+const fretboardCanvas = qs("#fretboard");
 
 /* --- Settings dialog elements (HTML adds a ⚙︎ button + <dialog>) --- */
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsDialog = document.getElementById("settingsDialog");
-const bigChordScale = document.getElementById("bigChordScale");
-const bigChordScaleVal = document.getElementById("bigChordScaleVal");
+const settingsBtn = qs("#settingsBtn");
+const settingsDialog = qs("#settingsDialog");
+const bigChordScale = qs("#bigChordScale");
+const bigChordScaleVal = qs("#bigChordScaleVal");
 const showTheoryExplanationsCheckbox = document.getElementById(
   "showTheoryExplanations",
 );
@@ -642,7 +662,7 @@ function setPrefix(el, kind) {
 
 /* lazy-created single-note badge after "Active notes: []" */
 function getSingleNoteSpan() {
-  let el = document.getElementById("singleNote");
+  let el = qs("#singleNote");
   if (!el) {
     el = document.createElement("span");
     el.id = "singleNote";
@@ -655,7 +675,7 @@ function getSingleNoteSpan() {
 
 /* ---------- Populate selectors ---------- */
 function populateSelectors() {
-  keySel.innerHTML = "";
+  keySel.textContent = "";
   KEYS.forEach((k) => {
     const o = document.createElement("option");
     o.value = k.pc;
@@ -664,7 +684,7 @@ function populateSelectors() {
   });
   keySel.value = state.keyPc;
 
-  scaleSel.innerHTML = "";
+  scaleSel.textContent = "";
   THEORY.scales.forEach((s) => {
     const o = document.createElement("option");
     o.value = s.name;
@@ -744,7 +764,7 @@ function setupMIDI() {
   });
 }
 function refreshInputs() {
-  midiInSel.innerHTML = "";
+  midiInSel.textContent = "";
   midiAccess.inputs.forEach((port) => {
     const o = document.createElement("option");
     o.value = port.id;
@@ -1097,13 +1117,13 @@ function debugTheoryAnalysis() {
   }
 
   // Initialize theory analysis display as hidden
-  const theoryContainer = document.getElementById("theory-analysis");
+  const theoryContainer = qs("#theory-analysis");
   if (theoryContainer) {
     theoryContainer.classList.add("hidden");
   }
 
   // Initialize theory description as hidden
-  const descriptionContainer = document.getElementById("theory-description");
+  const descriptionContainer = qs("#theory-description");
   if (descriptionContainer) {
     descriptionContainer.classList.add("hidden");
   }
