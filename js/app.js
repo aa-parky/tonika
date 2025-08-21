@@ -833,55 +833,73 @@ function updateReadouts() {
     big = "";
 
   if (notes.length) {
-    const detail = detectChordDetail(
-      new Set(notes),
-      state.keyPc,
-      state.keyMask,
-    );
-    if (detail) {
-      kind = "Chord";
-      // Set the bass note for inversion visualization
-      state.bassNote =
-        detail.bassPc !== undefined
-          ? notes.find((n) => pc(n) === detail.bassPc)
-          : notes[0];
+    // Handle single notes separately
+    if (notes.length === 1) {
+      kind = "Note";
+      const preferFlats = state.keyMask
+        ? preferFlatsForKey(state.keyPc)
+        : false;
+      const noteName = midiToNoteName(notes[0], preferFlats, true);
+      small = noteName;
+      big = noteName;
 
-      const numeral = romanForChord(
-        detail.rootPc,
-        detail.quality,
+      // Clear bass note for single notes
+      state.bassNote = null;
+
+      // Update theory analysis for single note
+      updateTheoryAnalysis(null, state.keyPc, state.keyMask);
+    } else {
+      // Handle multiple notes (chords, intervals, clusters)
+      const detail = detectChordDetail(
+        new Set(notes),
         state.keyPc,
         state.keyMask,
       );
-      const inv = detail.inversion ? ` (${detail.inversion})` : "";
-      const rn = numeral ? ` — ${numeral}` : "";
-      small = detail.label;
-      big = `${detail.label}${inv}${rn}`;
+      if (detail) {
+        kind = "Chord";
+        // Set the bass note for inversion visualization
+        state.bassNote =
+          detail.bassPc !== undefined
+            ? notes.find((n) => pc(n) === detail.bassPc)
+            : notes[0];
 
-      // Update theory analysis
-      updateTheoryAnalysis(detail, state.keyPc, state.keyMask);
-    } else {
-      // Clear bass note when no chord is detected
-      state.bassNote = null;
-      const pcs = pcsFromNotes(new Set(notes));
-      const bassPc = pc(notes[0]);
-      const fb = fallbackLabelForSet(pcs, bassPc, state.keyPc, state.keyMask);
-      const m = fb.match(/^(\w+):\s*(.*)$/);
-      if (m) {
-        const k = m[1];
-        if (k === "Note" || k === "Interval" || k === "Cluster") kind = k;
-        small = m[2];
-        big = m[2];
+        const numeral = romanForChord(
+          detail.rootPc,
+          detail.quality,
+          state.keyPc,
+          state.keyMask,
+        );
+        const inv = detail.inversion ? ` (${detail.inversion})` : "";
+        const rn = numeral ? ` — ${numeral}` : "";
+        small = detail.label;
+        big = `${detail.label}${inv}${rn}`;
+
+        // Update theory analysis
+        updateTheoryAnalysis(detail, state.keyPc, state.keyMask);
       } else {
-        kind = "Cluster";
-        small = fb;
-        big = fb;
-      }
+        // Clear bass note when no chord is detected
+        state.bassNote = null;
+        const pcs = pcsFromNotes(new Set(notes));
+        const bassPc = pc(notes[0]);
+        const fb = fallbackLabelForSet(pcs, bassPc, state.keyPc, state.keyMask);
+        const m = fb.match(/^(\w+):\s*(.*)$/);
+        if (m) {
+          const k = m[1];
+          if (k === "Note" || k === "Interval" || k === "Cluster") kind = k;
+          small = m[2];
+          big = m[2];
+        } else {
+          kind = "Cluster";
+          small = fb;
+          big = fb;
+        }
 
-      // Hide theory analysis for non-chord content
-      updateTheoryAnalysis(null, state.keyPc, state.keyMask);
+        // Hide theory analysis when no chord is detected
+        updateTheoryAnalysis(null, state.keyPc, state.keyMask);
+      }
     }
   } else {
-    // Clear bass note when no notes are being played
+    // Clear bass note when no notes are playing
     state.bassNote = null;
 
     // Hide theory analysis when no notes are playing
@@ -896,7 +914,7 @@ function updateReadouts() {
   const singleEl = getSingleNoteSpan();
   if (notes.length === 1) {
     const preferFlats = state.keyMask ? preferFlatsForKey(state.keyPc) : false;
-    singleEl.textContent = `• Note: ${midiToNoteName(notes[0], preferFlats, true)}`;
+    singleEl.textContent = ` • Note: ${midiToNoteName(notes[0], preferFlats, true)}`;
   } else {
     singleEl.textContent = "";
   }
