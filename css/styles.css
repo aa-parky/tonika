@@ -1,3 +1,10 @@
+/* Universal box-sizing for consistent layout */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   --bg: #111;
   --panel: #1b1b1b;
@@ -13,7 +20,7 @@
 /* base */
 html,
 body {
-  height: 100%;
+  height: 100vh; /* Use full viewport height */
   margin: 0;
   background: var(--bg);
   color: var(--ink);
@@ -33,6 +40,8 @@ body {
   max-width: 1200px;
   margin: 10px auto;
   padding: 10px;
+  height: calc(100vh - 20px); /* Full height minus margins */
+  box-sizing: border-box;
 }
 
 /* top bar – only controls */
@@ -149,12 +158,21 @@ footer {
   padding: 14px 16px;
   font-size: calc(clamp(28px, 6vw, 96px) * var(--bigChordScale));
   line-height: 1.1;
+  /* height removed: now controlled by .main-display */
+  overflow: hidden; /* prevent internal growth */
+  display: flex;
+  flex-direction: row; /* baseline alignment needs row */
+  align-items: baseline; /* align label + name on baseline */
+  justify-content: center; /* center the pair */
+  gap: 0.4em; /* spacing between label and name */
 }
 .big-chord .label {
+  font-size: 0.5em; /* smaller label relative to chord */
   opacity: 0.9;
-  margin-right: 10px;
+  margin: 0;
 }
 .big-chord .name {
+  font-size: 1em; /* full size chord/note name */
   font-weight: 700;
   color: #54e6d5;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
@@ -251,6 +269,7 @@ footer {
   font-size: 14px;
   transition: all 0.3s ease-in-out;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 120px; /* Reserve space to prevent height jumps */
 }
 
 /* Individual Theory Items */
@@ -329,6 +348,9 @@ footer {
   opacity: 0.8;
   line-height: 1.4;
   transition: all 0.3s ease-in-out;
+  min-height: 32px; /* Reserve space for description text */
+  display: flex;
+  align-items: center; /* Center content vertically */
   border-left: 2px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -476,6 +498,9 @@ footer {
 /* ===== TAB SYSTEM ===== */
 .supporting-area {
   margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
 }
 
 .tab-header {
@@ -484,6 +509,7 @@ footer {
   margin-bottom: 0;
   padding: 0;
   gap: 0;
+  flex-shrink: 0; /* Header stays fixed size */
 }
 
 .tab-btn {
@@ -510,24 +536,29 @@ footer {
 }
 
 .tab-content {
-  min-height: 200px;
-  max-height: 300px;
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
   overflow: hidden;
 }
 
 .tab-panel {
   display: none;
-  height: 100%;
+  flex: 1; /* Take up full height of tab-content */
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
 }
 
 .tab-panel.active {
-  display: block;
+  display: flex; /* Use flex when active */
 }
 
 .tab-scroll {
-  max-height: 240px;
+  flex: 1; /* Take up remaining space in tab panel */
   overflow-y: auto;
   padding: 10px 0;
+  min-height: 0; /* Allow flex item to shrink */
 }
 
 .tab-scroll h4 {
@@ -728,13 +759,7 @@ footer {
     font-size: 12px;
   }
 
-  .tab-content {
-    max-height: 250px;
-  }
-
-  .tab-scroll {
-    max-height: 190px;
-  }
+  /* Flexible layout works on mobile too - no fixed heights needed */
 }
 
 /* Dark Theme Adjustments */
@@ -772,5 +797,474 @@ footer {
 
   .theory-value[title]:hover::before {
     border-top-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* =========================
+   CHORD DICTIONARY STYLES
+   ========================= */
+
+/* Dictionary Sub-tabs */
+.dictionary-tabs {
+  display: flex;
+  border-bottom: 1px solid #333;
+  margin-bottom: 16px;
+  gap: 0;
+}
+
+.dict-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dict-tab-btn:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dict-tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(106, 160, 255, 0.1);
+}
+
+.dict-tab-content {
+  display: none;
+}
+
+.dict-tab-content.active {
+  display: block;
+}
+
+/* Search Section */
+.search-section {
+  margin-bottom: 20px;
+}
+
+.chord-search-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: var(--ink);
+  transition: border-color 0.3s ease;
+}
+
+.chord-search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.chord-search-input::placeholder {
+  color: var(--muted);
+}
+
+.search-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.suggestion-chip {
+  padding: 4px 8px;
+  background: #333;
+  border-radius: 12px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--ink);
+}
+
+.suggestion-chip:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* Chord Display */
+.chord-display {
+  background: #222;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chord-display .chord-name {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.chord-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.info-item {
+  background: #1a1a1a;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.info-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Piano Container */
+.piano-container {
+  background: #222;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.piano-title {
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.dictionary-piano,
+.interactive-piano {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.piano-placeholder {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+}
+
+.piano-placeholder p {
+  margin: 4px 0;
+}
+
+.piano-placeholder strong {
+  color: var(--accent);
+}
+
+/* Voicings Section */
+.voicings-section {
+  margin-top: 20px;
+}
+
+.voicings-title {
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.voicings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.voicing-card {
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.voicing-name {
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.voicing-notes {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.voicing-placeholder {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Browse Section */
+.browse-section {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  min-height: 200px;
+}
+
+.chord-categories {
+  background: #222;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.category-title {
+  font-size: 12px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-item {
+  padding: 6px 8px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 11px;
+  color: var(--ink);
+}
+
+.category-item:hover {
+  background: #333;
+}
+
+.category-item.active {
+  background: var(--accent);
+  color: white;
+}
+
+.chord-details {
+  background: #222;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.category-chords h4 {
+  color: var(--accent);
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.chord-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chord-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chord-item:hover {
+  background: #333;
+}
+
+.chord-item .chord-name {
+  font-weight: 500;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.chord-item .chord-notes {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* Interactive Section */
+.interactive-section {
+  text-align: center;
+}
+
+.interactive-title {
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.interactive-placeholder {
+  padding: 40px 20px;
+  color: var(--muted);
+  background: #222;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.interactive-placeholder p {
+  margin: 4px 0;
+}
+
+.selected-notes {
+  background: #222;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notes-display {
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.notes-display span {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.chord-results {
+  background: #222;
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Placeholder Text */
+.placeholder-text {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 12px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Responsive Design for Dictionary */
+@media (max-width: 768px) {
+  .browse-section {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .chord-categories {
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .category-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chord-info {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .voicings-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .chord-display .chord-name {
+    font-size: 1.5rem;
+  }
+
+  .selected-notes {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .dictionary-tabs {
+    flex-wrap: wrap;
+  }
+
+  .dict-tab-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .chord-info {
+    grid-template-columns: 1fr;
+  }
+
+  .chord-display .chord-name {
+    font-size: 1.2rem;
+  }
+
+  .search-suggestions {
+    justify-content: center;
+  }
+}
+
+/* ===== Main Display (wrapper for big chord + theory) ===== */
+.main-display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: clamp(260px, 40vh, 420px); /* flexible but bounded */
+  overflow: hidden; /* stops outer jumpiness */
+}
+
+/* Size the big chord line within the wrapper without forcing global height */
+.main-display .big-chord {
+  flex: 0 0 clamp(120px, 18vh, 180px);
+  overflow: hidden;
+}
+
+/* Theory area fills remaining space and scrolls internally as needed */
+.main-display .theory-analysis {
+  flex: 1 1 auto;
+  min-height: 0; /* allow to shrink in flex column */
+  overflow-y: auto;
+}
+
+/* Small screen refinements */
+@media (max-width: 768px) {
+  .main-display {
+    height: clamp(240px, 34vh, 360px);
+  }
+}
+@media (max-width: 480px) {
+  .main-display {
+    height: clamp(220px, 32vh, 320px);
   }
 }

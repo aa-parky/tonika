@@ -11,6 +11,7 @@
     <script defer src="js/midiwriter.js"></script>
     <script defer src="js/takes.js"></script>
     <script defer src="js/theory-analysis.js"></script>
+    <script defer src="js/chord-dictionary.js"></script>
     <script defer src="js/tabs.js"></script>
     <script defer src="js/app.js"></script>
   </head>
@@ -95,6 +96,7 @@
             >
           </div>
 
+          <div class="main-display">
           <div class="big-chord">
             <span id="bigPrefix" class="label"></span>
             <span id="bigChordName" class="name"></span>
@@ -144,6 +146,7 @@
               <div id="function-description" class="description-text"></div>
             </div>
           </div>
+          </div> <!-- /.main-display -->
         </div>
 
         <!-- Fretboard card -->
@@ -163,6 +166,7 @@
           <button class="tab-btn" data-tab="theory">Theory</button>
           <button class="tab-btn" data-tab="scales">Scales</button>
           <button class="tab-btn" data-tab="progressions">Progressions</button>
+          <button class="tab-btn" data-tab="dictionary">📚 Dictionary</button>
           <button class="tab-btn" data-tab="settings">Settings</button>
         </div>
 
@@ -283,6 +287,164 @@
                 </li>
                 <li><strong>8-bar Blues:</strong> Shorter form</li>
               </ul>
+            </div>
+          </div>
+
+          <!-- Dictionary Tab -->
+          <div class="tab-panel" id="tab-dictionary">
+            <div class="stat">
+              <div class="title">Chord Dictionary</div>
+              <div class="stat-right">
+                <div class="small">Explore and discover chords</div>
+              </div>
+            </div>
+            <div class="tab-scroll">
+              <!-- Dictionary Sub-tabs -->
+              <div class="dictionary-tabs">
+                <button class="dict-tab-btn active" data-dict-tab="search">
+                  🔍 Search
+                </button>
+                <button class="dict-tab-btn" data-dict-tab="browse">
+                  📚 Browse
+                </button>
+                <button class="dict-tab-btn" data-dict-tab="interactive">
+                  🎹 Interactive
+                </button>
+              </div>
+
+              <!-- Search Tab Content -->
+              <div class="dict-tab-content active" id="dict-tab-search">
+                <div class="search-section">
+                  <input
+                    type="text"
+                    id="chord-search-input"
+                    class="chord-search-input"
+                    placeholder="Search for chords (e.g., Cmaj7, Am, F#dim)..."
+                  />
+                  <div class="search-suggestions" id="search-suggestions">
+                    <span class="suggestion-chip" data-chord="Cmaj7"
+                      >Cmaj7</span
+                    >
+                    <span class="suggestion-chip" data-chord="Am">Am</span>
+                    <span class="suggestion-chip" data-chord="F#dim"
+                      >F#dim</span
+                    >
+                    <span class="suggestion-chip" data-chord="Bb7">Bb7</span>
+                    <span class="suggestion-chip" data-chord="Dsus4"
+                      >Dsus4</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Chord Display Area -->
+                <div class="chord-display" id="chord-display">
+                  <div class="chord-name" id="dict-chord-name">
+                    Select a chord to explore
+                  </div>
+                  <div class="chord-info" id="chord-info">
+                    <div class="info-item">
+                      <div class="info-label">Notes</div>
+                      <div class="info-value" id="chord-notes">-</div>
+                    </div>
+                    <div class="info-item">
+                      <div class="info-label">Intervals</div>
+                      <div class="info-value" id="chord-intervals">-</div>
+                    </div>
+                    <div class="info-item">
+                      <div class="info-label">Function</div>
+                      <div class="info-value" id="chord-function-dict">-</div>
+                    </div>
+                    <div class="info-item">
+                      <div class="info-label">Quality</div>
+                      <div class="info-value" id="chord-quality">-</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Piano Visualization -->
+                <div class="piano-container" id="piano-container">
+                  <div class="piano-title">Piano Visualization</div>
+                  <div class="dictionary-piano" id="dictionary-piano">
+                    <!-- Piano keyboard will be rendered here -->
+                    <div class="placeholder-text">
+                      Piano visualization will appear here
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Voicings Section -->
+                <div class="voicings-section" id="voicings-section">
+                  <div class="voicings-title">Common Voicings</div>
+                  <div class="voicings-grid" id="voicings-grid">
+                    <!-- Voicing cards will be rendered here -->
+                    <div class="placeholder-text">
+                      Chord voicings will appear here
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Browse Tab Content -->
+              <div class="dict-tab-content" id="dict-tab-browse">
+                <div class="browse-section">
+                  <div class="chord-categories" id="chord-categories">
+                    <div class="category-title">Chord Categories</div>
+                    <div class="category-list">
+                      <div class="category-item active" data-category="major">
+                        Major Chords
+                      </div>
+                      <div class="category-item" data-category="minor">
+                        Minor Chords
+                      </div>
+                      <div class="category-item" data-category="seventh">
+                        7th Chords
+                      </div>
+                      <div class="category-item" data-category="extended">
+                        Extended Chords
+                      </div>
+                      <div class="category-item" data-category="altered">
+                        Altered Chords
+                      </div>
+                      <div class="category-item" data-category="suspended">
+                        Suspended Chords
+                      </div>
+                    </div>
+                  </div>
+                  <div class="chord-details" id="chord-details">
+                    <div class="placeholder-text">
+                      Select a category to browse chords
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Tab Content -->
+              <div class="dict-tab-content" id="dict-tab-interactive">
+                <div class="interactive-section">
+                  <div class="interactive-title">
+                    Click piano keys to identify chords
+                  </div>
+                  <div class="interactive-piano" id="interactive-piano">
+                    <!-- Interactive piano will be rendered here -->
+                    <div class="placeholder-text">
+                      Interactive piano will appear here
+                    </div>
+                  </div>
+                  <div class="selected-notes" id="selected-notes">
+                    <div class="notes-display">
+                      Selected notes: <span id="selected-notes-list">None</span>
+                    </div>
+                    <button class="btn small" id="clear-notes">
+                      Clear All
+                    </button>
+                  </div>
+                  <div class="chord-results" id="chord-results">
+                    <div class="placeholder-text">
+                      Chord identification results will appear here
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
