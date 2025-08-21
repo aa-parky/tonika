@@ -1,18 +1,31 @@
 /**
- * Chord Dictionary Module
- * Provides chord lookup, search, and exploration functionality
+ * Chord Dictionary Module (Stage A + shim)
+ * Keeps behaviour the same; uses qs/qsa helpers with a local fallback.
  */
 "use strict";
+
+// ---- Lightweight DOM helpers (fallback if dom.js not loaded) ----
+(function () {
+  if (!window.qs) window.qs = (sel, ctx = document) => ctx.querySelector(sel);
+  if (!window.qsa)
+    window.qsa = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  if (!window.el)
+    window.el = (tag, props = {}) => {
+      const n = document.createElement(tag);
+      Object.assign(n, props);
+      return n;
+    };
+  if (!window.text) window.text = (t) => document.createTextNode(t);
+})();
+
 const DEBUG = false;
-/** Simple HTML escaper for dynamic strings */
-const esc = (v) =>
-  String(v).replace(
-    /[&<>"']/g,
-    (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-        c
-      ],
-  );
+const esc = (s) =>
+  String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
 class ChordDictionary {
   constructor() {
@@ -29,9 +42,6 @@ class ChordDictionary {
     DEBUG && console.log("ChordDictionary initialized");
   }
 
-  /**
-   * Initialize the chord dictionary
-   */
   async init() {
     try {
       await this.loadChordData();
@@ -44,19 +54,10 @@ class ChordDictionary {
     }
   }
 
-  /**
-   * Load chord data from JSON files
-   */
   async loadChordData() {
     try {
-      // Load existing chord data
       const response = await fetch("./theory/chords.json");
       this.chords = await response.json();
-
-      // TODO: Load voicings data when voicings.json is created
-      // const voicingsResponse = await fetch('./theory/voicings.json');
-      // this.voicings = await voicingsResponse.json();
-
       DEBUG &&
         console.log(
           "Chord data loaded:",
@@ -65,14 +66,10 @@ class ChordDictionary {
         );
     } catch (error) {
       console.error("Failed to load chord data:", error);
-      // Fallback to basic chord data
       this.chords = this.getBasicChordData();
     }
   }
 
-  /**
-   * Get basic chord data as fallback
-   */
   getBasicChordData() {
     return {
       C: {
@@ -113,46 +110,39 @@ class ChordDictionary {
     };
   }
 
-  /**
-   * Setup DOM element references
-   */
   setupDOMElements() {
     this.elements = {
       // Search elements
-      searchInput: document.getElementById("chord-search-input"),
-      searchSuggestions: document.getElementById("search-suggestions"),
+      searchInput: qs("#chord-search-input"),
+      searchSuggestions: qs("#search-suggestions"),
 
       // Display elements
-      chordDisplay: document.getElementById("chord-display"),
-      chordName: document.getElementById("dict-chord-name"),
-      chordNotes: document.getElementById("chord-notes"),
-      chordIntervals: document.getElementById("chord-intervals"),
-      chordFunction: document.getElementById("chord-function-dict"),
-      chordQuality: document.getElementById("chord-quality"),
+      chordDisplay: qs("#chord-display"),
+      chordName: qs("#dict-chord-name"),
+      chordNotes: qs("#chord-notes"),
+      chordIntervals: qs("#chord-intervals"),
+      chordFunction: qs("#chord-function-dict"),
+      chordQuality: qs("#chord-quality"),
 
       // Piano elements
-      pianoContainer: document.getElementById("dictionary-piano"),
-      interactivePiano: document.getElementById("interactive-piano"),
+      pianoContainer: qs("#dictionary-piano"),
+      interactivePiano: qs("#interactive-piano"),
 
       // Voicings elements
-      voicingsGrid: document.getElementById("voicings-grid"),
+      voicingsGrid: qs("#voicings-grid"),
 
       // Browse elements
-      chordCategories: document.getElementById("chord-categories"),
-      chordDetails: document.getElementById("chord-details"),
+      chordCategories: qs("#chord-categories"),
+      chordDetails: qs("#chord-details"),
 
       // Interactive elements
-      selectedNotesList: document.getElementById("selected-notes-list"),
-      clearNotesBtn: document.getElementById("clear-notes"),
-      chordResults: document.getElementById("chord-results"),
+      selectedNotesList: qs("#selected-notes-list"),
+      clearNotesBtn: qs("#clear-notes"),
+      chordResults: qs("#chord-results"),
     };
   }
 
-  /**
-   * Setup event listeners
-   */
   setupEventListeners() {
-    // Search functionality
     if (this.elements.searchInput) {
       this.elements.searchInput.addEventListener("input", (e) => {
         this.handleSearch(e.target.value);
@@ -160,78 +150,70 @@ class ChordDictionary {
     }
 
     // Suggestion chips
-    const suggestionChips = document.querySelectorAll(".suggestion-chip");
-    suggestionChips.forEach((chip) => {
+    qsa(".suggestion-chip").forEach((chip) => {
       chip.addEventListener("click", (e) => {
-        const chordName = e.target.dataset.chord;
+        const target = e.currentTarget || e.target;
+        const chordName = target.dataset.chord;
+        if (!chordName) return;
         this.selectChord(chordName);
-        this.elements.searchInput.value = chordName;
+        if (this.elements.searchInput)
+          this.elements.searchInput.value = chordName;
       });
     });
 
     // Category selection
-    const categoryItems = document.querySelectorAll(".category-item");
-    categoryItems.forEach((item) => {
+    qsa(".category-item").forEach((item) => {
       item.addEventListener("click", (e) => {
-        this.selectCategory(e.target.dataset.category);
+        const target = e.currentTarget || e.target;
+        const cat = target.dataset.category;
+        if (!cat) return;
+        this.selectCategory(cat);
       });
     });
 
     // Clear notes button
     if (this.elements.clearNotesBtn) {
-      this.elements.clearNotesBtn.addEventListener("click", () => {
-        this.clearSelectedNotes();
-      });
+      this.elements.clearNotesBtn.addEventListener("click", () =>
+        this.clearSelectedNotes(),
+      );
     }
   }
 
-  /**
-   * Setup dictionary sub-tabs
-   */
   setupDictionaryTabs() {
-    const dictTabBtns = document.querySelectorAll(".dict-tab-btn");
-    const dictTabContents = document.querySelectorAll(".dict-tab-content");
+    const dictTabBtns = qsa(".dict-tab-btn");
+    const dictTabContents = qsa(".dict-tab-content");
 
     dictTabBtns.forEach((btn) => {
       btn.addEventListener("click", (e) => {
-        const targetTab = e.target.dataset.dictTab;
+        const target = e.currentTarget || e.target;
+        const targetTab = target.dataset.dictTab;
+        if (!targetTab) return;
 
         // Remove active class from all buttons and contents
         dictTabBtns.forEach((b) => b.classList.remove("active"));
         dictTabContents.forEach((c) => c.classList.remove("active"));
 
         // Add active class to clicked button and corresponding content
-        e.target.classList.add("active");
-        document
-          .getElementById(`dict-tab-${targetTab}`)
-          .classList.add("active");
+        target.classList.add("active");
+        const tabPanel = qs(`#dict-tab-${targetTab}`);
+        if (tabPanel) tabPanel.classList.add("active");
 
-        // Handle tab-specific initialization
         this.handleTabSwitch(targetTab);
       });
     });
   }
 
-  /**
-   * Handle search input
-   */
   handleSearch(query) {
-    if (query.length < 2) {
+    if (!query || query.length < 2) {
       this.clearChordDisplay();
       return;
     }
-
     const results = this.searchChords(query);
-    if (results.length > 0) {
-      this.selectChord(results[0].name);
-    }
+    if (results.length > 0) this.selectChord(results[0].name);
   }
 
-  /**
-   * Search for chords matching the query
-   */
   searchChords(query) {
-    const normalizedQuery = query.toLowerCase().trim();
+    const normalizedQuery = String(query).toLowerCase().trim();
     const results = [];
 
     for (const [chordName, chordData] of Object.entries(this.chords)) {
@@ -243,13 +225,9 @@ class ChordDictionary {
         });
       }
     }
-
     return results.sort((a, b) => b.relevance - a.relevance);
   }
 
-  /**
-   * Calculate search relevance score
-   */
   calculateRelevance(chordName, query) {
     const name = chordName.toLowerCase();
     if (name === query) return 100;
@@ -258,30 +236,21 @@ class ChordDictionary {
     return 0;
   }
 
-  /**
-   * Select and display a chord
-   */
   selectChord(chordName) {
     const chordData = this.chords[chordName];
     if (!chordData) {
       console.warn("Chord not found:", chordName);
       return;
     }
-
     this.currentChord = { name: chordName, data: chordData };
     this.displayChord();
     DEBUG && console.log("Selected chord:", chordName);
   }
 
-  /**
-   * Display the selected chord
-   */
   displayChord() {
     if (!this.currentChord) return;
 
     const { name, data } = this.currentChord;
-
-    // Update chord display
     this.elements.chordName.textContent = name;
     this.elements.chordNotes.textContent = data.notes
       ? data.notes.join(" - ")
@@ -293,18 +262,11 @@ class ChordDictionary {
     this.elements.chordFunction.textContent =
       this.getChordFunction(name) || "-";
 
-    // Update piano visualization (placeholder)
     this.updatePianoVisualization();
-
-    // Update voicings (placeholder)
     this.updateVoicings();
   }
 
-  /**
-   * Get chord function (placeholder)
-   */
   getChordFunction(chordName) {
-    // TODO: Implement proper chord function analysis
     if (chordName.startsWith("C")) return "I (Tonic)";
     if (chordName.startsWith("F")) return "IV (Subdominant)";
     if (chordName.startsWith("G")) return "V (Dominant)";
@@ -312,149 +274,101 @@ class ChordDictionary {
     return "Function TBD";
   }
 
-  /**
-   * Update piano visualization (placeholder)
-   */
   updatePianoVisualization() {
     if (!this.currentChord) return;
-
     const notes = this.currentChord.data.notes || [];
     this.elements.pianoContainer.innerHTML = `
-            <div class="piano-placeholder">
-                <p>Piano visualization for: <strong>${esc(this.currentChord.name)}</strong></p>
-                <p>Notes: ${notes.map(esc).join(", ")}</p>
-                <p><em>Piano keyboard will be rendered here</em></p>
-            </div>
-        `;
+      <div class="piano-placeholder">
+        <p>Piano visualization for: <strong>${esc(this.currentChord.name)}</strong></p>
+        <p>Notes: ${esc(notes.join(", "))}</p>
+        <p><em>Piano keyboard will be rendered here</em></p>
+      </div>`;
   }
 
-  /**
-   * Update voicings display (placeholder)
-   */
   updateVoicings() {
     if (!this.currentChord) return;
-
     const voicings = this.generateBasicVoicings(this.currentChord);
-
     this.elements.voicingsGrid.innerHTML = voicings
       .map(
-        (voicing) => `
-            <div class="voicing-card">
-                <div class="voicing-name">${esc(voicing.name)}</div>
-                <div class="voicing-notes">${voicing.notes.map(esc).join(" - ")}</div>
-                <div class="voicing-placeholder">
-                    <em>Mini piano will appear here</em>
-                </div>
-            </div>
-        `,
+        (v) => `
+      <div class="voicing-card">
+        <div class="voicing-name">${esc(v.name)}</div>
+        <div class="voicing-notes">${esc(v.notes.join(" - "))}</div>
+        <div class="voicing-placeholder"><em>Mini piano will appear here</em></div>
+      </div>`,
       )
       .join("");
   }
 
-  /**
-   * Generate basic voicings (placeholder)
-   */
   generateBasicVoicings(chord) {
     const notes = chord.data.notes || [];
     if (notes.length === 0) return [];
-
-    const voicings = [{ name: "Root Position", notes: notes }];
-
-    // Add inversions if chord has enough notes
-    if (notes.length >= 3) {
-      const firstInversion = [notes[1], notes[2], notes[0]];
-      voicings.push({ name: "1st Inversion", notes: firstInversion });
-    }
-
-    if (notes.length >= 4) {
-      const secondInversion = [notes[2], notes[3], notes[0], notes[1]];
-      voicings.push({ name: "2nd Inversion", notes: secondInversion });
-    }
-
+    const voicings = [{ name: "Root Position", notes }];
+    if (notes.length >= 3)
+      voicings.push({
+        name: "1st Inversion",
+        notes: [notes[1], notes[2], notes[0]],
+      });
+    if (notes.length >= 4)
+      voicings.push({
+        name: "2nd Inversion",
+        notes: [notes[2], notes[3], notes[0], notes[1]],
+      });
     return voicings;
   }
 
-  /**
-   * Select chord category for browsing
-   */
   selectCategory(category) {
     this.currentCategory = category;
-
-    // Update active category
-    document.querySelectorAll(".category-item").forEach((item) => {
-      item.classList.remove("active");
-    });
-    document
-      .querySelector(`[data-category="${category}"]`)
-      .classList.add("active");
-
-    // Display chords in category
+    qsa(".category-item").forEach((item) => item.classList.remove("active"));
+    const active = qs(`[data-category="${category}"]`);
+    if (active) active.classList.add("active");
     this.displayCategoryChords(category);
   }
 
-  /**
-   * Display chords in selected category (placeholder)
-   */
   displayCategoryChords(category) {
     const categoryChords = this.getChordsInCategory(category);
-
     this.elements.chordDetails.innerHTML = `
-            <div class="category-chords">
-                <h4>${esc(this.getCategoryTitle(category))}</h4>
-                <div class="chord-list">
-                    ${categoryChords
-                      .map(
-                        (chord) => `
-                        <div class="chord-item" data-chord="${esc(chord)}">
-                            <span class="chord-name">${esc(chord)}</span>
-                            <span class="chord-notes">${this.chords[chord]?.notes?.join(" ") || ""}</span>
-                        </div>
-                    `,
-                      )
-                      .join("")}
-                </div>
-            </div>
-        `;
+      <div class="category-chords">
+        <h4>${this.getCategoryTitle(category)}</h4>
+        <div class="chord-list">
+          ${categoryChords
+            .map(
+              (chord) => `
+            <div class="chord-item" data-chord="${esc(chord)}">
+              <span class="chord-name">${esc(chord)}</span>
+              <span class="chord-notes">${esc(this.chords[chord]?.notes?.join(" ") || "")}</span>
+            </div>`,
+            )
+            .join("")}
+        </div>
+      </div>`;
 
-    // Add click listeners to chord items
     this.elements.chordDetails
       .querySelectorAll(".chord-item")
       .forEach((item) => {
         item.addEventListener("click", (e) => {
-          const chordName = e.currentTarget.dataset.chord;
-          this.selectChord(chordName);
+          const name = e.currentTarget.dataset.chord;
+          this.selectChord(name);
         });
       });
   }
 
-  /**
-   * Get chords in category (placeholder)
-   */
   getChordsInCategory(category) {
     const allChords = Object.keys(this.chords);
-
     switch (category) {
       case "major":
         return allChords.filter(
-          (chord) =>
-            !chord.includes("m") &&
-            !chord.includes("7") &&
-            !chord.includes("sus"),
+          (c) => !c.includes("m") && !c.includes("7") && !c.includes("sus"),
         );
       case "minor":
-        return allChords.filter(
-          (chord) => chord.includes("m") && !chord.includes("7"),
-        );
+        return allChords.filter((c) => c.includes("m") && !c.includes("7"));
       case "seventh":
-        return allChords.filter((chord) => chord.includes("7"));
+        return allChords.filter((c) => c.includes("7"));
       default:
-        return allChords.slice(0, 5); // Placeholder
+        return allChords.slice(0, 5);
     }
   }
 
-  /**
-   * Get category title
-   */
   getCategoryTitle(category) {
     const titles = {
       major: "Major Chords",
@@ -467,40 +381,27 @@ class ChordDictionary {
     return titles[category] || "Chords";
   }
 
-  /**
-   * Handle tab switching
-   */
   handleTabSwitch(tabName) {
     switch (tabName) {
       case "search":
-        // Initialize search tab
         break;
       case "browse":
-        // Initialize browse tab
         this.displayCategoryChords(this.currentCategory);
         break;
       case "interactive":
-        // Initialize interactive tab
         this.setupInteractivePiano();
         break;
     }
   }
 
-  /**
-   * Setup interactive piano (placeholder)
-   */
   setupInteractivePiano() {
     this.elements.interactivePiano.innerHTML = `
-            <div class="interactive-placeholder">
-                <p><em>Interactive piano keyboard will appear here</em></p>
-                <p>Click keys to select notes and identify chords</p>
-            </div>
-        `;
+      <div class="interactive-placeholder">
+        <p><em>Interactive piano keyboard will appear here</em></p>
+        <p>Click keys to select notes and identify chords</p>
+      </div>`;
   }
 
-  /**
-   * Clear selected notes
-   */
   clearSelectedNotes() {
     this.selectedNotes = [];
     this.elements.selectedNotesList.textContent = "None";
@@ -508,9 +409,6 @@ class ChordDictionary {
       '<div class="placeholder-text">Select notes to identify chords</div>';
   }
 
-  /**
-   * Clear chord display
-   */
   clearChordDisplay() {
     this.currentChord = null;
     this.elements.chordName.textContent = "Select a chord to explore";
@@ -518,7 +416,6 @@ class ChordDictionary {
     this.elements.chordIntervals.textContent = "-";
     this.elements.chordFunction.textContent = "-";
     this.elements.chordQuality.textContent = "-";
-
     this.elements.pianoContainer.innerHTML =
       '<div class="placeholder-text">Piano visualization will appear here</div>';
     this.elements.voicingsGrid.innerHTML =
@@ -526,7 +423,6 @@ class ChordDictionary {
   }
 }
 
-// Initialize chord dictionary when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof window.chordDictionary === "undefined") {
     window.chordDictionary = new ChordDictionary();
@@ -534,7 +430,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Export for use in other modules
 if (typeof module !== "undefined" && module.exports) {
   module.exports = ChordDictionary;
 }

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Tonika – VPC1 Visualizer</title>
     <link rel="stylesheet" href="css/styles.css" />
+    <script defer src="js/dom.js"></script>
     <script defer src="js/piano.js"></script>
     <script defer src="js/guitar.js"></script>
     <script defer src="js/recorder.js"></script>
@@ -13,8 +14,7 @@
     <script defer src="js/theory-analysis.js"></script>
     <script defer src="js/chord-dictionary.js"></script>
     <script defer src="js/tabs.js"></script>
-    <script defer src="js/dom.js"></script>
-<script defer src="js/app.js"></script>
+    <script defer src="js/app.js"></script>
   </head>
   <body>
     <div class="wrap">
@@ -98,56 +98,57 @@
           </div>
 
           <div class="main-display">
-          <div class="big-chord">
-            <span id="bigPrefix" class="label"></span>
-            <span id="bigChordName" class="name"></span>
-          </div>
-
-          <!-- Theory Analysis Display -->
-          <div id="theory-analysis" class="theory-analysis hidden">
-            <div class="theory-item">
-              <span class="theory-label">Roman</span>
-              <span
-                class="theory-value roman"
-                id="roman-numeral"
-                title="Roman numeral analysis shows the chord's relationship to the key center"
-                >-</span
-              >
-            </div>
-            <div class="theory-item">
-              <span class="theory-label">Function</span>
-              <span
-                class="theory-value function"
-                id="chord-function"
-                title="Harmonic function describes the chord's role in the progression"
-                >-</span
-              >
-            </div>
-            <div class="theory-item">
-              <span class="theory-label">Tensions</span>
-              <span
-                class="theory-value tensions"
-                id="available-tensions"
-                title="Available tensions are extensions that can be added to the chord"
-                >-</span
-              >
-            </div>
-            <div class="theory-item">
-              <span class="theory-label">Progression</span>
-              <span
-                class="theory-value progression"
-                id="progression-pattern"
-                title="Common chord progression patterns"
-                >-</span
-              >
+            <div class="big-chord">
+              <span id="bigPrefix" class="label"></span>
+              <span id="bigChordName" class="name"></span>
             </div>
 
-            <!-- Theory Description Area -->
-            <div id="theory-description" class="theory-description hidden">
-              <div id="function-description" class="description-text"></div>
+            <!-- Theory Analysis Display -->
+            <div id="theory-analysis" class="theory-analysis hidden">
+              <div class="theory-item">
+                <span class="theory-label">Roman</span>
+                <span
+                  class="theory-value roman"
+                  id="roman-numeral"
+                  title="Roman numeral analysis shows the chord's relationship to the key center"
+                  >-</span
+                >
+              </div>
+              <div class="theory-item">
+                <span class="theory-label">Function</span>
+                <span
+                  class="theory-value function"
+                  id="chord-function"
+                  title="Harmonic function describes the chord's role in the progression"
+                  >-</span
+                >
+              </div>
+              <div class="theory-item">
+                <span class="theory-label">Tensions</span>
+                <span
+                  class="theory-value tensions"
+                  id="available-tensions"
+                  title="Available tensions are extensions that can be added to the chord"
+                  >-</span
+                >
+              </div>
+              <div class="theory-item">
+                <span class="theory-label">Progression</span>
+                <span
+                  class="theory-value progression"
+                  id="progression-pattern"
+                  title="Common chord progression patterns"
+                  >-</span
+                >
+              </div>
+
+              <!-- Theory Description Area -->
+              <div id="theory-description" class="theory-description hidden">
+                <div id="function-description" class="description-text"></div>
+              </div>
             </div>
           </div>
-          </div> <!-- /.main-display -->
+          <!-- /.main-display -->
         </div>
 
         <!-- Fretboard card -->
