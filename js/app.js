@@ -1,4 +1,3 @@
-// Modular app bootstrap (Stage 3.4): solo piano + scroll default
 import { bus } from "./core/event-bus.js";
 import { createStore } from "./core/store.js";
 import { settings } from "./services/settings.js";
