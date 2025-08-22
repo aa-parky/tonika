@@ -1,0 +1,1270 @@
+/* Universal box-sizing for consistent layout */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #111;
+  --panel: #1b1b1b;
+  --ink: #eaeaea;
+  --muted: #9aa0a6;
+  --accent: #6aa0ff;
+  --ok: #58d68d;
+  --warn: #f5b041;
+  --bad: #ec7063;
+  --bigChordScale: 1;
+}
+
+/* base */
+html,
+body {
+  height: 100vh; /* Use full viewport height */
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font:
+    14px/1.4 system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial;
+}
+
+.wrap {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 10px;
+  max-width: 1200px;
+  margin: 10px auto;
+  padding: 10px;
+  height: calc(100vh - 20px); /* Full height minus margins */
+  box-sizing: border-box;
+}
+
+/* top bar – only controls */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+select,
+button {
+  background: #222;
+  color: var(--ink);
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+/* layout */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.grid.onecol {
+  grid-template-columns: 1fr;
+}
+
+.card {
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #000;
+  border-radius: 8px;
+}
+
+/* header rows inside cards */
+.stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* left + right */
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* left cluster stays as a small group */
+.stat-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* right cluster: recorder + save + latency */
+.stat-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+#latencyText {
+  min-width: 90px; /* fixed box so digits don't move layout */
+  text-align: right;
+}
+
+/* legend */
+.legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* helpers */
+.small {
+  font-size: 12px;
+  color: var(--muted);
+}
+footer {
+  color: var(--muted);
+  text-align: center;
+  padding: 8px;
+}
+.title {
+  font-weight: 600;
+}
+.hidden {
+  display: none !important;
+}
+
+/* big chord line */
+.big-chord {
+  margin-top: 12px;
+  background: var(--panel);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: calc(clamp(28px, 6vw, 96px) * var(--bigChordScale));
+  line-height: 1.1;
+  /* height removed: now controlled by .main-display */
+  overflow: hidden; /* prevent internal growth */
+  display: flex;
+  flex-direction: row; /* baseline alignment needs row */
+  align-items: baseline; /* align label + name on baseline */
+  justify-content: center; /* center the pair */
+  gap: 0.4em; /* spacing between label and name */
+}
+.big-chord .label {
+  font-size: 0.5em; /* smaller label relative to chord */
+  opacity: 0.9;
+  margin: 0;
+}
+.big-chord .name {
+  font-size: 1em; /* full size chord/note name */
+  font-weight: 700;
+  color: #54e6d5;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* recorder bits */
+#recStatus {
+  margin-left: 8px;
+  opacity: 0.8;
+}
+#recStatus.rec {
+  color: #ff6b6b;
+} /* red dot when recording */
+#recStatus.idle {
+  color: #888;
+}
+
+.btn.small {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: #ddd;
+}
+
+/* optional polish */
+#takesPanel .takes-list {
+  list-style: decimal inside;
+  padding: 0;
+  margin: 6px 0 0;
+}
+#takesPanel li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  border-top: 1px solid #2a2a2a;
+}
+#takesPanel li:first-child {
+  border-top: 0;
+}
+.take-left .take-name {
+  font-weight: 600;
+}
+.take-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* settings dialog */
+#settingsDialog {
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 16px;
+  background: #1b1b1b;
+  color: var(--ink);
+  max-width: 420px;
+}
+#settingsDialog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+.settings-form h3 {
+  margin: 0 0 12px;
+}
+.settings-form .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0 16px;
+}
+.settings-form .value {
+  color: var(--muted);
+  min-width: 48px;
+  text-align: right;
+}
+.settings-form .buttons {
+  text-align: right;
+}
+
+/* =========================
+   FIXED Theory Analysis Styles - Single Clean Version
+   ========================= */
+
+/* Theory Analysis Container - GRID LAYOUT */
+.theory-analysis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 120px; /* Reserve space to prevent height jumps */
+}
+
+/* Individual Theory Items */
+.theory-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0; /* Allows flex items to shrink */
+}
+
+/* Theory Labels */
+.theory-label {
+  font-size: 10px;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* Theory Values with FIXED Tooltip Support */
+.theory-value {
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  word-wrap: break-word;
+  cursor: help;
+  position: relative;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* FIXED Tooltip Styles - Properly Positioned */
+.theory-value[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: normal;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  max-width: 200px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.theory-value[title]:hover::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Theory Description Area - FIXED */
+.theory-description {
+  grid-column: 1 / -1; /* Span full width of theory analysis grid */
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.4;
+  transition: all 0.3s ease-in-out;
+  min-height: 32px; /* Reserve space for description text */
+  display: flex;
+  align-items: center; /* Center content vertically */
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.theory-description.hidden {
+  display: none;
+}
+
+.description-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-style: italic;
+}
+
+/* Settings Toggle Styling */
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4caf50;
+  cursor: pointer;
+}
+
+.settings-toggle span {
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.settings-toggle:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+  margin: 12px -4px;
+  padding: 8px 4px;
+}
+
+/* Color Coding for Different Theory Elements */
+.roman {
+  color: #4caf50; /* Green - structural foundation */
+}
+
+.function {
+  color: #2196f3; /* Blue - functional purpose */
+}
+
+.tensions {
+  color: #ff9800; /* Orange - colorful extensions */
+}
+
+.progression {
+  color: #9c27b0; /* Purple - pattern recognition */
+}
+
+/* Hidden State */
+.theory-analysis.hidden {
+  display: none;
+}
+
+/* Hover Effects */
+.theory-item:hover .theory-value {
+  opacity: 0.8;
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Animation for Updates */
+.theory-value.updated {
+  animation: highlight 0.5s ease-in-out;
+}
+
+.description-text.updated {
+  animation: highlight 0.5s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .theory-analysis {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .theory-value {
+    font-size: 12px;
+  }
+
+  .theory-label {
+    font-size: 9px;
+  }
+
+  .theory-description {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .theory-value[title]:hover::after {
+    max-width: 150px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .theory-analysis {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .theory-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .theory-label {
+    text-align: left;
+  }
+
+  .theory-value {
+    text-align: right;
+  }
+
+  .theory-description {
+    margin-top: 6px;
+    font-size: 10px;
+  }
+}
+
+/* ===== TAB SYSTEM ===== */
+.supporting-area {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+.tab-header {
+  display: flex;
+  border-bottom: 1px solid #333;
+  margin-bottom: 0;
+  padding: 0;
+  gap: 0;
+  flex-shrink: 0; /* Header stays fixed size */
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tab-btn:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(106, 160, 255, 0.1);
+}
+
+.tab-content {
+  flex: 1; /* Take up remaining space */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
+  overflow: hidden;
+}
+
+.tab-panel {
+  display: none;
+  flex: 1; /* Take up full height of tab-content */
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+.tab-panel.active {
+  display: flex; /* Use flex when active */
+}
+
+.tab-scroll {
+  flex: 1; /* Take up remaining space in tab panel */
+  overflow-y: auto;
+  padding: 10px 0;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+.tab-scroll h4 {
+  color: var(--accent);
+  margin: 16px 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.tab-scroll h4:first-child {
+  margin-top: 0;
+}
+
+.tab-scroll p {
+  margin: 8px 0;
+  line-height: 1.5;
+  color: var(--ink);
+  opacity: 0.9;
+}
+
+.tab-scroll ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.tab-scroll li {
+  margin: 6px 0;
+  line-height: 1.4;
+  color: var(--ink);
+  opacity: 0.9;
+}
+
+.tab-scroll li strong {
+  color: var(--accent);
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 8px 0;
+}
+
+.settings-row span:first-child {
+  min-width: 120px;
+  color: var(--ink);
+}
+
+.settings-row input[type="range"] {
+  flex: 1;
+  margin: 0 8px;
+}
+
+.settings-row .value {
+  min-width: 50px;
+  text-align: right;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* Custom scrollbar for tab content */
+.tab-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tab-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.tab-scroll::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.tab-scroll::-webkit-scrollbar-thumb:hover {
+  background: #5a8fff;
+}
+
+/* Sort control styling */
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 8px;
+}
+
+.small-select {
+  background: #222;
+  color: var(--ink);
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 11px;
+  min-width: 100px;
+}
+
+.small-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Export dropdown styling */
+.export-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.export-dropdown.open {
+  z-index: 10000;
+}
+
+.export-btn {
+  background: #333;
+  color: var(--ink);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.export-btn:hover {
+  background: #444;
+}
+
+.export-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 10001;
+  min-width: 120px;
+  margin-top: 2px;
+}
+
+.export-menu.hidden {
+  display: none;
+}
+
+/* Ensure parent list item has proper stacking when dropdown is open */
+.takes-list li {
+  position: relative;
+}
+
+.takes-list li.dropdown-open {
+  z-index: 10000;
+}
+
+.export-option {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--ink);
+  padding: 8px 12px;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.export-option:hover {
+  background: var(--accent);
+  color: white;
+}
+
+.export-option:first-child {
+  border-radius: 4px 4px 0 0;
+}
+
+.export-option:last-child {
+  border-radius: 0 0 4px 4px;
+}
+
+/* Close dropdown when clicking outside */
+.export-dropdown:not(:focus-within) .export-menu {
+  display: none;
+}
+
+/* Responsive adjustments for tabs */
+@media (max-width: 768px) {
+  .tab-header {
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  /* Flexible layout works on mobile too - no fixed heights needed */
+}
+
+/* Dark Theme Adjustments */
+@media (prefers-color-scheme: dark) {
+  .theory-analysis {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .theory-description {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Light Theme Adjustments */
+@media (prefers-color-scheme: light) {
+  .theory-analysis {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .theory-description {
+    background: rgba(0, 0, 0, 0.03);
+    border-left-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .theory-label {
+    opacity: 0.7;
+  }
+
+  .theory-value[title]:hover::after {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .theory-value[title]:hover::before {
+    border-top-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* =========================
+   CHORD DICTIONARY STYLES
+   ========================= */
+
+/* Dictionary Sub-tabs */
+.dictionary-tabs {
+  display: flex;
+  border-bottom: 1px solid #333;
+  margin-bottom: 16px;
+  gap: 0;
+}
+
+.dict-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dict-tab-btn:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dict-tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(106, 160, 255, 0.1);
+}
+
+.dict-tab-content {
+  display: none;
+}
+
+.dict-tab-content.active {
+  display: block;
+}
+
+/* Search Section */
+.search-section {
+  margin-bottom: 20px;
+}
+
+.chord-search-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: var(--ink);
+  transition: border-color 0.3s ease;
+}
+
+.chord-search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.chord-search-input::placeholder {
+  color: var(--muted);
+}
+
+.search-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.suggestion-chip {
+  padding: 4px 8px;
+  background: #333;
+  border-radius: 12px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--ink);
+}
+
+.suggestion-chip:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* Chord Display */
+.chord-display {
+  background: #222;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chord-display .chord-name {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.chord-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.info-item {
+  background: #1a1a1a;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.info-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Piano Container */
+.piano-container {
+  background: #222;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.piano-title {
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.dictionary-piano,
+.interactive-piano {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.piano-placeholder {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+}
+
+.piano-placeholder p {
+  margin: 4px 0;
+}
+
+.piano-placeholder strong {
+  color: var(--accent);
+}
+
+/* Voicings Section */
+.voicings-section {
+  margin-top: 20px;
+}
+
+.voicings-title {
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.voicings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.voicing-card {
+  background: #1a1a1a;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.voicing-name {
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.voicing-notes {
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.voicing-placeholder {
+  font-size: 10px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Browse Section */
+.browse-section {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  min-height: 200px;
+}
+
+.chord-categories {
+  background: #222;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.category-title {
+  font-size: 12px;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-item {
+  padding: 6px 8px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 11px;
+  color: var(--ink);
+}
+
+.category-item:hover {
+  background: #333;
+}
+
+.category-item.active {
+  background: var(--accent);
+  color: white;
+}
+
+.chord-details {
+  background: #222;
+  border-radius: 6px;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.category-chords h4 {
+  color: var(--accent);
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.chord-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chord-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chord-item:hover {
+  background: #333;
+}
+
+.chord-item .chord-name {
+  font-weight: 500;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.chord-item .chord-notes {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* Interactive Section */
+.interactive-section {
+  text-align: center;
+}
+
+.interactive-title {
+  font-size: 14px;
+  color: var(--accent);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.interactive-placeholder {
+  padding: 40px 20px;
+  color: var(--muted);
+  background: #222;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.interactive-placeholder p {
+  margin: 4px 0;
+}
+
+.selected-notes {
+  background: #222;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notes-display {
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.notes-display span {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.chord-results {
+  background: #222;
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Placeholder Text */
+.placeholder-text {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 12px;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Responsive Design for Dictionary */
+@media (max-width: 768px) {
+  .browse-section {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .chord-categories {
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .category-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chord-info {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .voicings-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .chord-display .chord-name {
+    font-size: 1.5rem;
+  }
+
+  .selected-notes {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .dictionary-tabs {
+    flex-wrap: wrap;
+  }
+
+  .dict-tab-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .chord-info {
+    grid-template-columns: 1fr;
+  }
+
+  .chord-display .chord-name {
+    font-size: 1.2rem;
+  }
+
+  .search-suggestions {
+    justify-content: center;
+  }
+}
+
+/* ===== Main Display (wrapper for big chord + theory) ===== */
+.main-display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: clamp(260px, 40vh, 420px); /* flexible but bounded */
+  overflow: hidden; /* stops outer jumpiness */
+}
+
+/* Size the big chord line within the wrapper without forcing global height */
+.main-display .big-chord {
+  flex: 0 0 clamp(120px, 18vh, 180px);
+  overflow: hidden;
+}
+
+/* Theory area fills remaining space and scrolls internally as needed */
+.main-display .theory-analysis {
+  flex: 1 1 auto;
+  min-height: 0; /* allow to shrink in flex column */
+  overflow-y: auto;
+}
+
+/* Small screen refinements */
+@media (max-width: 768px) {
+  .main-display {
+    height: clamp(240px, 34vh, 360px);
+  }
+}
+@media (max-width: 480px) {
+  .main-display {
+    height: clamp(220px, 32vh, 320px);
+  }
+}
