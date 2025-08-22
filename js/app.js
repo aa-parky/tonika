@@ -1,3 +1,27 @@
+// ---- Tonika Stage-1 Core Shim (non-breaking) ----
+(function () {
+  if (!window.Core) {
+    console.warn("[Tonika] Core not loaded; shim inactive.");
+    return;
+  }
+
+  const Bus = new Core.Bus();
+  const State = Core.State.create();
+
+  // A light namespace so other files can access shared objects now.
+  window.Tonika = window.Tonika || {};
+  Object.assign(window.Tonika, {
+    Bus,
+    State,
+    // Helper passthroughs for convenience
+    Utils: Core.Utils,
+    Constants: Core.Constants,
+    Storage: Core.Storage,
+    emitStateChanged() {
+      Bus.emit("state:changed", State);
+    },
+  });
+})();
 // ---- DOM helper fallback (in case dom.js fails to load) ----
 (function () {
   if (!window.qs) window.qs = (sel, ctx = document) => ctx.querySelector(sel);
@@ -1128,3 +1152,7 @@ function debugTheoryAnalysis() {
     descriptionContainer.classList.add("hidden");
   }
 })();
+// ---- Stage-1 extra: signal app booted (harmless if unused)
+try {
+  window.Tonika?.Bus?.emit("app:booted");
+} catch {}
