@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tonika · *onika Front Porch</title>
+    <link rel="icon" href="favicon.svg" />
+    <link rel="stylesheet" href="styles/tonika.css" />
+    <!-- Example: if you have built component bundles, include them here -->
+    <!-- <script defer src="/components/clavonika.iife.js"></script> -->
+    <!-- <script defer src="/components/jackonika.iife.js"></script> -->
+    <!-- <script defer src="/components/midonika.iife.js"></script> -->
+    <!-- <script defer src="/components/backplanika.iife.js"></script> -->
+    <script type="module" src="/js/app.js"></script>
+  </head>
+  <body>
+    <header class="tk-appbar">
+      <div class="tk-appbar__brand">
+        <img class="tk-logo" src="favicon.svg" alt="Tonika" />
+        <div>
+          <h1>Tonika</h1>
+          <p class="subtitle">Front porch for all things <em>*onika</em></p>
+        </div>
+      </div>
+      <nav class="tk-appbar__nav">
+        <a href="#home" class="active">Home</a>
+        <a href="#components">Components</a>
+        <a href="#docs">Docs</a>
+        <a href="#about">About</a>
+      </nav>
+    </header>
+
+    <main class="tk-container">
+      <!-- HOME -->
+      <section id="home" class="route route--active">
+        <div class="tk-grid">
+          <article class="tk-card tk-elev-2">
+            <header class="tk-card__head">
+              <h2>Drop‑in Components</h2>
+            </header>
+            <div class="tk-card__body">
+              <p>
+                Tonika lets you drop *onika modules into cards with a single
+                attribute:
+              </p>
+              <pre class="tk-code">
+&lt;div class="tk-card" data-onika="Clavonika" data-target="#clavonika-slot"&gt;&lt;/div&gt;</pre
+              >
+              <p>
+                No frameworks, no build steps required for users — just include
+                the module’s script and Tonika mounts it.
+              </p>
+            </div>
+          </article>
+
+          <!-- Example cards wiring up components -->
+          <article class="tk-card tk-elev-3">
+            <header class="tk-card__head">
+              <h3>Clavonika (Piano)</h3>
+            </header>
+            <div id="clavonika-slot" class="tk-card__body tk-surface"></div>
+            <footer class="tk-card__foot tk-row tk-gap">
+              <button
+                class="tk-btn"
+                data-onika="Clavonika"
+                data-target="#clavonika-slot"
+              >
+                Mount
+              </button>
+              <span class="tk-muted">Requires window.Clavonika</span>
+            </footer>
+          </article>
+
+          <article class="tk-card tk-elev-3">
+            <header class="tk-card__head">
+              <h3>Jackonika (MIDI‑In)</h3>
+            </header>
+            <div id="jackonika-slot" class="tk-card__body tk-surface"></div>
+            <footer class="tk-card__foot tk-row tk-gap">
+              <button
+                class="tk-btn"
+                data-onika="Jackonika"
+                data-target="#jackonika-slot"
+              >
+                Mount
+              </button>
+              <span class="tk-muted">Requires window.Jackonika</span>
+            </footer>
+          </article>
+
+          <article class="tk-card tk-elev-1">
+            <header class="tk-card__head"><h3>Backplanika (Router)</h3></header>
+            <div id="backplanika-slot" class="tk-card__body tk-surface"></div>
+            <footer class="tk-card__foot tk-row tk-gap">
+              <button
+                class="tk-btn"
+                data-onika="Backplanika"
+                data-target="#backplanika-slot"
+              >
+                Mount
+              </button>
+              <span class="tk-muted">Requires window.Backplanika</span>
+            </footer>
+          </article>
+
+          <article class="tk-card tk-elev-1">
+            <header class="tk-card__head">
+              <h3>Midonika (Visualizer)</h3>
+            </header>
+            <div id="midonika-slot" class="tk-card__body tk-surface"></div>
+            <footer class="tk-card__foot tk-row tk-gap">
+              <button
+                class="tk-btn"
+                data-onika="Midonika"
+                data-target="#midonika-slot"
+              >
+                Mount
+              </button>
+              <span class="tk-muted">Requires window.Midonika</span>
+            </footer>
+          </article>
+        </div>
+      </section>
+
+      <!-- COMPONENTS -->
+      <section id="components" class="route">
+        <div class="tk-grid">
+          <article class="tk-card tk-elev-2">
+            <header class="tk-card__head"><h2>Components</h2></header>
+            <div class="tk-card__body">
+              <ul class="tk-list">
+                <li><strong>Clavonika</strong> — Piano keyboard UI</li>
+                <li><strong>Jackonika</strong> — MIDI‑in stompbox / monitor</li>
+                <li><strong>Backplanika</strong> — Micro router & patching</li>
+                <li><strong>Midonika</strong> — MIDI visualizer</li>
+              </ul>
+              <p class="tk-muted">
+                Each module exposes a global with a
+                <code>mount(el, opts)</code> method.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- DOCS -->
+      <section id="docs" class="route">
+        <div class="tk-grid">
+          <article class="tk-card tk-elev-2">
+            <header class="tk-card__head"><h2>Docs (Draft)</h2></header>
+            <div class="tk-card__body">
+              <ol class="tk-steps">
+                <li>
+                  Copy your component bundle into
+                  <code>/public/components/</code>.
+                </li>
+                <li>
+                  Add
+                  <code
+                    >&lt;script defer
+                    src="/components/your.onika.iife.js"&gt;&lt;/script&gt;</code
+                  >.
+                </li>
+                <li>
+                  Add a card with <code>data-onika="YourGlobalName"</code> and
+                  <code>data-target</code> to an element inside the card.
+                </li>
+              </ol>
+              <p>That’s it. No config files needed.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about" class="route">
+        <div class="tk-grid">
+          <article class="tk-card tk-elev-1">
+            <header class="tk-card__head"><h2>About</h2></header>
+            <div class="tk-card__body">
+              <p>
+                Tonika is a lightweight, dependency‑free front end to showcase
+                and compose *onika modules.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="tk-footer">
+      <p>© Cairn &amp; Sail · Tonika</p>
+    </footer>
+  </body>
+</html>
