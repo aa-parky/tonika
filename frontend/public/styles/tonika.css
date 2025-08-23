@@ -209,3 +209,109 @@ h3 {
   text-align: center;
   color: var(--tk-muted);
 }
+
+/* === Tonika Rack System ====================================== */
+/* Visual sizes (not real mm): tune to taste */
+:root {
+  --u: 48px; /* 1U height (44px–56px feels good) */
+  --hp: 12px; /* 1HP width column */
+  --rack-gap: 12px;
+}
+
+/* Rack grid: columns in HP; rows in U */
+.tk-rack {
+  display: grid;
+  gap: var(--rack-gap);
+  grid-auto-rows: var(--u);
+}
+
+/* Common rack widths (like 84HP cases) */
+@media (max-width: 699px) {
+  .tk-rack {
+    grid-template-columns: repeat(42, var(--hp));
+  }
+} /* 42HP */
+@media (min-width: 700px) and (max-width: 1099px) {
+  .tk-rack {
+    grid-template-columns: repeat(60, var(--hp));
+  }
+} /* 60HP */
+@media (min-width: 1100px) {
+  .tk-rack {
+    grid-template-columns: repeat(84, var(--hp));
+  }
+} /* 84HP */
+
+/* Utilities: height in U (grid rows) */
+.u-1 {
+  grid-row: span 1;
+  min-height: calc(var(--u) * 1);
+}
+.u-2 {
+  grid-row: span 2;
+  min-height: calc(var(--u) * 2);
+}
+.u-3 {
+  grid-row: span 3;
+  min-height: calc(var(--u) * 3);
+}
+.u-4 {
+  grid-row: span 4;
+  min-height: calc(var(--u) * 4);
+}
+.u-5 {
+  grid-row: span 5;
+  min-height: calc(var(--u) * 5);
+}
+.u-6 {
+  grid-row: span 6;
+  min-height: calc(var(--u) * 6);
+}
+
+/* Utilities: width in HP (grid columns) */
+.hp-8 {
+  grid-column: span 8;
+  min-width: calc(var(--hp) * 8);
+}
+.hp-12 {
+  grid-column: span 12;
+  min-width: calc(var(--hp) * 12);
+}
+.hp-16 {
+  grid-column: span 16;
+  min-width: calc(var(--hp) * 16);
+}
+.hp-20 {
+  grid-column: span 20;
+  min-width: calc(var(--hp) * 20);
+}
+.hp-24 {
+  grid-column: span 24;
+  min-width: calc(var(--hp) * 24);
+}
+.hp-32 {
+  grid-column: span 32;
+  min-width: calc(var(--hp) * 32);
+}
+.hp-42 {
+  grid-column: span 42;
+  min-width: calc(var(--hp) * 42);
+}
+.hp-60 {
+  grid-column: span 60;
+  min-width: calc(var(--hp) * 60);
+}
+.hp-84 {
+  grid-column: span 84;
+  min-width: calc(var(--hp) * 84);
+}
+
+/* Make cards look nice inside racks */
+.tk-card.rack {
+  display: flex;
+  flex-direction: column;
+}
+.tk-card__body.grow {
+  flex: 1 1 auto;
+  min-height: 0;
+}

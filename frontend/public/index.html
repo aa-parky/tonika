@@ -33,32 +33,36 @@
     <main class="tk-container">
       <!-- HOME -->
       <section id="home" class="route route--active">
-        <div class="tk-grid">
-          <article class="tk-card tk-elev-2">
-            <header class="tk-card__head">
-              <h2>Drop‑in Components</h2>
-            </header>
-            <div class="tk-card__body">
+        <div class="tk-rack">
+          <!-- Docs / Drop-in card: wide & shallow -->
+          <article class="tk-card tk-elev-2 rack u-2 hp-32">
+            <header class="tk-card__head"><h2>Drop‑in Components</h2></header>
+            <div class="tk-card__body grow">
               <p>
-                Tonika lets you drop *onika modules into cards with a single
+                Tonika lets you drop *onika modules into cards with one
                 attribute:
               </p>
               <pre class="tk-code">
 &lt;div class="tk-card" data-onika="Clavonika" data-target="#clavonika-slot"&gt;&lt;/div&gt;</pre
               >
               <p>
-                No frameworks, no build steps required for users — just include
-                the module’s script and Tonika mounts it.
+                No frameworks, no build steps — just include the module’s script
+                and Tonika mounts it.
               </p>
             </div>
           </article>
 
-          <!-- Example cards wiring up components -->
-          <article class="tk-card tk-elev-3">
-            <header class="tk-card__head">
-              <h3>Clavonika (Piano)</h3>
-            </header>
-            <div id="clavonika-slot" class="tk-card__body tk-surface"></div>
+          <!-- Clavonika: taller & wider (needs space) -->
+          <article
+            class="tk-card tk-elev-3 rack u-4 hp-24"
+            data-u="4"
+            data-hp="24"
+          >
+            <header class="tk-card__head"><h3>Clavonika (Piano)</h3></header>
+            <div
+              id="clavonika-slot"
+              class="tk-card__body tk-surface grow"
+            ></div>
             <footer class="tk-card__foot tk-row tk-gap">
               <button
                 class="tk-btn"
@@ -71,11 +75,17 @@
             </footer>
           </article>
 
-          <article class="tk-card tk-elev-3">
-            <header class="tk-card__head">
-              <h3>Jackonika (MIDI‑In)</h3>
-            </header>
-            <div id="jackonika-slot" class="tk-card__body tk-surface"></div>
+          <!-- Jackonika: mid height/width -->
+          <article
+            class="tk-card tk-elev-3 rack u-3 hp-20"
+            data-u="3"
+            data-hp="20"
+          >
+            <header class="tk-card__head"><h3>Jackonika (MIDI‑In)</h3></header>
+            <div
+              id="jackonika-slot"
+              class="tk-card__body tk-surface grow"
+            ></div>
             <footer class="tk-card__foot tk-row tk-gap">
               <button
                 class="tk-btn"
@@ -88,9 +98,17 @@
             </footer>
           </article>
 
-          <article class="tk-card tk-elev-1">
+          <!-- Backplanika: compact -->
+          <article
+            class="tk-card tk-elev-1 rack u-2 hp-16"
+            data-u="2"
+            data-hp="16"
+          >
             <header class="tk-card__head"><h3>Backplanika (Router)</h3></header>
-            <div id="backplanika-slot" class="tk-card__body tk-surface"></div>
+            <div
+              id="backplanika-slot"
+              class="tk-card__body tk-surface grow"
+            ></div>
             <footer class="tk-card__foot tk-row tk-gap">
               <button
                 class="tk-btn"
@@ -103,11 +121,16 @@
             </footer>
           </article>
 
-          <article class="tk-card tk-elev-1">
+          <!-- Midonika: tall for logs -->
+          <article
+            class="tk-card tk-elev-1 rack u-4 hp-24"
+            data-u="4"
+            data-hp="24"
+          >
             <header class="tk-card__head">
               <h3>Midonika (Visualizer)</h3>
             </header>
-            <div id="midonika-slot" class="tk-card__body tk-surface"></div>
+            <div id="midonika-slot" class="tk-card__body tk-surface grow"></div>
             <footer class="tk-card__foot tk-row tk-gap">
               <button
                 class="tk-btn"
@@ -119,6 +142,9 @@
               <span class="tk-muted">Requires window.Midonika</span>
             </footer>
           </article>
+
+          <!-- Full-width shelf example (84HP) -->
+          <!-- <article class="tk-card tk-elev-2 rack u-1 hp-84"><div class="tk-card__body">Shelf / notes</div></article> -->
         </div>
       </section>
 
@@ -146,27 +172,73 @@
       <!-- DOCS -->
       <section id="docs" class="route">
         <div class="tk-grid">
-          <article class="tk-card tk-elev-2">
-            <header class="tk-card__head"><h2>Docs (Draft)</h2></header>
+          <article class="tk-card tk-elev-2 rack u-2 hp-32">
+            <header class="tk-card__head"><h2>Docs</h2></header>
             <div class="tk-card__body">
+              <h3>Rack Sizing (U & HP)</h3>
+              <p>
+                Tonika treats your browser window like a
+                <strong>modular rack</strong>. Cards are sized using the same
+                ideas as Eurorack: vertical units (<code>U</code>) and
+                horizontal pitch (<code>HP</code>).
+              </p>
+
+              <table class="tk-list">
+                <tr>
+                  <th>Unit</th>
+                  <th>Meaning in Tonika</th>
+                </tr>
+                <tr>
+                  <td><code>1U</code></td>
+                  <td>~48px tall row</td>
+                </tr>
+                <tr>
+                  <td><code>3U</code></td>
+                  <td>~1 module section</td>
+                </tr>
+                <tr>
+                  <td><code>6U</code></td>
+                  <td>~2 module sections</td>
+                </tr>
+                <tr>
+                  <td><code>HP</code></td>
+                  <td>~12px wide column</td>
+                </tr>
+                <tr>
+                  <td><code>42HP</code></td>
+                  <td>Small rack width (mobile)</td>
+                </tr>
+                <tr>
+                  <td><code>60HP</code></td>
+                  <td>Medium rack width</td>
+                </tr>
+                <tr>
+                  <td><code>84HP</code></td>
+                  <td>Large rack width (desktop)</td>
+                </tr>
+              </table>
+
+              <h3>How to size a card</h3>
               <ol class="tk-steps">
+                <li>Add <code>data-u</code> for height (in U).</li>
+                <li>Add <code>data-hp</code> for width (in HP).</li>
                 <li>
-                  Copy your component bundle into
-                  <code>/public/components/</code>.
-                </li>
-                <li>
-                  Add
-                  <code
-                    >&lt;script defer
-                    src="/components/your.onika.iife.js"&gt;&lt;/script&gt;</code
-                  >.
-                </li>
-                <li>
-                  Add a card with <code>data-onika="YourGlobalName"</code> and
-                  <code>data-target</code> to an element inside the card.
+                  Tonika JS auto-converts them into CSS classes (<code
+                    >u-X hp-Y</code
+                  >).
                 </li>
               </ol>
-              <p>That’s it. No config files needed.</p>
+
+              <pre class="tk-code">
+      &lt;article class="tk-card" data-u="3" data-hp="20"&gt;
+        ...
+      &lt;/article&gt;
+              </pre>
+
+              <p>
+                This makes it easy to grow your rack as new
+                <em>*onika</em> modules appear.
+              </p>
             </div>
           </article>
         </div>
