@@ -19,7 +19,7 @@ Think of it as the **goblin porch**: you put your modules on the table, plug the
 
 ---
 
-## **🧰 Quick Start**
+## 🧰 Quick Start
 
 ### **Requirements**
 
