@@ -4,7 +4,7 @@ _The front porch for all things_ **_onika_**
 
 ---
 
-## **🧙‍♂️ What is Tonika?**
+## 🧙‍♂️ What is Tonika?
 
 ![alt text](frontend/public/tonika_sh.png "Tonika image")
 
