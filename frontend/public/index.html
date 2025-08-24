@@ -21,18 +21,21 @@
   <body>
     <header>
       <div>
-        <img src="favicon.svg" alt="Tonika logo" />
-        <div>
-          <h1>Tonika</h1>
-          <p>Front porch for all things <em>*onika</em></p>
+        <div class="tk-brand">
+          <img src="favicon.svg" alt="Tonika logo" />
+          <div class="tk-brand-text">
+            <h1>Tonika</h1>
+            <p>Front porch for all things <em>*onika</em></p>
+          </div>
         </div>
+        <nav>
+          <a href="#home">Home</a>
+          <a href="#components">Components</a>
+          <a href="#docs">Docs</a>
+          <a href="#about">About</a>
+        </nav>
+        <div class="tk-header-spacer"></div>
       </div>
-      <nav>
-        <a href="#home">Home</a>
-        <a href="#components">Components</a>
-        <a href="#docs">Docs</a>
-        <a href="#about">About</a>
-      </nav>
     </header>
 
     <main>
@@ -52,7 +55,7 @@
 &lt;div data-onika="Clavonika" data-target="#clavonika-slot"&gt;&lt;/div&gt;</pre
               >
               <p>
-                No frameworks, no build steps — just include the module’s script
+                No frameworks, no build steps — just include the module's script
                 and Tonika mounts it.
               </p>
             </div>
@@ -63,7 +66,9 @@
             <header><h3>Clavonika (Piano)</h3></header>
             <div></div>
             <footer>
-              <button>Mount</button>
+              <button data-onika="Clavonika" data-target="#clavonika-slot">
+                Mount
+              </button>
               <span>Requires <code>window.Clavonika</code></span>
             </footer>
           </article>
@@ -73,7 +78,9 @@
             <header><h3>Jackonika (MIDI-In)</h3></header>
             <div></div>
             <footer>
-              <button>Mount</button>
+              <button data-onika="Jackonika" data-target="#jackonika-slot">
+                Mount
+              </button>
               <span>Requires <code>window.Jackonika</code></span>
             </footer>
           </article>
@@ -83,7 +90,9 @@
             <header><h3>Backplanika (Router)</h3></header>
             <div></div>
             <footer>
-              <button>Mount</button>
+              <button data-onika="Backplanika" data-target="#backplanika-slot">
+                Mount
+              </button>
               <span>Requires <code>window.Backplanika</code></span>
             </footer>
           </article>
@@ -95,14 +104,16 @@
             </header>
             <div></div>
             <footer>
-              <button>Mount</button>
+              <button data-onika="Midonika" data-target="#midonika-slot">
+                Mount
+              </button>
               <span>Requires <code>window.Midonika</code></span>
             </footer>
           </article>
 
           <!-- Example: full-width shelf (uncomment to use) -->
           <!-- <article class="tk-card tk-elev-2" data-u="1" data-hp="84">
-               <div >Notes / shelf</div>
+               <div>Notes / shelf</div>
              </article> -->
         </div>
       </section>
