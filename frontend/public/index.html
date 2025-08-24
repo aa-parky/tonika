@@ -4,46 +4,52 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Tonika · *onika Front Porch</title>
+
+    <!-- Icons & Styles -->
     <link rel="icon" href="favicon.svg" />
     <link rel="stylesheet" href="styles/tonika.css" />
-    <!-- Example: if you have built component bundles, include them here -->
-    <!-- <script defer src="/components/clavonika.iife.js"></script> -->
-    <!-- <script defer src="/components/jackonika.iife.js"></script> -->
-    <!-- <script defer src="/components/midonika.iife.js"></script> -->
-    <!-- <script defer src="/components/backplanika.iife.js"></script> -->
-    <script type="module" src="/js/app.js"></script>
+
+    <!-- Example: include built component bundles here when available -->
+    <!-- <script defer src="components/clavonika.iife.js"></script> -->
+    <!-- <script defer src="components/jackonika.iife.js"></script> -->
+    <!-- <script defer src="components/midonika.iife.js"></script> -->
+    <!-- <script defer src="components/backplanika.iife.js"></script> -->
+
+    <!-- App bootstrap -->
+    <script type="module" src="js/app.js"></script>
   </head>
   <body>
-    <header class="tk-appbar">
-      <div class="tk-appbar__brand">
-        <img class="tk-logo" src="favicon.svg" alt="Tonika" />
+    <header>
+      <div>
+        <img src="favicon.svg" alt="Tonika logo" />
         <div>
           <h1>Tonika</h1>
-          <p class="subtitle">Front porch for all things <em>*onika</em></p>
+          <p>Front porch for all things <em>*onika</em></p>
         </div>
       </div>
-      <nav class="tk-appbar__nav">
-        <a href="#home" class="active">Home</a>
-        <a href="#components">Components</a>
-        <a href="#docs">Docs</a>
-        <a href="#about">About</a>
+      <nav>
+        <a>Home</a>
+        <a>Components</a>
+        <a>Docs</a>
+        <a>About</a>
       </nav>
     </header>
 
-    <main class="tk-container">
+    <main>
       <!-- HOME -->
-      <section id="home" class="route route--active">
-        <div class="tk-rack">
-          <!-- Docs / Drop-in card: wide & shallow -->
-          <article class="tk-card tk-elev-2 rack u-2 hp-32">
-            <header class="tk-card__head"><h2>Drop‑in Components</h2></header>
-            <div class="tk-card__body grow">
+      <section>
+        <h2>Home</h2>
+        <div>
+          <!-- STATIC Drop-in overview (grows with content) -->
+          <article>
+            <header><h3>Drop-in Components</h3></header>
+            <div>
               <p>
-                Tonika lets you drop *onika modules into cards with one
+                Tonika lets you drop <em>*onika</em> modules into cards with one
                 attribute:
               </p>
-              <pre class="tk-code">
-&lt;div class="tk-card" data-onika="Clavonika" data-target="#clavonika-slot"&gt;&lt;/div&gt;</pre
+              <pre>
+&lt;div data-onika="Clavonika" data-target="#clavonika-slot"&gt;&lt;/div&gt;</pre
               >
               <p>
                 No frameworks, no build steps — just include the module’s script
@@ -52,115 +58,71 @@
             </div>
           </article>
 
-          <!-- Clavonika: taller & wider (needs space) -->
-          <article
-            class="tk-card tk-elev-3 rack u-4 hp-24"
-            data-u="4"
-            data-hp="24"
-          >
-            <header class="tk-card__head"><h3>Clavonika (Piano)</h3></header>
-            <div
-              id="clavonika-slot"
-              class="tk-card__body tk-surface grow"
-            ></div>
-            <footer class="tk-card__foot tk-row tk-gap">
-              <button
-                class="tk-btn"
-                data-onika="Clavonika"
-                data-target="#clavonika-slot"
-              >
-                Mount
-              </button>
-              <span class="tk-muted">Requires window.Clavonika</span>
+          <!-- DYNAMIC: Clavonika -->
+          <article>
+            <header><h3>Clavonika (Piano)</h3></header>
+            <div></div>
+            <footer>
+              <button>Mount</button>
+              <span>Requires <code>window.Clavonika</code></span>
             </footer>
           </article>
 
-          <!-- Jackonika: mid height/width -->
-          <article
-            class="tk-card tk-elev-3 rack u-3 hp-20"
-            data-u="3"
-            data-hp="20"
-          >
-            <header class="tk-card__head"><h3>Jackonika (MIDI‑In)</h3></header>
-            <div
-              id="jackonika-slot"
-              class="tk-card__body tk-surface grow"
-            ></div>
-            <footer class="tk-card__foot tk-row tk-gap">
-              <button
-                class="tk-btn"
-                data-onika="Jackonika"
-                data-target="#jackonika-slot"
-              >
-                Mount
-              </button>
-              <span class="tk-muted">Requires window.Jackonika</span>
+          <!-- DYNAMIC: Jackonika -->
+          <article>
+            <header><h3>Jackonika (MIDI-In)</h3></header>
+            <div></div>
+            <footer>
+              <button>Mount</button>
+              <span>Requires <code>window.Jackonika</code></span>
             </footer>
           </article>
 
-          <!-- Backplanika: compact -->
-          <article
-            class="tk-card tk-elev-1 rack u-2 hp-16"
-            data-u="2"
-            data-hp="16"
-          >
-            <header class="tk-card__head"><h3>Backplanika (Router)</h3></header>
-            <div
-              id="backplanika-slot"
-              class="tk-card__body tk-surface grow"
-            ></div>
-            <footer class="tk-card__foot tk-row tk-gap">
-              <button
-                class="tk-btn"
-                data-onika="Backplanika"
-                data-target="#backplanika-slot"
-              >
-                Mount
-              </button>
-              <span class="tk-muted">Requires window.Backplanika</span>
+          <!-- DYNAMIC: Backplanika -->
+          <article>
+            <header><h3>Backplanika (Router)</h3></header>
+            <div></div>
+            <footer>
+              <button>Mount</button>
+              <span>Requires <code>window.Backplanika</code></span>
             </footer>
           </article>
 
-          <!-- Midonika: tall for logs -->
-          <article
-            class="tk-card tk-elev-1 rack u-4 hp-24"
-            data-u="4"
-            data-hp="24"
-          >
-            <header class="tk-card__head">
+          <!-- DYNAMIC: Midonika -->
+          <article>
+            <header>
               <h3>Midonika (Visualizer)</h3>
             </header>
-            <div id="midonika-slot" class="tk-card__body tk-surface grow"></div>
-            <footer class="tk-card__foot tk-row tk-gap">
-              <button
-                class="tk-btn"
-                data-onika="Midonika"
-                data-target="#midonika-slot"
-              >
-                Mount
-              </button>
-              <span class="tk-muted">Requires window.Midonika</span>
+            <div></div>
+            <footer>
+              <button>Mount</button>
+              <span>Requires <code>window.Midonika</code></span>
             </footer>
           </article>
 
-          <!-- Full-width shelf example (84HP) -->
-          <!-- <article class="tk-card tk-elev-2 rack u-1 hp-84"><div class="tk-card__body">Shelf / notes</div></article> -->
+          <!-- Example: full-width shelf (uncomment to use) -->
+          <!-- <article class="tk-card tk-elev-2" data-u="1" data-hp="84">
+               <div >Notes / shelf</div>
+             </article> -->
         </div>
       </section>
 
       <!-- COMPONENTS -->
-      <section id="components" class="route">
-        <div class="tk-grid">
-          <article class="tk-card tk-elev-2">
-            <header class="tk-card__head"><h2>Components</h2></header>
-            <div class="tk-card__body">
-              <ul class="tk-list">
+      <section>
+        <h2>Components</h2>
+        <div>
+          <article>
+            <header><h3>Components</h3></header>
+            <div>
+              <ul>
                 <li><strong>Clavonika</strong> — Piano keyboard UI</li>
-                <li><strong>Jackonika</strong> — MIDI‑in stompbox / monitor</li>
-                <li><strong>Backplanika</strong> — Micro router & patching</li>
+                <li><strong>Jackonika</strong> — MIDI-in stompbox / monitor</li>
+                <li>
+                  <strong>Backplanika</strong> — Micro-router &amp; patching
+                </li>
                 <li><strong>Midonika</strong> — MIDI visualizer</li>
               </ul>
-              <p class="tk-muted">
+              <p>
                 Each module exposes a global with a
                 <code>mount(el, opts)</code> method.
               </p>
@@ -170,74 +132,47 @@
       </section>
 
       <!-- DOCS -->
-      <section id="docs" class="route">
-        <div class="tk-grid">
-          <article class="tk-card tk-elev-2 rack u-2 hp-32">
-            <header class="tk-card__head"><h2>Docs</h2></header>
-            <div class="tk-card__body">
-              <h3>Rack Sizing (U & HP)</h3>
+      <section>
+        <h2>Docs</h2>
+        <div>
+          <article>
+            <div>
+              <h4>Rack Sizing</h4>
               <p>
                 Tonika treats your browser window like a
-                <strong>modular rack</strong>. Cards are sized using the same
-                ideas as Eurorack: vertical units (<code>U</code>) and
-                horizontal pitch (<code>HP</code>).
+                <strong>modular rack</strong>. Cards are sized using Small,
+                Medium, and Large, static (traditional html) and Dynamic
+                adjusting to inserted component.
               </p>
 
-              <table class="tk-list">
+              <table>
                 <tr>
-                  <th>Unit</th>
+                  <th>Card</th>
                   <th>Meaning in Tonika</th>
                 </tr>
                 <tr>
-                  <td><code>1U</code></td>
-                  <td>~48px tall row</td>
+                  <td><code>Small</code></td>
+                  <td>20</td>
                 </tr>
                 <tr>
-                  <td><code>3U</code></td>
-                  <td>~1 module section</td>
+                  <td><code>Medium</code></td>
+                  <td>40</td>
                 </tr>
                 <tr>
-                  <td><code>6U</code></td>
-                  <td>~2 module sections</td>
-                </tr>
-                <tr>
-                  <td><code>HP</code></td>
-                  <td>~12px wide column</td>
-                </tr>
-                <tr>
-                  <td><code>42HP</code></td>
-                  <td>Small rack width (mobile)</td>
-                </tr>
-                <tr>
-                  <td><code>60HP</code></td>
-                  <td>Medium rack width</td>
-                </tr>
-                <tr>
-                  <td><code>84HP</code></td>
-                  <td>Large rack width (desktop)</td>
+                  <td><code>Large</code></td>
+                  <td>80</td>
                 </tr>
               </table>
 
-              <h3>How to size a card</h3>
-              <ol class="tk-steps">
-                <li>Add <code>data-u</code> for height (in U).</li>
-                <li>Add <code>data-hp</code> for width (in HP).</li>
-                <li>
-                  Tonika JS auto-converts them into CSS classes (<code
-                    >u-X hp-Y</code
-                  >).
-                </li>
-              </ol>
-
-              <pre class="tk-code">
-      &lt;article class="tk-card" data-u="3" data-hp="20"&gt;
-        ...
-      &lt;/article&gt;
-              </pre>
+              <h4>Rack Width</h4>
+              <p>
+                Maximum 80 wide, so 1 large component, 2 medium 40 components
+                (80), 4 small (80), or mixtures of to maximum of 80
+              </p>
 
               <p>
-                This makes it easy to grow your rack as new
-                <em>*onika</em> modules appear.
+                The rack always fits within the top menu width — no horizontal
+                page scrolling.
               </p>
             </div>
           </article>
@@ -245,14 +180,15 @@
       </section>
 
       <!-- ABOUT -->
-      <section id="about" class="route">
-        <div class="tk-grid">
-          <article class="tk-card tk-elev-1">
-            <header class="tk-card__head"><h2>About</h2></header>
-            <div class="tk-card__body">
+      <section>
+        <h2>About</h2>
+        <div>
+          <article>
+            <header><h3>About</h3></header>
+            <div>
               <p>
-                Tonika is a lightweight, dependency‑free front end to showcase
-                and compose *onika modules.
+                Tonika is a lightweight, dependency-free front end to showcase
+                and compose <em>*onika</em> modules.
               </p>
             </div>
           </article>
@@ -260,7 +196,7 @@
       </section>
     </main>
 
-    <footer class="tk-footer">
+    <footer>
       <p>© Cairn &amp; Sail · Tonika</p>
     </footer>
   </body>
