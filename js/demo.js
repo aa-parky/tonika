@@ -31,16 +31,7 @@
             this._attachUIHandlers();
             void this._initMIDI();
         }
-
-        destroy() {
-            if (this._midi) {
-                this._midi.onstatechange = null;
-                this._midi = null;
-            }
-            this._teardownUI();
-        }
-
-        // === MIDI Device Management =============================================
+// === MIDI Device Management =============================================
 
         async _initMIDI() {
             if (!navigator.requestMIDIAccess) {
@@ -119,23 +110,6 @@
             this._inputListEl = this._mount.querySelector(".demo__input-list");
             this._outputListEl = this._mount.querySelector(".demo__output-list");
         }
-
-        _teardownUI() {
-            if (!this._mount) return;
-            this._mount.innerHTML = "";
-            if (this._mount.classList.contains("demo--floating")) {
-                this._mount.remove();
-            } else {
-                this._mount.classList.remove(
-                    "tonika-module",
-                    "demo",
-                    "demo--card",
-                    "demo--floating"
-                );
-            }
-            this._mount = null;
-        }
-
         _uiHTML() {
             return `
                 <div class="demo__header">
@@ -212,8 +186,7 @@
             }
 
             const devices = Array.from(this._devices.inputs.values());
-            const deviceHTML = devices.map(device => this._renderDeviceItem(device, "input")).join("");
-            this._inputListEl.innerHTML = deviceHTML;
+            this._inputListEl.innerHTML = devices.map(device => this._renderDeviceItem(device)).join("");
         }
 
         _renderOutputList() {
@@ -229,11 +202,10 @@
             }
 
             const devices = Array.from(this._devices.outputs.values());
-            const deviceHTML = devices.map(device => this._renderDeviceItem(device, "output")).join("");
-            this._outputListEl.innerHTML = deviceHTML;
+            this._outputListEl.innerHTML = devices.map(device => this._renderDeviceItem(device)).join("");
         }
 
-        _renderDeviceItem(device, type) {
+        _renderDeviceItem(device) {
             const statusClass = device.state === "connected" ? "demo__status-indicator--connected" : "demo__status-indicator--disconnected";
             const connectionText = device.connection === "open" ? "Open" : "Closed";
 
@@ -296,18 +268,6 @@
         }
 
         // === Public API ==========================================================
-
-        /**
-         * Get current device lists
-         * @returns {Object} Object containing inputs and outputs Maps
-         */
-        getDevices() {
-            return {
-                inputs: new Map(this._devices.inputs),
-                outputs: new Map(this._devices.outputs),
-            };
-        }
-
         /**
          * Manually refresh the device list
          */
