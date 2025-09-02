@@ -1,14 +1,15 @@
 /*
  * ===================================================================
- * DEMO MODULE STYLES (Tonika Design System Example)
+ * DEMO MODULE STYLES (Enhanced with Connect Buttons and Message Display)
  *
  * This file demonstrates proper CSS separation in the Tonika ecosystem:
  *
  * ✅ WHAT THIS FILE CONTAINS:
  * - Layout and structural styles unique to the Demo module
- * - Module-specific visual elements (status indicators, device lists)
+ * - Module-specific visual elements (status indicators, device lists, message display)
  * - BEM naming convention examples
  * - Proper use of global CSS variables
+ * - Enhanced layout for connect buttons and MIDI message display
  *
  * ❌ WHAT THIS FILE DOES NOT CONTAIN:
  * - Color definitions (handled by tonika-core.css)
@@ -19,7 +20,14 @@
  * HTML Structure Assumption:
  * <div class="tonika-module demo demo--card">
  *   <div class="demo__header">...</div>
- *   <div class="demo__content">...</div>
+ *   <div class="demo__content">
+ *     <div class="demo__device-item">
+ *       <div class="demo__device-info">...</div>
+ *       <div class="demo__last-message">...</div>
+ *       <div class="demo__device-controls">...</div>
+ *       <div class="demo__device-status">...</div>
+ *     </div>
+ *   </div>
  * </div>
  * ===================================================================
  */
@@ -176,7 +184,7 @@
 }
 
 /* ===================================================================
-   DEVICE LIST
+   DEVICE LIST (Enhanced Layout)
    ================================================================== */
 
 .demo__device-list {
@@ -187,9 +195,10 @@
 }
 
 .demo__device-item {
-    display: flex;
+    /* Enhanced grid layout: [device-info] [message] [controls] [status] */
+    display: grid;
+    grid-template-columns: 1fr 2fr auto auto;
     align-items: center;
-    justify-content: space-between;
     gap: var(--spacing-md);
     padding: var(--spacing-sm);
     background-color: color-mix(in srgb, var(--color-bg-secondary) 50%, transparent);
@@ -202,8 +211,8 @@
     background-color: var(--color-bg-secondary);
 }
 
+/* Device Info Column */
 .demo__device-info {
-    flex: 1;
     min-width: 0; /* Allow text truncation */
 }
 
@@ -223,6 +232,33 @@
     white-space: nowrap;
 }
 
+/* MIDI Message Display Column */
+.demo__last-message {
+    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: color-mix(in srgb, var(--color-bg-primary) 80%, var(--color-bg-secondary));
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    max-width: 250px; /* Prevent message from taking too much space */
+}
+
+/* Controls Column */
+.demo__device-controls {
+    flex-shrink: 0;
+}
+
+.demo__device-controls .tonika-btn {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-width: 80px; /* Consistent button width */
+}
+
+/* Status Column */
 .demo__device-status {
     display: flex;
     align-items: center;
@@ -293,6 +329,30 @@
    RESPONSIVE ADJUSTMENTS
    ================================================================== */
 
+@media (max-width: 768px) {
+    .demo__device-item {
+        /* Stack layout on smaller screens */
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+
+    .demo__device-status {
+        justify-content: space-between;
+    }
+
+    .demo__device-controls {
+        justify-self: stretch;
+    }
+
+    .demo__device-controls .tonika-btn {
+        width: 100%;
+    }
+
+    .demo__last-message {
+        max-width: none; /* Allow full width on mobile */
+    }
+}
+
 @media (max-width: 480px) {
     .demo__header {
         flex-direction: column;
@@ -301,13 +361,7 @@
     }
 
     .demo__device-item {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--spacing-sm);
-    }
-
-    .demo__device-status {
-        justify-content: space-between;
+        padding: var(--spacing-sm);
     }
 }
 
@@ -320,8 +374,32 @@
     position: fixed;
     top: 20px;
     right: 20px;
-    width: 320px;
+    width: 400px; /* Wider to accommodate new layout */
     z-index: 1000;
     box-shadow: 0 4px 12px color-mix(in srgb, var(--color-text-primary) 20%, transparent);
+}
+
+/* ===================================================================
+   SPECIAL STATES
+   ================================================================== */
+
+/* Highlight connected devices */
+.demo__device-item[data-connected="true"] {
+    border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+}
+
+/* Animate message updates */
+.demo__last-message {
+    transition: background-color 0.2s ease;
+}
+
+.demo__last-message.updated {
+    background-color: color-mix(in srgb, var(--color-accent) 20%, var(--color-bg-secondary));
+}
+
+/* Disabled button styling for outputs */
+.demo__device-controls .tonika-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 

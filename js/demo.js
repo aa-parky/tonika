@@ -1,6 +1,6 @@
-// Demo Module — MIDI Device Listing
+// Demo Module — MIDI Device Listing with Connect/Disconnect and Message Tracking
 // A simple example module demonstrating Tonika design system integration
-// v1.0.0 — BEM naming, proper CSS separation, and MIDI device enumeration
+// v1.1.0 — Added connect buttons and MIDI message display
 
 (() => {
     class Demo {
@@ -27,11 +27,34 @@
                 outputs: new Map(),
             };
 
+            // Track MIDI message listeners and last messages
+            this._listeners = new Map(); // deviceId -> listener function
+            this._lastMessages = new Map(); // deviceId -> last message string
+
             this._renderUI();
             this._attachUIHandlers();
             void this._initMIDI();
         }
-// === MIDI Device Management =============================================
+
+        destroy() {
+            // Clean up all MIDI listeners
+            this._listeners.forEach((listener, deviceId) => {
+                const device = this._midi?.inputs.get(deviceId);
+                if (device) {
+                    device.onmidimessage = null;
+                }
+            });
+            this._listeners.clear();
+            this._lastMessages.clear();
+
+            if (this._midi) {
+                this._midi.onstatechange = null;
+                this._midi = null;
+            }
+            this._teardownUI();
+        }
+
+        // === MIDI Device Management =============================================
 
         async _initMIDI() {
             if (!navigator.requestMIDIAccess) {
@@ -68,6 +91,8 @@
                     manufacturer: input.manufacturer || "Unknown",
                     state: input.state,
                     connection: input.connection,
+                    device: input, // Store reference to actual device
+                    isListening: this._listeners.has(input.id),
                 });
             }
 
@@ -79,11 +104,116 @@
                     manufacturer: output.manufacturer || "Unknown",
                     state: output.state,
                     connection: output.connection,
+                    device: output, // Store reference to actual device
+                    isListening: false, // Outputs don't receive messages
                 });
             }
 
             this._renderDeviceList();
             this._updateCounts();
+        }
+
+        // === MIDI Message Handling ==============================================
+
+        _connectToDevice(deviceId, type) {
+            if (type !== "input") {
+                this._updateStatus("Only input devices can be connected for message monitoring.", "info");
+                return;
+            }
+
+            const deviceInfo = this._devices.inputs.get(deviceId);
+            if (!deviceInfo || !deviceInfo.device) {
+                this._updateStatus("Device not found.", "error");
+                return;
+            }
+
+            const device = deviceInfo.device;
+
+            // Create message listener
+            const listener = (message) => {
+                const messageStr = this._formatMIDIMessage(message);
+                this._lastMessages.set(deviceId, messageStr);
+                this._updateDeviceMessage(deviceId, messageStr);
+            };
+
+            // Attach listener
+            device.onmidimessage = listener;
+            this._listeners.set(deviceId, listener);
+
+            // Update device state
+            deviceInfo.isListening = true;
+
+            this._renderDeviceList();
+            this._updateStatus(`Connected to ${deviceInfo.name}. Monitoring MIDI messages...`, "success");
+        }
+
+        _disconnectFromDevice(deviceId, type) {
+            const deviceInfo = this._devices[type === "input" ? "inputs" : "outputs"].get(deviceId);
+            if (!deviceInfo || !deviceInfo.device) return;
+
+            if (type === "input") {
+                // Remove listener
+                deviceInfo.device.onmidimessage = null;
+                this._listeners.delete(deviceId);
+                this._lastMessages.delete(deviceId);
+
+                // Update device state
+                deviceInfo.isListening = false;
+            }
+
+            this._renderDeviceList();
+            this._updateStatus(`Disconnected from ${deviceInfo.name}.`, "info");
+        }
+
+        _formatMIDIMessage(message) {
+            const data = message.data;
+            if (!data || data.length === 0) return "Empty message";
+
+            const status = data[0];
+            const type = status & 0xf0;
+            const channel = (status & 0x0f) + 1;
+
+            switch (type) {
+                case 0x90: // Note On
+                    const noteOnVel = data[2] || 0;
+                    if (noteOnVel > 0) {
+                        return `Note On: ${this._midiNoteToName(data[1])} vel=${noteOnVel} ch=${channel}`;
+                    } else {
+                        return `Note Off: ${this._midiNoteToName(data[1])} ch=${channel}`;
+                    }
+                case 0x80: // Note Off
+                    return `Note Off: ${this._midiNoteToName(data[1])} ch=${channel}`;
+                case 0xb0: // Control Change
+                    return `CC: ${data[1]}=${data[2]} ch=${channel}`;
+                case 0xe0: // Pitch Bend
+                    const lsb = data[1] || 0;
+                    const msb = data[2] || 0;
+                    const value = ((msb << 7) | lsb) - 8192;
+                    return `Pitch Bend: ${value} ch=${channel}`;
+                case 0xc0: // Program Change
+                    return `Program: ${data[1]} ch=${channel}`;
+                case 0xd0: // Channel Pressure
+                    return `Pressure: ${data[1]} ch=${channel}`;
+                case 0xa0: // Polyphonic Pressure
+                    return `Poly Pressure: ${this._midiNoteToName(data[1])}=${data[2]} ch=${channel}`;
+                default:
+                    return `Raw: [${Array.from(data).join(', ')}]`;
+            }
+        }
+
+        _midiNoteToName(noteNumber) {
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const octave = Math.floor(noteNumber / 12) - 1;
+            const note = notes[noteNumber % 12];
+            return `${note}${octave}`;
+        }
+
+        _updateDeviceMessage(deviceId, message) {
+            const messageEl = this._mount?.querySelector(`[data-device-id="${deviceId}"] .demo__last-message`);
+            if (messageEl) {
+                messageEl.textContent = message;
+                messageEl.title = message; // Full message on hover
+            }
         }
 
         // === UI Rendering ========================================================
@@ -110,13 +240,14 @@
             this._inputListEl = this._mount.querySelector(".demo__input-list");
             this._outputListEl = this._mount.querySelector(".demo__output-list");
         }
+
         _uiHTML() {
             return `
                 <div class="demo__header">
                     <div class="demo__title-section">
                         <h3 class="demo__title">MIDI Device Demo</h3>
                         <div class="demo__subtitle tonika-text-muted">
-                            Demonstrates Tonika module development best practices
+                            Connect to devices and monitor MIDI messages
                         </div>
                     </div>
                     <div class="demo__actions">
@@ -162,7 +293,7 @@
 
                 <div class="demo__footer">
                     <div class="demo__info tonika-text-muted">
-                        This module demonstrates BEM naming, CSS variable usage, and proper separation of concerns.
+                        Connect to input devices to monitor live MIDI messages. Demonstrates interactive module development.
                     </div>
                 </div>
             `;
@@ -186,7 +317,7 @@
             }
 
             const devices = Array.from(this._devices.inputs.values());
-            this._inputListEl.innerHTML = devices.map(device => this._renderDeviceItem(device)).join("");
+            this._inputListEl.innerHTML = devices.map(device => this._renderDeviceItem(device, "input")).join("");
         }
 
         _renderOutputList() {
@@ -202,20 +333,46 @@
             }
 
             const devices = Array.from(this._devices.outputs.values());
-            this._outputListEl.innerHTML = devices.map(device => this._renderDeviceItem(device)).join("");
+            this._outputListEl.innerHTML = devices.map(device => this._renderDeviceItem(device, "output")).join("");
         }
 
-        _renderDeviceItem(device) {
+        _renderDeviceItem(device, type) {
             const statusClass = device.state === "connected" ? "demo__status-indicator--connected" : "demo__status-indicator--disconnected";
             const connectionText = device.connection === "open" ? "Open" : "Closed";
 
+            // Get last message for this device
+            const lastMessage = this._lastMessages.get(device.id) || (type === "input" ? "No messages yet" : "Output device");
+
+            // Determine button state
+            const isConnected = device.isListening;
+            const buttonText = isConnected ? "Disconnect" : "Connect";
+            const buttonClass = isConnected ? "tonika-btn--danger" : "tonika-btn--primary";
+            const buttonAction = isConnected ? "disconnect" : "connect";
+
+            // Disable connect button for outputs
+            const buttonDisabled = type === "output" ? "disabled" : "";
+            const buttonTitle = type === "output" ? "Output devices cannot be monitored" : `${buttonText} to monitor MIDI messages`;
+
             return `
-                <div class="demo__device-item">
+                <div class="demo__device-item" data-device-id="${device.id}">
                     <div class="demo__device-info">
                         <div class="demo__device-name">${this._escapeHTML(device.name)}</div>
                         <div class="demo__device-meta tonika-text-muted">
                             ${this._escapeHTML(device.manufacturer)}
                         </div>
+                    </div>
+                    <div class="demo__last-message tonika-text-muted" title="${this._escapeHTML(lastMessage)}">
+                        ${this._escapeHTML(this._truncateMessage(lastMessage))}
+                    </div>
+                    <div class="demo__device-controls">
+                        <button class="tonika-btn ${buttonClass}" 
+                                data-action="${buttonAction}" 
+                                data-device-id="${device.id}" 
+                                data-device-type="${type}"
+                                title="${buttonTitle}"
+                                ${buttonDisabled}>
+                            ${buttonText}
+                        </button>
                     </div>
                     <div class="demo__device-status">
                         <div class="demo__status-indicator ${statusClass}" title="${device.state}"></div>
@@ -227,6 +384,11 @@
             `;
         }
 
+        _truncateMessage(message, maxLength = 30) {
+            if (message.length <= maxLength) return message;
+            return message.substring(0, maxLength - 3) + "...";
+        }
+
         // === Event Handlers ======================================================
 
         _attachUIHandlers() {
@@ -236,9 +398,25 @@
                 const btn = e.target.closest("[data-action]");
                 if (!btn) return;
 
-                if (btn.dataset.action === "refresh") {
-                    this._refreshDevices();
-                    this._updateStatus("Device list refreshed.", "info");
+                const action = btn.dataset.action;
+                const deviceId = btn.dataset.deviceId;
+                const deviceType = btn.dataset.deviceType;
+
+                switch (action) {
+                    case "refresh":
+                        this._refreshDevices();
+                        this._updateStatus("Device list refreshed.", "info");
+                        break;
+                    case "connect":
+                        if (deviceId && deviceType) {
+                            this._connectToDevice(deviceId, deviceType);
+                        }
+                        break;
+                    case "disconnect":
+                        if (deviceId && deviceType) {
+                            this._disconnectFromDevice(deviceId, deviceType);
+                        }
+                        break;
                 }
             });
         }
@@ -268,6 +446,26 @@
         }
 
         // === Public API ==========================================================
+
+        /**
+         * Get current device lists
+         * @returns {Object} Object containing inputs and outputs Maps
+         */
+        getDevices() {
+            return {
+                inputs: new Map(this._devices.inputs),
+                outputs: new Map(this._devices.outputs),
+            };
+        }
+
+        /**
+         * Get last messages for all connected devices
+         * @returns {Map} Map of deviceId -> lastMessage
+         */
+        getLastMessages() {
+            return new Map(this._lastMessages);
+        }
+
         /**
          * Manually refresh the device list
          */
