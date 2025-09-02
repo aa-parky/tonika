@@ -337,7 +337,7 @@
         }
 
         _renderDeviceItem(device, type) {
-            const statusClass = device.state === "connected" ? "demo__status-indicator--connected" : "demo__status-indicator--disconnected";
+            const statusClass = device.connection === "open" ? "demo__status-indicator--open" : "demo__status-indicator--closed";
             const connectionText = device.connection === "open" ? "Open" : "Closed";
 
             // Get last message for this device
@@ -375,7 +375,7 @@
                         </button>
                     </div>
                     <div class="demo__device-status">
-                        <div class="demo__status-indicator ${statusClass}" title="${device.state}"></div>
+                        <div class="demo__status-indicator ${statusClass}" title="Connection: ${device.connection}"></div>
                         <div class="demo__connection-status tonika-text-muted">
                             ${connectionText}
                         </div>

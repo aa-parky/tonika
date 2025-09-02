@@ -277,14 +277,14 @@
     flex-shrink: 0;
 }
 
-.demo__status-indicator--connected {
+.demo__status-indicator--open {
     background-color: var(--color-accent);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 
-.demo__status-indicator--disconnected {
-    background-color: var(--color-text-muted);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-text-muted) 20%, transparent);
+.demo__status-indicator--closed {
+    background-color: var(--color-danger);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-danger) 20%, transparent);
 }
 
 .demo__connection-status {
