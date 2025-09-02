@@ -337,8 +337,10 @@
         }
 
         _renderDeviceItem(device, type) {
-            const statusClass = device.connection === "open" ? "demo__status-indicator--open" : "demo__status-indicator--closed";
-            const connectionText = device.connection === "open" ? "Open" : "Closed";
+            // Show our monitoring status, not the device's connection status
+            const isMonitoring = device.isListening || false;
+            const statusClass = isMonitoring ? "demo__status-indicator--open" : "demo__status-indicator--closed";
+            const connectionText = isMonitoring ? "Monitoring" : "Not monitoring";
 
             // Get last message for this device
             const lastMessage = this._lastMessages.get(device.id) || (type === "input" ? "No messages yet" : "Output device");
@@ -375,7 +377,7 @@
                         </button>
                     </div>
                     <div class="demo__device-status">
-                        <div class="demo__status-indicator ${statusClass}" title="Connection: ${device.connection}"></div>
+                        <div class="demo__status-indicator ${statusClass}" title="Status: ${connectionText}"></div>
                         <div class="demo__connection-status tonika-text-muted">
                             ${connectionText}
                         </div>

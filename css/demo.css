@@ -235,7 +235,7 @@
 /* MIDI Message Display Column */
 .demo__last-message {
     font-size: var(--font-size-sm);
-    font-family: var(--font-family-mono);
+    font-family: var(--font-family-mono), serif;
     padding: var(--spacing-xs) var(--spacing-sm);
     background-color: color-mix(in srgb, var(--color-bg-primary) 80%, var(--color-bg-secondary));
     border: var(--border-width) solid var(--color-border);
