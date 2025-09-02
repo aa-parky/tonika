@@ -1,8 +1,9 @@
+# JetBrains
+.idea
 # Node
 node_modules/
 dist/
 demo-dist/
 .vite/
-
 # OS
 .DS_Store
