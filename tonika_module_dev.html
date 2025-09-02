@@ -1,4 +1,5 @@
 <!doctype html>
+<!--suppress JSUnresolvedLibraryURL -->
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -33,7 +34,7 @@
     />
 
     <!-- 4. YOUR MODULE'S CSS (Local file) -->
-    <link rel="stylesheet" href="../styles/catchonika.css" />
+    <link rel="stylesheet" href="css/demo.css" />
 
     <style>
       /* Optional: Add any demo-specific overrides here */
@@ -74,7 +75,7 @@
       <div class="tab-content">
         <!-- Tab 1: Your Module -->
         <section class="active">
-          <div id="your-module-mount"></div>
+            <div id="demo-mount"></div>
         </section>
 
         <!-- Tab 2: Light Theme Test -->
@@ -122,22 +123,28 @@
                   gap: var(--spacing-sm);
                 "
               >
-                <input
-                  class="tonika-input"
-                  type="text"
-                  placeholder="Text input"
-                />
-                <input
-                  class="tonika-input"
-                  type="number"
-                  placeholder="120"
-                  style="width: 80px"
-                />
-                <select class="tonika-select">
-                  <option>Select option...</option>
-                  <option>Option 1</option>
-                  <option>Option 2</option>
-                </select>
+                  <label>
+                      <input
+                        class="tonika-input"
+                        type="text"
+                        placeholder="Text input"
+                      />
+                  </label>
+                  <label>
+                      <input
+                      class="tonika-input"
+                      type="number"
+                      placeholder="120"
+                      style="width: 80px"
+                    />
+                  </label>
+                  <label>
+                      <select class="tonika-select">
+                      <option>Select option...</option>
+                      <option>Option 1</option>
+                      <option>Option 2</option>
+                    </select>
+                  </label>
               </div>
             </div>
 
@@ -277,7 +284,7 @@
 
 	 Load your module's JavaScript file.
 	 ================================================================== -->
-    <script src="src/catchonika.js"></script>
+    <script src="js/demo.js"></script>
 
     <script>
       // ===================================================================
@@ -287,24 +294,12 @@
       // ===================================================================
 
       // Initialize your module in the first tab
-      if (window.Catchonika) {
-        new window.Catchonika({
-          mount: "#your-module-mount",
-          mode: "card",
-          bufferMinutes: 60,
-          defaultBpm: 120,
-          groupByChannel: false,
-        });
 
-        // Also initialize in the theme test tab
-        new window.Catchonika({
-          mount: "#theme-test-mount",
+          new Demo({
+          mount: "#demo-mount",
           mode: "card",
-          bufferMinutes: 30,
-          defaultBpm: 140,
-          groupByChannel: false,
-        });
-      }
+          autoRefresh: true
+      });
     </script>
   </body>
 </html>

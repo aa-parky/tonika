@@ -1,0 +1,327 @@
+/*
+ * ===================================================================
+ * DEMO MODULE STYLES (Tonika Design System Example)
+ *
+ * This file demonstrates proper CSS separation in the Tonika ecosystem:
+ *
+ * ✅ WHAT THIS FILE CONTAINS:
+ * - Layout and structural styles unique to the Demo module
+ * - Module-specific visual elements (status indicators, device lists)
+ * - BEM naming convention examples
+ * - Proper use of global CSS variables
+ *
+ * ❌ WHAT THIS FILE DOES NOT CONTAIN:
+ * - Color definitions (handled by tonika-core.css)
+ * - Common component styles (handled by tonika-components.css)
+ * - Button/input styling (use .tonika-btn, .tonika-input classes)
+ * - Typography base styles (inherited from global system)
+ *
+ * HTML Structure Assumption:
+ * <div class="tonika-module demo demo--card">
+ *   <div class="demo__header">...</div>
+ *   <div class="demo__content">...</div>
+ * </div>
+ * ===================================================================
+ */
+
+/* ===================================================================
+   CARD LAYOUT MODIFIER
+   ================================================================== */
+
+.demo--card {
+    /* Fixed height with internal scrolling for consistent layout */
+    height: 400px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===================================================================
+   HEADER SECTION
+   ================================================================== */
+
+.demo__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: var(--border-width) solid var(--color-border);
+    flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.demo__title-section {
+    flex: 1;
+    min-width: 0; /* Allow text truncation */
+}
+
+.demo__title {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.demo__subtitle {
+    font-size: var(--font-size-sm);
+    line-height: 1.3;
+}
+
+.demo__actions {
+    flex-shrink: 0;
+}
+
+/* ===================================================================
+   STATUS BAR
+   ================================================================== */
+
+.demo__status-bar {
+    padding: var(--spacing-sm) 0;
+    flex-shrink: 0;
+}
+
+.demo__status {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-bg-secondary);
+    border: var(--border-width) solid var(--color-border);
+}
+
+/* Status type modifiers */
+.demo__status--success {
+    background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg-secondary));
+    border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+    color: var(--color-accent);
+}
+
+.demo__status--error {
+    background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg-secondary));
+    border-color: color-mix(in srgb, var(--color-danger) 30%, var(--color-border));
+    color: var(--color-danger);
+}
+
+.demo__status--info {
+    /* Uses default styling */
+}
+
+/* ===================================================================
+   MAIN CONTENT AREA
+   ================================================================== */
+
+.demo__content {
+    flex: 1;
+    min-height: 0; /* Critical for flexbox scrolling */
+    overflow-y: auto;
+    padding: var(--spacing-sm) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* Custom scrollbar for content area */
+.demo__content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.demo__content::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+    border-radius: var(--border-radius-sm);
+}
+
+.demo__content::-webkit-scrollbar-thumb {
+    background: var(--color-bg-secondary);
+    border-radius: var(--border-radius-sm);
+}
+
+.demo__content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border);
+}
+
+/* ===================================================================
+   DEVICE SECTIONS
+   ================================================================== */
+
+.demo__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.demo__section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+}
+
+.demo__section-title {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.demo__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--color-bg-secondary);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+/* ===================================================================
+   DEVICE LIST
+   ================================================================== */
+
+.demo__device-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    min-height: 60px; /* Ensure space for empty state */
+}
+
+.demo__device-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background-color: color-mix(in srgb, var(--color-bg-secondary) 50%, transparent);
+    border: var(--border-width) solid var(--color-bg-secondary);
+    border-radius: var(--border-radius-md);
+    transition: background-color 0.15s ease;
+}
+
+.demo__device-item:hover {
+    background-color: var(--color-bg-secondary);
+}
+
+.demo__device-info {
+    flex: 1;
+    min-width: 0; /* Allow text truncation */
+}
+
+.demo__device-name {
+    font-weight: 500;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.demo__device-meta {
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-xs);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.demo__device-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-shrink: 0;
+}
+
+/* ===================================================================
+   STATUS INDICATORS
+   ================================================================== */
+
+.demo__status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.demo__status-indicator--connected {
+    background-color: var(--color-accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+.demo__status-indicator--disconnected {
+    background-color: var(--color-text-muted);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-text-muted) 20%, transparent);
+}
+
+.demo__connection-status {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    min-width: 40px; /* Consistent width for "Open"/"Closed" */
+}
+
+/* ===================================================================
+   EMPTY STATES
+   ================================================================== */
+
+.demo__empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
+    text-align: center;
+    font-style: italic;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--border-radius-md);
+    background-color: color-mix(in srgb, var(--color-bg-secondary) 30%, transparent);
+}
+
+/* ===================================================================
+   FOOTER SECTION
+   ================================================================== */
+
+.demo__footer {
+    flex-shrink: 0;
+    padding-top: var(--spacing-sm);
+    border-top: var(--border-width) solid var(--color-border);
+}
+
+.demo__info {
+    font-size: var(--font-size-sm);
+    line-height: 1.4;
+    text-align: center;
+}
+
+/* ===================================================================
+   RESPONSIVE ADJUSTMENTS
+   ================================================================== */
+
+@media (max-width: 480px) {
+    .demo__header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+    }
+
+    .demo__device-item {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+    }
+
+    .demo__device-status {
+        justify-content: space-between;
+    }
+}
+
+/* ===================================================================
+   FLOATING MODE MODIFIER (if needed)
+   ================================================================== */
+
+.demo--floating {
+    /* Add any floating-specific styles here */
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 320px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--color-text-primary) 20%, transparent);
+}
+
