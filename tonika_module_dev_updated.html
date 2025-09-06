@@ -17,7 +17,7 @@
 
   ===================================================================
 -->
-<!--suppress JSUnresolvedLibraryURL, CssUnresolvedCustomProperty -->
+<!--suppress ALL -->
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -123,6 +123,18 @@
             padding: 16px;
             border-radius: 8px;
             text-align: center;
+        }
+
+        /* Code block styling for documentation */
+        .code-block {
+            background: var(--color-bg-secondary);
+            border: var(--border-width) solid var(--color-border);
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-sm);
+            font-family: 'Courier New', monospace;
+            font-size: var(--font-size-sm);
+            overflow-x: auto;
+            margin: var(--spacing-sm) 0;
         }
     </style>
 </head>
@@ -349,6 +361,41 @@
                     <li>Provide a destroy() method for cleanup</li>
                 </ul>
 
+                <h4>🧃 Soundonika Audio Integration</h4>
+                <p>For modules that need audio playback (drums, metronomes, sound effects), integrate with Soundonika:</p>
+                
+                <div class="code-block">
+// 1. Load Soundonika from CDN
+&lt;script src="https://cdn.jsdelivr.net/gh/aa-parky/soundonika@main/js/soundonika.js"&gt;&lt;/script&gt;
+
+// 2. Initialize in your module
+async initAudio() {
+    this.audioContext = new AudioContext();
+    this.audioEngine = new Soundonika.Engine(this.audioContext, {
+        sampleBasePath: './samples'  // Local samples for Tonika users
+    });
+    await this.audioEngine.init();
+}
+
+// 3. Schedule sounds with precise timing
+playSound(soundType, velocity = 1.0) {
+    this.audioEngine.scheduleSound(
+        this.audioContext.currentTime, 
+        soundType, 
+        velocity
+    );
+}
+                </div>
+
+                <p><strong>Supported Sound Types:</strong> 'kick', 'snare', 'hihat_closed', 'hihat_open', 'perc', 'shaker', 'accent', 'normal'</p>
+                
+                <p><strong>Sample Path Strategy:</strong></p>
+                <ul>
+                    <li><strong>Tonika users:</strong> Include samples in your module's <code>./samples</code> directory</li>
+                    <li><strong>Standalone users:</strong> Soundonika automatically falls back to click sounds</li>
+                    <li><strong>Custom paths:</strong> Use <code>setSampleBasePath()</code> for flexible deployment</li>
+                </ul>
+
                 <h4>Testing Checklist</h4>
                 <ul>
                     <li>✅ Test in both light and dark themes</li>
@@ -356,6 +403,95 @@
                     <li>✅ Verify accessibility with screen readers</li>
                     <li>✅ Test alongside other modules (layout compatibility)</li>
                     <li>✅ Check browser console for errors</li>
+                    <li>✅ <strong>Test audio with and without local samples</strong></li>
+                    <li>✅ <strong>Verify graceful fallback to click sounds</strong></li>
+                </ul>
+
+                <h4>Module Architecture Patterns</h4>
+                
+                <h5>Basic Module Structure</h5>
+                <div class="code-block">
+class YourModule {
+    constructor(opts = {}) {
+        this.mount = opts.mount;
+        this.audioContext = null;
+        this.audioEngine = null;
+        
+        this._render();
+        this._bindUI();
+    }
+    
+    async initAudio() {
+        // Initialize Soundonika if needed
+    }
+    
+    _render() {
+        // Generate HTML with BEM classes
+    }
+    
+    _bindUI() {
+        // Bind event listeners
+    }
+    
+    destroy() {
+        // Cleanup resources
+    }
+}
+                </div>
+
+                <h5>Audio-Enabled Module Structure</h5>
+                <div class="code-block">
+class AudioModule {
+    constructor(opts = {}) {
+        this.mount = opts.mount;
+        this.audioContext = null;
+        this.audioEngine = null;
+        this.isAudioReady = false;
+        
+        this._render();
+        this._bindUI();
+    }
+    
+    async start() {
+        try {
+            // Initialize audio on user interaction
+            if (!this.audioContext) {
+                await this._initAudio();
+            }
+            // Start your audio functionality
+        } catch (error) {
+            console.warn('Audio initialization failed:', error);
+            // Continue with non-audio functionality
+        }
+    }
+    
+    async _initAudio() {
+        this.audioContext = new AudioContext();
+        this.audioEngine = new Soundonika.Engine(this.audioContext, {
+            sampleBasePath: './samples'
+        });
+        
+        try {
+            await this.audioEngine.init();
+            this.isAudioReady = true;
+        } catch (error) {
+            // Fallback to click sounds
+            this.audioEngine.setSoundMode('clicks');
+            await this.audioEngine.init();
+            this.isAudioReady = true;
+        }
+    }
+}
+                </div>
+
+                <h4>Best Practices Summary</h4>
+                <ul>
+                    <li><strong>Always test audio fallbacks</strong> - not all users will have samples</li>
+                    <li><strong>Initialize audio on user interaction</strong> - browsers require user gesture</li>
+                    <li><strong>Handle audio failures gracefully</strong> - provide non-audio alternatives</li>
+                    <li><strong>Use consistent BEM naming</strong> - keeps CSS maintainable</li>
+                    <li><strong>Leverage Tonika design system</strong> - don't reinvent components</li>
+                    <li><strong>Test in both themes</strong> - ensure accessibility</li>
                 </ul>
             </div>
         </section>
@@ -416,24 +552,13 @@
      MODULE DEPENDENCIES
 
      Load any external libraries or dependencies your module needs here.
+     For audio modules, you'll typically want to include Soundonika:
 
-     EXAMPLES:
-     - MIDI libraries for music modules
-     - Chart libraries for data visualization
-     - Audio processing libraries
+     <script src="https://cdn.jsdelivr.net/gh/aa-parky/soundonika@main/js/soundonika.js"></script>
 
-     PRODUCTION: Keep only the dependencies your module actually uses.
      ================================================================== -->
-<script src="https://cdn.jsdelivr.net/npm/midiwriter-js@2.0.3/build/midiwriter.min.js"></script>
 
-<!-- ===================================================================
-     YOUR MODULE JAVASCRIPT
-
-     Load your module's JavaScript file here. Replace "demo.js" with
-     your actual module filename (e.g., "chordonika.js", "catchonika.js").
-
-     PRODUCTION: This is the main script you'll need in production.
-     ================================================================== -->
+<!-- YOUR MODULE SCRIPT: Replace "demo.js" with your module filename -->
 <script src="js/demo.js"></script>
 
 <script>
@@ -460,5 +585,7 @@
 
 
 </script>
+
 </body>
 </html>
+
