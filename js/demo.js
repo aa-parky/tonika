@@ -35,26 +35,7 @@
             this._attachUIHandlers();
             void this._initMIDI();
         }
-
-        destroy() {
-            // Clean up all MIDI listeners
-            this._listeners.forEach((listener, deviceId) => {
-                const device = this._midi?.inputs.get(deviceId);
-                if (device) {
-                    device.onmidimessage = null;
-                }
-            });
-            this._listeners.clear();
-            this._lastMessages.clear();
-
-            if (this._midi) {
-                this._midi.onstatechange = null;
-                this._midi = null;
-            }
-            this._teardownUI();
-        }
-
-        // === MIDI Device Management =============================================
+// === MIDI Device Management =============================================
 
         async _initMIDI() {
             if (!navigator.requestMIDIAccess) {
@@ -342,7 +323,7 @@
             const statusClass = isMonitoring ? "demo__status-indicator--open" : "demo__status-indicator--closed";
             const connectionText = isMonitoring ? "Monitoring" : "Not monitoring";
 
-            // Get last message for this device
+            // Get the last message for this device
             const lastMessage = this._lastMessages.get(device.id) || (type === "input" ? "No messages yet" : "Output device");
 
             // Determine button state
@@ -448,26 +429,6 @@
         }
 
         // === Public API ==========================================================
-
-        /**
-         * Get current device lists
-         * @returns {Object} Object containing inputs and outputs Maps
-         */
-        getDevices() {
-            return {
-                inputs: new Map(this._devices.inputs),
-                outputs: new Map(this._devices.outputs),
-            };
-        }
-
-        /**
-         * Get last messages for all connected devices
-         * @returns {Map} Map of deviceId -> lastMessage
-         */
-        getLastMessages() {
-            return new Map(this._lastMessages);
-        }
-
         /**
          * Manually refresh the device list
          */
