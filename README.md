@@ -136,6 +136,11 @@ Feel free to fork and tinker—or raise an issue if you're stuck.
 
 MIT License © 2025 [aa-parky](https://github.com/aa-parky)
 
+## Licensing
+
+- **Tonika (code)** — MIT License
+- **Piano sample assets** — Public Domain [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/), [Upright Piano KW, Version 2022-02-21](https://freepats.zenvoid.org/Piano/acoustic-grand-piano.html)
+
 ---
 
 ## 🧙‍♂️ A Final Word from the Goblin Desk
