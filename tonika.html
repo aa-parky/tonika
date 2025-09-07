@@ -1,10 +1,187 @@
-<!DOCTYPE html>
+<!doctype html>
+<!--
+  ===================================================================
+  TONIKA MODULE DEVELOPMENT TEMPLATE
+
+  This is a comprehensive development template for creating Tonika modules.
+  It provides a complete testing environment with multiple tabs for different
+  aspects of module development and testing.
+
+  WHAT THIS FILE PROVIDES:
+  - Live preview of your module
+  - Theme testing (dark/light mode)
+  - Component gallery for reference
+  - Layout testing environment
+  - Development documentation
+  - Proper Tonika design system integration
+
+  ===================================================================
+-->
+<!--suppress ALL -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Tonika</title>
+    <meta charset="UTF-8" />
+    <title>Tonika - Curated</title>
+
+    <!-- 1) Core Design System: CSS Variables and Base Styles -->
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/aa-parky/tonika@main/css/tonika-core.css"
+    />
+
+    <!-- 2) Shared Components: Buttons, Inputs, Cards, etc. -->
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/aa-parky/tonika@main/css/tonika-components.css"
+    />
+
+    <!-- 3) Layout System: Page structure and responsive grid -->
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/gh/aa-parky/tonika@main/css/layout.css"
+    />
+
+    <!-- 4) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/aa-parky/clavonika@main/css/clavonika.css"
+    />
+
 </head>
-<body>
-Welcome to Tonika!
+
+<body class="tonika-theme-dark">
+
+<header>
+    <h1>Tonika - Curated</h1>
+</header>
+
+<main class="tonika-container">
+
+    <div class="tabs">
+        <button class="active" onclick="openTab(0)">1</button>
+        <button onclick="openTab(1)">2</button>
+        <button onclick="openTab(2)">3</button>
+        <button onclick="openTab(3)">4</button>
+        <button onclick="openTab(4)">Documentation</button>
+    </div>
+
+    <div class="tab-content">
+
+        <section class="active">
+            <div class="tonika-module">
+            Tab 1 Content
+            </div>
+        </section>
+
+
+        <section>
+            <div class="tonika-module">
+            Tab 2 Content
+            </div>
+        </section>
+
+        <section>
+            <div class="tonika-module">
+            Tab 3 Content
+            </div>
+        </section>
+
+        <section>
+            <div class="tonika-module">
+            Tab 4 Content
+            </div>
+        </section>
+
+        <section>
+            <div class="tonika-module">
+                <h3>Module Development Guidelines</h3>
+                <button class="tonika-btn" onclick="toggleTheme()">
+                    Toggle Theme
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ===================================================================
+         PIANO ROLL PLACEHOLDER
+
+         This represents where a global piano/keyboard component might be
+         placed in the full Tonika application. It's just a placeholder
+         for development purposes.
+
+         ================================================================== -->
+    <div class="roll88">
+        <div class="piano-placeholder">
+            <div id="piano-container"></div>
+
+            <script type="module">
+                import Clavonika from 'https://cdn.jsdelivr.net/gh/aa-parky/clavonika@main/js/clavonika.js';
+
+                const piano = Clavonika.init('piano-container');
+
+                // You can also control the piano programmatically:
+                setTimeout(() => {
+                    piano.noteOn(60); // Light up Middle C
+                }, 1000);
+
+                setTimeout(() => {
+                    piano.noteOff(60); // Turn off Middle C
+                }, 2000);
+            </script>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2025 Tonika Module Development Demo</p>
+</footer>
+
+<script>
+    // Handle tab switching in the interface
+    function openTab(index) {
+        const tabs = document.querySelectorAll(".tabs button");
+        const sections = document.querySelectorAll(".tab-content section");
+
+        tabs.forEach((tab, i) => {
+            tab.classList.toggle("active", i === index);
+            sections[i].classList.toggle("active", i === index);
+        });
+    }
+
+    // Handle theme switching for testing purposes
+    function toggleTheme() {
+        const body = document.body;
+        if (body.classList.contains("tonika-theme-dark")) {
+            body.classList.remove("tonika-theme-dark");
+            body.classList.add("tonika-theme-light");
+        } else {
+            body.classList.remove("tonika-theme-light");
+            body.classList.add("tonika-theme-dark");
+        }
+    }
+</script>
+
+<!-- YOUR MODULE SCRIPT: Replace "demo.js" with your module filename -->
+
+
+<script>
+    // ===================================================================
+    // MODULE INITIALIZATION
+    //
+    // This is where you initialize your module. Replace "Demo" with your
+    // actual module class name and adjust the options as needed.
+    //
+    // COMMON OPTIONS:
+    // - mount: CSS selector or DOM element where module should render
+    // - mode: "card" for contained layout, "floating" for overlay
+    // - onEvent: Callback functions for module events
+    //
+    // PRODUCTION: Keep this initialization code and customize as needed.
+    // ===================================================================
+
+    // Initialize your module in the main tab
+
+</script>
+
 </body>
 </html>
+
