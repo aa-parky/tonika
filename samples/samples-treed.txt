@@ -206,7 +206,7 @@
 │       ├── photo.jpg
 │       └── readme.txt
 ├── sample-index.json
-├── samples-tree.txt
+├── samples-treed.txt
 └── strings
     └── README.md
 

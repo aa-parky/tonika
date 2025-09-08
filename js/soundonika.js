@@ -1,316 +1,207 @@
-/**
- * Soundonika - A modular audio engine for the Tonika ecosystem
- * Backward-compatible version that works with existing demos
- * Refactored to remove hard-coded sample mappings while maintaining compatibility
- */
+/* ===================================================================
+   Soundonika.js
+   Core audio engine for Tonika
+   ================================================================== */
 
 /* global module */
+
+/**
+ * Encode each path segment so characters like '#' don't break fetch URLs.
+ * @param {string} relPath
+ * @returns {string}
+ */
+function encodePathSegments(relPath) {
+    return relPath.split('/').map(encodeURIComponent).join('/');
+}
+
 class SoundonikaEngine {
+    /**
+     * @param {AudioContext} audioContext
+     * @param {{
+     *   sampleBasePath?: string,
+     *   volume?: number,
+     *   mode?: 'samples'|'clicks',
+     *   sampleMappings?: Record<string,string>
+     * }} [options]
+     */
     constructor(audioContext, options = {}) {
         this.audioContext = audioContext;
+        this.sampleBasePath = options.sampleBasePath || 'samples';
+        this.volume = options.volume ?? 0.8;
+        this.soundMode = options.mode || 'samples'; // 'samples' | 'clicks'
+        this.sampleMappings = options.sampleMappings || {};
+        /** @type {Map<string, AudioBuffer>} */
+        this.sampleBuffers = new Map(); // key: relative samplePath → AudioBuffer
+        this.loadingProgress = { loaded: 0, total: 0 };
+        /** @type {Map<string,string>} */
+        this.soundTypeMap = new Map();
+        /** @type {Record<string, any>} */
+        this.sampleIndex = undefined;
 
-        // Audio graph nodes
-        this.masterGain = null;
-        this.compressor = null;
-
-        // Sample management
-        this.sampleIndex = {};
-        this.sampleBasePath = options.sampleBasePath || '../samples';
-        this.sampleBuffers = new Map(); // AudioBuffer cache
-        this.soundTypeMap = new Map();  // Type → sample mapping
-
-        // Configuration for sample mappings - now configurable!
-        this.sampleMappings = options.sampleMappings || this.getDefaultSampleMappings();
-
-        // State management
-        this.volume = options.volume || 0.8;
-        this.mode = options.mode || 'samples';
-        this.isInitialized = false;
-        this.loadingProgress = 0;
+        this._initDefaultMappings();
     }
 
-    // ===== CONFIGURATION METHODS =====
-
-    getDefaultSampleMappings() {
-        // Default mappings that work with the standard Tonika directory structure
-        // These can be overridden via constructor options
-        return {
-            'kick': 'percussion/DopeDrumsVol5/DD5_Kick_01.wav',
-            'snare': 'percussion/DopeDrumsVol5/DD5_Snare_01.wav',
-            'hihat_closed': 'percussion/DopeDrumsVol5/DD5_CH_01.wav',
-            'hihat_open': 'percussion/DopeDrumsVol5/DD5_OH_01.wav',
-            'perc': 'percussion/DopeDrumsVol5/DD5_Perc_01.wav',
-            'shaker': 'percussion/DopeDrumsVol5/DD5_Shk_01.wav',
-            // Aliases for convenience
-            'accent': 'percussion/DopeDrumsVol5/DD5_Kick_01.wav',
-            'normal': 'percussion/DopeDrumsVol5/DD5_CH_01.wav'
+    // ===== DEFAULT MAPPINGS =====
+    _initDefaultMappings() {
+        // Safe defaults (can be replaced via setSampleMappings)
+        this.sampleMappings = {
+            kick:  'percussion/DopeDrumsVol5/DD5_Kick_01.wav',
+            snare: 'percussion/DopeDrumsVol5/DD5_Snare_01.wav',
+            hihat: 'percussion/DopeDrumsVol5/DD5_CH_01.wav',
+            perc:  'percussion/DopeDrumsVol5/DD5_Bones.wav',
+            // Aliases
+            clap:  'percussion/DopeDrumsVol5/DD5_Snare_02.wav'
         };
+        this.soundTypeMap = new Map(Object.entries(this.sampleMappings));
     }
 
-    async setSampleMappings(mappings) {
-        this.sampleMappings = { ...mappings };
-        this.setupSoundTypeMapping();
-
-        // Load any new samples that aren't already cached
-        await this.loadMissingSamples();
-
-        console.log('Sample mappings updated and new samples loaded');
-    }
-
-    async loadMissingSamples() {
-        const loadPromises = [];
-
-        for (const [, samplePath] of Object.entries(this.sampleMappings)) {
-            const fullPath = `${this.sampleBasePath}/${samplePath}`;
-
-            // Check if this sample is already loaded
-            if (!this.sampleBuffers.has(fullPath)) {
-                console.log(`Loading new sample: ${fullPath}`);
-                const promise = this.loadSampleByPath(samplePath);
-                loadPromises.push(promise);
-            }
-        }
-
-        if (loadPromises.length > 0) {
-            await Promise.all(loadPromises);
-            console.log(`Loaded ${loadPromises.length} new samples`);
-        }
-    }
-
-    async loadSampleByPath(samplePath) {
-        const fullPath = `${this.sampleBasePath}/${samplePath}`;
-
-        try {
-            // loadSampleByPath(...)
-            const response = await fetch(fullPath);
-            if (!response.ok) {
-                console.error(`Failed to fetch sample: ${response.status} @ ${fullPath}`);
-                return; // no throw here — we already handle below
-            }
-
-            const arrayBuffer = await response.arrayBuffer();
-            const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-
-            this.sampleBuffers.set(fullPath, audioBuffer);
-            console.log(`Successfully loaded: ${samplePath}`);
-
-        } catch (error) {
-            console.error(`Failed to load sample ${samplePath}:`, error);
-            // Don't throw - allow the engine to continue with other samples
-        }
-    }
-
-    getSampleMappings() {
-        return { ...this.sampleMappings };
-    }
-
-    // ===== INITIALIZATION METHODS =====
-
+    // ===== INIT =====
     async init() {
-        if (this.isInitialized) {
-            console.log('Engine already initialized');
-            return;
-        }
-
-        try {
-            this.setupAudioGraph();
-            await this.loadSampleIndex();
-            await this.preloadSamples();
-            this.setupSoundTypeMapping();
-
-            this.isInitialized = true;
-            console.log('Soundonika engine initialized successfully');
-        } catch (error) {
-            console.error('Failed to initialize Soundonika engine:', error);
-            throw error;
-        }
-    }
-
-    setupAudioGraph() {
-        // Master gain for volume control
-        this.masterGain = this.audioContext.createGain();
-        this.masterGain.gain.value = this.volume;
-
-        // Optional compressor for limiting and professional sound
-        this.compressor = this.audioContext.createDynamicsCompressor();
-        this.compressor.threshold.value = -24;
-        this.compressor.knee.value = 30;
-        this.compressor.ratio.value = 12;
-        this.compressor.attack.value = 0.003;
-        this.compressor.release.value = 0.25;
-
-        // Connect the audio graph: masterGain → compressor → destination
-        this.masterGain.connect(this.compressor);
-        this.compressor.connect(this.audioContext.destination);
+        await this.loadSampleIndex();
+        await this.preloadSamples();
     }
 
     async loadSampleIndex() {
-        const response = await fetch(`${this.sampleBasePath}/sample-index.json`);
-        if (!response.ok) {
-            throw new Error(`Failed to load sample index: ${response.status}`);
+        try {
+            const response = await fetch(`${this.sampleBasePath}/sample-index.json`);
+            if (!response.ok) {
+                // Keep this throw: failing the index should abort initialization
+                throw new Error(`Failed to fetch sample index: ${response.status}`);
+            }
+            this.sampleIndex = await response.json();
+        } catch (err) {
+            console.error('Error loading sample index:', err);
+            throw err;
         }
-        this.sampleIndex = await response.json();
     }
 
     async preloadSamples() {
-        const loadPromises = [];
-        let totalSamples = 0;
-        let loadedSamples = 0;
-
-        // Count total samples for progress tracking
-        for (const [, packs] of Object.entries(this.sampleIndex)) {
-            if (packs && typeof packs === 'object' && !Array.isArray(packs)) {
-                const packsRecord = /** @type {Record<string, string[]>} */ (packs);
-                for (const [, samples] of Object.entries(packsRecord)) {
-                    if (Array.isArray(samples)) {
-                        totalSamples += samples.length;
-                    }
-                }
-            }
+        if (!this.sampleIndex) {
+            console.warn('No sample index loaded.');
+            return;
         }
 
-        // Load samples from each pack
+        /** @type {string[]} */
+        const allFiles = [];
         for (const [category, packs] of Object.entries(this.sampleIndex)) {
-            if (packs && typeof packs === 'object' && !Array.isArray(packs)) {
-                const packsRecord = /** @type {Record<string, string[]>} */ (packs);
-                for (const [pack, samples] of Object.entries(packsRecord)) {
-                    if (Array.isArray(samples)) {
-                        for (const sample of samples) {
-                            const promise = this.loadSample(category, pack, sample)
-                                .then(() => {
-                                    loadedSamples++;
-                                    this.loadingProgress = loadedSamples / totalSamples;
-                                });
-                            loadPromises.push(promise);
-                        }
-                    }
+            for (const [pack, files] of Object.entries(packs)) {
+                for (const file of files) {
+                    allFiles.push(`${category}/${pack}/${file}`);
                 }
             }
         }
 
-        await Promise.all(loadPromises);
-        console.log(`Loaded ${loadedSamples} samples successfully`);
+        this.loadingProgress.total = allFiles.length;
+        this.loadingProgress.loaded = 0;
+
+        // Simple sequential load (robust, low memory). Can add concurrency later.
+        for (const samplePath of allFiles) {
+            // eslint-disable-next-line no-await-in-loop
+            await this.loadSampleByPath(samplePath);
+            this.loadingProgress.loaded++;
+        }
     }
 
+    /**
+     * Convenience wrapper to match old call sites.
+     */
     async loadSample(category, pack, filename) {
-        const url = `${this.sampleBasePath}/${category}/${pack}/${filename}`;
+        const samplePath = `${category}/${pack}/${filename}`;
+        return this.loadSampleByPath(samplePath);
+    }
+
+    /**
+     * @param {string} samplePath relative path under samples/ (unencoded)
+     */
+    async loadSampleByPath(samplePath) {
+        const fetchUrl = `${this.sampleBasePath}/${encodePathSegments(samplePath)}`;
 
         try {
-            // loadSample(...)
-            const response = await fetch(url);
+            const response = await fetch(fetchUrl);
             if (!response.ok) {
-                console.error(`Failed to fetch sample: ${response.status} @ ${url}`);
-                return; // no throw here either
+                console.error(`Failed to fetch sample: ${response.status} @ ${fetchUrl}`);
+                return;
             }
 
+            /** @type {ArrayBuffer} */
             const arrayBuffer = await response.arrayBuffer();
             const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
 
-            this.sampleBuffers.set(url, audioBuffer);
-
+            this.sampleBuffers.set(samplePath, audioBuffer);
+            // You can quiet this log if you like once you’re confident.
+            console.log(`Successfully loaded: ${samplePath}`);
         } catch (error) {
-            console.error(`Failed to load sample ${filename}:`, error);
-            // Don't throw - allow the engine to continue with other samples
+            console.error(`Failed to load sample ${samplePath}:`, error);
         }
     }
 
-    setupSoundTypeMapping() {
-        // Clear existing mappings
-        this.soundTypeMap.clear();
-
-        // Set up mappings based on configuration
-        for (const [soundType, samplePath] of Object.entries(this.sampleMappings)) {
-            this.soundTypeMap.set(soundType, samplePath);
-        }
-    }
-
-    // ===== CORE SCHEDULING METHODS =====
-
+    // ===== PLAYBACK =====
+    /**
+     * @param {number} when
+     * @param {string} soundType
+     * @param {number} [velocity=1]
+     */
     scheduleSound(when, soundType, velocity = 1.0) {
-        if (!this.isInitialized) {
-            console.warn('Engine not initialized. Call init() first. Falling back to click sound.');
-            this.scheduleClickSound(when, soundType, velocity);
-            return;
-        }
-
-        // Validate and sanitize parameters
-        if (when < this.audioContext.currentTime) {
-            console.warn('Scheduled time is in the past, playing immediately');
-            when = this.audioContext.currentTime;
-        }
-
-        velocity = Math.max(0, Math.min(1, velocity));
-
-        // Route based on current mode
-        if (this.mode === 'clicks') {
-            this.scheduleClickSound(when, soundType, velocity);
-        } else {
+        if (this.soundMode === 'samples') {
             this.scheduleSampleSound(when, soundType, velocity);
+        } else {
+            this.scheduleClickSound(when, soundType, velocity);
         }
     }
 
+    /**
+     * @param {number} when
+     * @param {string} soundType
+     * @param {number} velocity
+     */
     scheduleSampleSound(when, soundType, velocity) {
         const samplePath = this.soundTypeMap.get(soundType);
         if (!samplePath) {
-            console.warn(`No sample mapping found for sound type: ${soundType}. Falling back to click.`);
+            console.warn(`No sample mapping for: ${soundType}. Falling back to click.`);
             this.scheduleClickSound(when, soundType, velocity);
             return;
         }
 
-        const fullPath = `${this.sampleBasePath}/${samplePath}`;
-        const audioBuffer = this.sampleBuffers.get(fullPath);
-
+        const audioBuffer = this.sampleBuffers.get(samplePath);
         if (!audioBuffer) {
             console.warn(`Sample not loaded: ${samplePath}. Falling back to click.`);
             this.scheduleClickSound(when, soundType, velocity);
             return;
         }
 
-        // Create and configure audio nodes
         const source = this.audioContext.createBufferSource();
-        const gainNode = this.audioContext.createGain();
-
         source.buffer = audioBuffer;
-        gainNode.gain.value = velocity;
 
-        // Connect: source → gain → masterGain
-        source.connect(gainNode);
-        gainNode.connect(this.masterGain);
+        const gainNode = this.audioContext.createGain();
+        gainNode.gain.value = this.volume * velocity;
 
-        // Schedule playback
+        source.connect(gainNode).connect(this.audioContext.destination);
         source.start(when);
     }
 
+    /**
+     * @param {number} when
+     * @param {string} soundType
+     * @param {number} velocity
+     */
     scheduleClickSound(when, soundType, velocity) {
-        // Create a simple click sound using the oscillator
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
 
-        // Configure oscillator for a short click
-        oscillator.frequency.value = soundType === 'accent' ? 1000 : 800;
-        oscillator.type = 'sine';
+        const isAccent = soundType === 'kick' || soundType === 'accent';
+        osc.frequency.value = isAccent ? 880.0 : 440.0;
 
-        // Configure gain envelope with a sharp click
-        gainNode.gain.setValueAtTime(0, when);
-        gainNode.gain.linearRampToValueAtTime(velocity * 0.3, when + 0.001);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
+        gain.gain.setValueAtTime(this.volume * velocity, when);
+        gain.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
 
-        // Connect: oscillator → gain → masterGain
-        oscillator.connect(gainNode);
-        gainNode.connect(this.masterGain);
-
-        // Schedule playback
-        oscillator.start(when);
-        oscillator.stop(when + 0.05);
+        osc.connect(gain).connect(this.audioContext.destination);
+        osc.start(when);
+        osc.stop(when + 0.05);
     }
 
-    // ===== UTILITY METHODS =====
-
-    setVolume(volume) {
-        this.volume = Math.max(0, Math.min(1, volume));
-        if (this.masterGain) {
-            this.masterGain.gain.value = this.volume;
-        }
+    // ===== HELPERS / GETTERS / SETTERS =====
+    setVolume(vol) {
+        this.volume = Math.max(0, Math.min(vol, 1));
     }
 
     getVolume() {
@@ -319,26 +210,68 @@ class SoundonikaEngine {
 
     setSoundMode(mode) {
         if (mode === 'samples' || mode === 'clicks') {
-            this.mode = mode;
-        } else {
-            console.warn(`Invalid sound mode: ${mode}. Use 'samples' or 'clicks'.`);
+            this.soundMode = mode;
         }
     }
 
     getSoundMode() {
-        return this.mode;
+        return this.soundMode;
     }
 
-    isReady() {
-        return this.isInitialized;
+    /**
+     * Replace the current sound type → samplePath mapping at runtime.
+     * @param {{kick: string, snare: string, hihat_closed: string, hihat_open: string, perc: string, shaker: string, accent: string, normal: string}|{kick: string, snare: string, hihat_closed: string, hihat_open: string, perc: string, shaker: string, accent: string, normal: string}} mappings
+     */
+    setSampleMappings(mappings) {
+        this.sampleMappings = { ...mappings };
+        this.soundTypeMap = new Map(Object.entries(this.sampleMappings));
     }
 
+    /**
+     * Return a shallow copy of the current mappings (for UIs).
+     * @returns {Record<string,string>}
+     */
+    getSampleMappings() {
+        return { ...this.sampleMappings };
+    }
+
+    /**
+     * Return current preload progress (for status displays).
+     * @returns {{loaded:number,total:number}}
+     */
     getLoadingProgress() {
-        return this.loadingProgress;
+        return { ...this.loadingProgress };
     }
 
+    /** Number of decoded+cached samples */
     getLoadedSampleCount() {
         return this.sampleBuffers.size;
+    }
+
+    /** Total samples expected to load (from sample-index.json) */
+    getTotalSampleCount() {
+        return this.loadingProgress.total ?? 0;
+    }
+
+    /** Optional: list of loaded sample relative paths */
+    getLoadedSamplePaths() {
+        return Array.from(this.sampleBuffers.keys());
+    }
+
+    /** Optional: quick check if a given relative path is loaded */
+    hasSample(samplePath) {
+        return this.sampleBuffers.has(samplePath);
+    }
+
+    getSampleBasePath() {
+        return this.sampleBasePath;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isReady() {
+        return this.loadingProgress.loaded === this.loadingProgress.total && this.loadingProgress.total > 0;
     }
 }
 
@@ -347,13 +280,7 @@ if (typeof window !== 'undefined') {
     window.SoundonikaEngine = SoundonikaEngine;
 }
 
-// ===== MODULE EXPORTS =====
-// For Node.js/CommonJS modules
-if (typeof module !== 'undefined' && module.exports) {
+// ===== MODULE EXPORTS (Node/CommonJS) =====
+if (typeof module === 'object' && module && typeof module.exports === 'object') {
     module.exports = { SoundonikaEngine };
 }
-
-// For ES6 modules - only when loaded as a module
-// Note: ES6 export statements must be at the top level and cannot be conditional
-// This file is designed to work with both script tags and ES6 imports
-

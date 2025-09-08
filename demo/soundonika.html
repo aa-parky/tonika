@@ -110,7 +110,7 @@
             height: 100%;
             background: linear-gradient(90deg, #8f8, #4a4);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.25s ease;
         }
 
         input[type="range"] {
@@ -206,9 +206,8 @@
 
     <div class="implementation-note">
         <strong>Implementation:</strong> Creates <code>AudioContext</code> and <code>SoundonikaEngine</code> instance with configurable options.
-        Calls <code>engine.init()</code> which executes <code>setupAudioGraph()</code>, <code>loadSampleIndex()</code>,
-        <code>preloadSamples()</code>, and <code>setupSoundTypeMapping()</code>. Progress tracking uses
-        <code>engine.getLoadingProgress()</code> polled every 100ms.
+        Calls <code>engine.init()</code> which executes <code>loadSampleIndex()</code> and <code>preloadSamples()</code>.
+        Progress tracking polls <code>engine.getLoadingProgress()</code> every 100 ms.
     </div>
 
     <div class="refactor-note">
@@ -218,7 +217,7 @@
 
     <button id="initBtn">Initialize Engine</button>
     <div class="status" id="initStatus">Not initialized</div>
-    <div class="progress">
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar" id="progressBar"></div>
     </div>
 </div>
@@ -228,8 +227,7 @@
     <h2>🎛️ Basic Controls</h2>
 
     <div class="implementation-note">
-        <strong>Implementation:</strong> Volume control calls <code>engine.setVolume()</code> which updates
-        <code>this.masterGain.gain.value</code> in the Web Audio graph. Mode switching uses
+        <strong>Implementation:</strong> Volume control calls <code>engine.setVolume()</code>. Mode switching uses
         <code>engine.setSoundMode()</code> to toggle between sample playback and synthesized click sounds.
     </div>
 
@@ -284,7 +282,7 @@
 
     <div class="refactor-note">
         <strong>Working Implementation:</strong> Kit switching now properly loads new samples. The <code>setSampleMappings()</code>
-        method is now async and automatically loads any missing samples before completing the switch.
+        method updates the current mappings; ensure the files exist or preload them beforehand if needed.
         Visual feedback shows loading states and current kit information.
     </div>
 
@@ -315,8 +313,7 @@
     <div class="implementation-note">
         <strong>Implementation:</strong> Uses Web Audio's precise timing by calling <code>engine.scheduleSound()</code>
         with future timestamps. The <code>source.start(when)</code> method schedules playback at exact audio
-        context times. Velocity demo shows how the third parameter controls <code>gainNode.gain.value</code>
-        for dynamic volume. Precision timing demonstrates sub-millisecond accuracy.
+        context times. Velocity demo shows how the third parameter controls gain for dynamic volume.
     </div>
 
     <button onclick="testScheduledSequence()">Play Scheduled Sequence</button>
@@ -332,8 +329,8 @@
     <div class="implementation-note">
         <strong>Implementation:</strong> Metronome uses <code>setInterval()</code> with BPM-calculated timing
         (60/BPM seconds per beat). Each tick calls <code>engine.scheduleSound()</code> with a small lookahead
-        (<code>now + 0.01</code>) for precision. Accent beats use different sound types mapped in
-        <code>setupSoundTypeMapping()</code>. Visual indicators update via DOM manipulation synchronized with audio.
+        (<code>now + 0.01</code>) for precision. Accent beats use different sound types mapped in your kit.
+        Visual indicators update via DOM manipulation synchronized with audio.
     </div>
 
     <div class="refactor-note">
@@ -360,9 +357,7 @@
     <h2>📊 Performance Stats</h2>
 
     <div class="implementation-note">
-        <strong>Implementation:</strong> Stats are gathered from engine methods: <code>getLoadedSampleCount()</code>
-        returns <code>this.sampleBuffers.size</code>, <code>isReady()</code> checks <code>this.isInitialized</code>,
-        and <code>ctx.currentTime</code> shows Web Audio's high-resolution timer. Auto-refresh uses
+        <strong>Implementation:</strong> Stats are gathered from engine methods and the AudioContext. Auto-refresh uses
         <code>setInterval(updateStats, 1000)</code> for real-time monitoring.
     </div>
 
@@ -473,28 +468,34 @@
 
             ctx = new AudioContext();
 
-            // Initialize with configurable sample mappings and the correct path
             const engineOptions = {
-                sampleBasePath: '../samples',  // Correct path for the demo directory
+                sampleBasePath: '../samples',  // Path for the demo directory
                 sampleMappings: defaultKitConfig
             };
 
             engine = new SoundonikaEngine(ctx, engineOptions);
 
-            // Monitor loading progress
+            // ✅ PROGRESS POLLING (reads {loaded, total})
             const progressInterval = setInterval(() => {
-                const progress = engine.getLoadingProgress();
-                progressBar.style.width = (progress * 100) + '%';
+                if (!engine) return;
+                const { loaded, total } = engine.getLoadingProgress();
+                const pct = total ? (loaded / total) * 100 : 0;
+                progressBar.style.width = `${Math.floor(pct)}%`;
+                progressBar.parentElement.setAttribute('aria-valuenow', String(Math.floor(pct)));
 
-                if (progress >= 1) {
+                if (total > 0 && loaded >= total) {
                     clearInterval(progressInterval);
                 }
             }, 100);
 
             await engine.init();
 
+            // Snap to full on completion
+            progressBar.style.width = '100%';
+            progressBar.parentElement.setAttribute('aria-valuenow', '100');
+
             currentKit = 'default';
-            updateKitDisplay(); // This will also update the config display
+            updateKitDisplay(); // also updates the config display
 
             initStatus.textContent = 'Engine initialized successfully!';
             initStatus.style.color = '#8f8';
@@ -531,11 +532,9 @@
         kitStatus.textContent = `Loading ${kitName}...`;
 
         try {
-            console.log(`Switching to ${kitName}...`);
             await engine.setSampleMappings(targetConfig);
-
             currentKit = targetKit;
-            updateKitDisplay(); // This will auto-update both kit info and config display
+            updateKitDisplay();
             kitStatus.textContent = `${kitName} active`;
         } catch (error) {
             kitStatus.textContent = `Failed to load ${kitName}: ${error.message}`;
@@ -556,11 +555,9 @@
         kitStatus.textContent = 'Loading Default Kit...';
 
         try {
-            console.log('Switching to Default Kit...');
             await engine.setSampleMappings(defaultKitConfig);
-
             currentKit = 'default';
-            updateKitDisplay(); // This will auto-update both kit info and config display
+            updateKitDisplay();
             kitStatus.textContent = 'Default kit active';
         } catch (error) {
             kitStatus.textContent = `Failed to load Default Kit: ${error.message}`;
@@ -595,22 +592,17 @@
     volumeSlider.addEventListener('input', () => {
         const volume = parseFloat(volumeSlider.value);
         volumeDisplay.textContent = volume.toFixed(1);
-        if (engine) {
-            engine.setVolume(volume);
-        }
+        if (engine) engine.setVolume(volume);
     });
 
     // Mode control
     modeSelect.addEventListener('change', () => {
-        if (engine) {
-            engine.setSoundMode(modeSelect.value);
-        }
+        if (engine) engine.setSoundMode(modeSelect.value);
     });
 
     // BPM control
     bpmSlider.addEventListener('input', () => {
         bpmDisplay.textContent = bpmSlider.value;
-
         if (isMetronomeRunning) {
             stopMetronome();
             startMetronome();
@@ -629,7 +621,6 @@
             alert('Engine not initialized. Click "Initialize Engine" first.');
             return;
         }
-
         engine.scheduleSound(ctx.currentTime, soundType, 1.0);
     }
 
@@ -704,7 +695,7 @@
             stopMetronome();
         }
 
-        const bpm = parseInt(bpmSlider.value);
+        const bpm = parseInt(bpmSlider.value, 10);
         const interval = 60 / bpm;
 
         currentBeat = 0;
@@ -721,7 +712,6 @@
 
             updateBeatIndicator();
             currentBeat++;
-
         }, interval * 1000);
     }
 
@@ -805,4 +795,3 @@
 </p>
 </body>
 </html>
-
