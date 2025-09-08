@@ -337,14 +337,9 @@ class SoundonikaEngine {
     }
 }
 
-// ===== BACKWARD COMPATIBILITY =====
-// For existing code that expects window.Soundonika
+// ===== GLOBAL EXPOSURE =====
 if (typeof window !== 'undefined') {
     window.SoundonikaEngine = SoundonikaEngine;
-    // Legacy support
-    window.Soundonika = {
-        Engine: SoundonikaEngine
-    };
 }
 
 // ===== MODULE EXPORTS =====
