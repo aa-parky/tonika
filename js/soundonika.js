@@ -4,6 +4,7 @@
  * Refactored to remove hard-coded sample mappings while maintaining compatibility
  */
 
+/* global module */
 class SoundonikaEngine {
     constructor(audioContext, options = {}) {
         this.audioContext = audioContext;
@@ -59,7 +60,7 @@ class SoundonikaEngine {
     async loadMissingSamples() {
         const loadPromises = [];
 
-        for (const [soundType, samplePath] of Object.entries(this.sampleMappings)) {
+        for (const [, samplePath] of Object.entries(this.sampleMappings)) {
             const fullPath = `${this.sampleBasePath}/${samplePath}`;
 
             // Check if this sample is already loaded
@@ -80,9 +81,11 @@ class SoundonikaEngine {
         const fullPath = `${this.sampleBasePath}/${samplePath}`;
 
         try {
+            // loadSampleByPath(...)
             const response = await fetch(fullPath);
             if (!response.ok) {
-                throw new Error(`Failed to fetch sample: ${response.status}`);
+                console.error(`Failed to fetch sample: ${response.status} @ ${fullPath}`);
+                return; // no throw here — we already handle below
             }
 
             const arrayBuffer = await response.arrayBuffer();
@@ -193,9 +196,11 @@ class SoundonikaEngine {
         const url = `${this.sampleBasePath}/${category}/${pack}/${filename}`;
 
         try {
+            // loadSample(...)
             const response = await fetch(url);
             if (!response.ok) {
-                throw new Error(`Failed to fetch sample: ${response.status}`);
+                console.error(`Failed to fetch sample: ${response.status} @ ${url}`);
+                return; // no throw here either
             }
 
             const arrayBuffer = await response.arrayBuffer();
