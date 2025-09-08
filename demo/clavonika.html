@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clavonika - Modernized with ES Modules</title>
+    <link rel="stylesheet" href="../css/clavonika.css">
+</head>
+<body>
+
+<h1>Clavonika - Modernized Version</h1>
+<p>This version uses ES modules to avoid global namespace pollution.</p>
+
+<div id="piano-container"></div>
+
+<script type="module">
+    import Clavonika from '../js/clavonika.js';
+
+    try {
+        console.log('Initializing modernized Clavonika...');
+        const piano = Clavonika.init('piano-container');
+        console.log('Modernized Clavonika initialized successfully:', piano);
+
+        // Test the API
+        setTimeout(() => {
+            console.log('Testing noteOn/noteOff with middle C...');
+            piano.noteOn(60);
+            setTimeout(() => {
+                piano.noteOff(60);
+            }, 1000);
+        }, 1000);
+    } catch (error) {
+        console.error('Error initializing modernized Clavonika:', error);
+    }
+</script>
+
+</body>
+</html>
