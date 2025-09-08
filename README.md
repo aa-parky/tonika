@@ -1,6 +1,6 @@
 # 🎶 Tonika
 
-> *A notebook for creativity in the space of music development.*
+> _A notebook for creativity in the space of music development._
 
 Tonika is a modular, open-source music environment built to help you explore, create, and develop musical ideas—whether you're a beginner, expert, composer, or curious coder. It's a growing collection of purpose-built tools that speak MIDI, listen closely, and always strive to stay out of your way.
 
@@ -32,7 +32,7 @@ Tonika includes a default browser-based UI that brings together a suite of `*oni
 
 | Module                                                   | Description                                                  |
 |----------------------------------------------------------|--------------------------------------------------------------|
-| 🧃 **Soundonika** *(integrated)*                         | Headless audio engine with WebAudio scheduling and samples.  |
+| 🧃 **Soundonika** _(integrated)_                         | Headless audio engine with WebAudio scheduling and samples.  |
 | 🎹 [Clavonika](https://github.com/aa-parky/clavonika)    | An 88-key interactive MIDI piano keyboard.                   |
 | 🎚️ [Midonika](https://github.com/aa-parky/midonika)     | Visualize and debug live MIDI input/output messages.         |
 | 🔌 [Jackonika](https://github.com/aa-parky/jackonika)    | Your MIDI patchbox: listens, connects, and routes.           |
@@ -63,19 +63,19 @@ Each of these modules is being developed to work independently or within the **T
 // Initialize Soundonika with Tonika's sample library
 const audioContext = new AudioContext();
 const audioEngine = new SoundonikaEngine(audioContext, {
-    sampleBasePath: './samples'  // Tonika's local samples
+  sampleBasePath: "./samples", // Tonika's local samples
 });
 
 await audioEngine.init();
 
 // Play sounds immediately
-audioEngine.scheduleSound(audioContext.currentTime, 'kick', 1.0);
+audioEngine.scheduleSound(audioContext.currentTime, "kick", 1.0);
 
 // Schedule precise sequences
 const startTime = audioContext.currentTime + 0.1;
-audioEngine.scheduleSound(startTime, 'kick', 1.0);
-audioEngine.scheduleSound(startTime + 0.5, 'snare', 0.8);
-audioEngine.scheduleSound(startTime + 1.0, 'hihat_closed', 0.6);
+audioEngine.scheduleSound(startTime, "kick", 1.0);
+audioEngine.scheduleSound(startTime + 0.5, "snare", 0.8);
+audioEngine.scheduleSound(startTime + 1.0, "hihat_closed", 0.6);
 ```
 
 ### Runtime Kit Switching
@@ -85,10 +85,10 @@ One of Soundonika's most powerful features is the ability to switch between diff
 ```javascript
 // Switch to a different drum kit
 const vinylKit = {
-    'kick': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_kick.wav',
-    'snare': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_snare.wav',
-    'hihat_closed': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat1.wav'
-    // ... more mappings
+  kick: "percussion/VinylDrumKitsVol1/VDK1_Kit01_kick.wav",
+  snare: "percussion/VinylDrumKitsVol1/VDK1_Kit01_snare.wav",
+  hihat_closed: "percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat1.wav",
+  // ... more mappings
 };
 
 await audioEngine.setSampleMappings(vinylKit);
@@ -131,10 +131,10 @@ Soundonika includes mappings for common drum and percussion sounds:
 
 ```javascript
 const options = {
-    sampleBasePath: './samples',           // Path to sample directory
-    sampleMappings: customMappings,        // Custom sample mappings
-    volume: 0.8,                          // Initial volume (0.0 - 1.0)
-    mode: 'samples'                       // Playback mode ('samples' or 'clicks')
+  sampleBasePath: "./samples", // Path to sample directory
+  sampleMappings: customMappings, // Custom sample mappings
+  volume: 0.8, // Initial volume (0.0 - 1.0)
+  mode: "samples", // Playback mode ('samples' or 'clicks')
 };
 
 const engine = new SoundonikaEngine(audioContext, options);
@@ -147,31 +147,28 @@ Soundonika is designed to be the audio backbone for all Tonika modules:
 ```javascript
 // In your *onika module
 class YourOnikaModule {
-    constructor(options = {}) {
-        this.audioEngine = null;
-    }
+  constructor(options = {}) {
+    this.audioEngine = null;
+  }
 
-    async initAudio() {
-        const audioContext = new AudioContext();
-        this.audioEngine = new SoundonikaEngine(audioContext);
-        await this.audioEngine.init();
-    }
+  async initAudio() {
+    const audioContext = new AudioContext();
+    this.audioEngine = new SoundonikaEngine(audioContext);
+    await this.audioEngine.init();
+  }
 
-    playMetronomeClick() {
-        if (this.audioEngine && this.audioEngine.isReady()) {
-            this.audioEngine.scheduleSound(
-                audioContext.currentTime, 
-                'accent', 
-                1.0
-            );
-        }
+  playMetronomeClick() {
+    if (this.audioEngine && this.audioEngine.isReady()) {
+      this.audioEngine.scheduleSound(audioContext.currentTime, "accent", 1.0);
     }
+  }
 }
 ```
 
 ### Demo and Examples
 
 Explore Soundonika's capabilities in the integrated demo:
+
 - **File**: `/demo/soundonika.html`
 - **Features**: Runtime kit switching, precision timing, velocity control
 - **Interactive**: Test all sound types and configuration options
@@ -188,6 +185,7 @@ Start here:
 👉 [https://github.com/aa-parky/tonika](https://github.com/aa-parky/tonika)
 
 You'll find:
+
 - 📁 Demo HTML loader (for local module dev)
 - 🧪 Light/dark theme testers
 - 📚 Documentation scaffold with Soundonika integration guides
@@ -211,42 +209,10 @@ For modules that need audio (metronomes, drum machines, sound effects):
 3. **Leverage local samples** - Soundonika knows Tonika's sample structure
 4. **Test configuration options** - try different sample mappings and kits
 
-#### Example Audio Integration:
-
-```javascript
-// In your module's initialization
-async initializeAudio() {
-    try {
-        const audioContext = new AudioContext();
-        this.audioEngine = new SoundonikaEngine(audioContext, {
-            sampleBasePath: './samples'
-        });
-        
-        await this.audioEngine.init();
-        console.log('Audio engine ready!');
-    } catch (error) {
-        console.warn('Audio initialization failed:', error);
-        // Graceful degradation - your module should still work
-    }
-}
-
-// In your module's audio methods
-playSound(soundType, velocity = 1.0) {
-    if (this.audioEngine && this.audioEngine.isReady()) {
-        this.audioEngine.scheduleSound(
-            this.audioEngine.audioContext.currentTime,
-            soundType,
-            velocity
-        );
-    }
-}
-```
-
----
-
 ## 📚 Documentation
 
 We're building:
+
 - A GitHub Wiki with module overviews and implementation guides
 - A full developer tutorial for making your own `*onika` modules
 - **Soundonika integration examples** and audio best practices
@@ -260,6 +226,7 @@ Want to build your own module? You'll be welcome in the Tonika family.
 ## 🤝 Contributing
 
 We welcome:
+
 - Ideas and feedback from musicians and learners
 - Feature suggestions or UX ideas
 - Bug reports or performance issues
@@ -284,11 +251,4 @@ MIT License © 2025 [aa-parky](https://github.com/aa-parky)
 
 ---
 
-## 🧙‍♂️ A Final Word from the Goblin Desk
-
-Tonika isn't a product. It's a space.  
-It's a little studio in your browser, built with curiosity and kindness.  
-Come and play.
-
-*Now with beats.*
-
+## 📚 Documentation
