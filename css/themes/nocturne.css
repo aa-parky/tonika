@@ -1,0 +1,28 @@
+/* Custom Theme - Nocturne */
+:root[data-theme="nocturne"] {
+    /* Core palette */
+    --color-bg:        #283739; /* Deep concrete green */
+    --color-surface:   #2c5d63; /* Teal shadow */
+    --color-border:    #a2c11c; /* Neon lime accent */
+    --color-text:      #e0e0e0; /* Pale streetlight */
+    --color-muted:     #7a8b8d; /* Soft asphalt grey */
+
+    /* Accents & components */
+    --color-accent:    #a2c11c; /* Bright lime as primary accent */
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #1a1a1a;
+    --btn-border:      transparent;
+
+    /* Keyboard highlights (Tonika conventions) */
+    --kbd-black-active:#00b2ff;
+    --kbd-white-active:#66e0ff;
+}
+
+/* Optional dark mode flavor */
+:root[data-theme="nocturne"][data-mode="dark"] {
+    --color-bg:      #1b2526;
+    --color-surface: #203a3d;
+    --color-border:  #6f8c14;
+    --color-text:    #e6e6e6;
+    --color-muted:   #99a7a8;
+}

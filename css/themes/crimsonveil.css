@@ -1,0 +1,28 @@
+/* Custom Theme - Crimsonveil */
+:root[data-theme="crimsonveil"] {
+    /* Core palette */
+    --color-bg:        #d3d6db; /* Soft mist grey */
+    --color-surface:   #3a4750; /* Slate steel */
+    --color-border:    #303841; /* Charcoal depth */
+    --color-text:      #be3144; /* Crimson accent */
+    --color-muted:     #7a7f85; /* Subdued neutral */
+
+    /* Accents & components */
+    --color-accent:    #be3144; /* Crimson red */
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #ffffff;
+    --btn-border:      transparent;
+
+    /* Keyboard highlights */
+    --kbd-black-active:#be3144;
+    --kbd-white-active:#e06675;
+}
+
+/* Optional dark mode flavor */
+:root[data-theme="crimsonveil"][data-mode="dark"] {
+    --color-bg:      #303841;
+    --color-surface: #3a4750;
+    --color-border:  #be3144;
+    --color-text:    #e5e5e5;
+    --color-muted:   #a0a4a8;
+}

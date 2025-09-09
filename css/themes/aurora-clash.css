@@ -1,0 +1,26 @@
+/* Aurora Clash */
+:root[data-theme="aurora-clash"] {
+    /* Map your 4 swatches to the Tonika tokens */
+    --color-bg:        #f4e022; /* first-color */
+    --color-surface:   #5a37c3; /* second-color */
+    --color-border:    #18224b; /* third-color */
+    --color-text:      #ffffff; /* readable light text */
+    --color-muted:     #de1b4a; /* fourth-color */
+
+    --color-accent:    #f4e022;
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #18224b;
+    --btn-border:      transparent;
+
+    --kbd-black-active:#5a37c3;
+    --kbd-white-active:#de1b4a;
+}
+
+/* Optional dark variant */
+:root[data-theme="aurora-clash"][data-mode="dark"] {
+    --color-bg:      #18224b;
+    --color-surface: #2c1b66;
+    --color-border:  #5a37c3;
+    --color-text:    #f4e022;
+    --color-muted:   #de1b4a;
+}

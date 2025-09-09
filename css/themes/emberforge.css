@@ -1,0 +1,28 @@
+/* Custom Theme - Emberforge */
+:root[data-theme="emberforge"] {
+    /* Core palette */
+    --color-bg:        #222831; /* Charcoal black */
+    --color-surface:   #2d4059; /* Steel blue-grey */
+    --color-border:    #ff5722; /* Molten ember orange */
+    --color-text:      #eeeeee; /* Bright light */
+    --color-muted:     #999;    /* Soft neutral grey */
+
+    /* Accents & components */
+    --color-accent:    #ff5722; /* Orange accent as primary */
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #1a1a1a;
+    --btn-border:      transparent;
+
+    /* Keyboard highlights (Tonika conventions) */
+    --kbd-black-active:#ff7043;
+    --kbd-white-active:#ffa270;
+}
+
+/* Optional dark mode flavor */
+:root[data-theme="emberforge"][data-mode="dark"] {
+    --color-bg:      #1a1f27;
+    --color-surface: #243246;
+    --color-border:  #e64a19;
+    --color-text:    #f5f5f5;
+    --color-muted:   #bbb;
+}

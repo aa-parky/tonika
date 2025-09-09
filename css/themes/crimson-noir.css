@@ -1,0 +1,26 @@
+/* Crimson Noir */
+:root[data-theme="crimson-noir"] {
+    /* Map your 4 swatches to the Tonika tokens */
+    --color-bg:        #ff004d; /* first-color */
+    --color-surface:   #9d0b28; /* second-color */
+    --color-border:    #5a082d; /* third-color */
+    --color-text:      #f8f8f8; /* readable light text */
+    --color-muted:     #33030d; /* fourth-color */
+
+    --color-accent:    #ff004d; /* punchy accent */
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #ffffff;
+    --btn-border:      transparent;
+
+    --kbd-black-active:#2c94ff;
+    --kbd-white-active:#7ab4ff;
+}
+
+/* Optional light/dark flavor of the same palette */
+:root[data-theme="crimson-noir"][data-mode="dark"] {
+    --color-bg:      #1f1a1c;
+    --color-surface: #2a0f14;
+    --color-border:  #441821;
+    --color-text:    #f3e9eb;
+    --color-muted:   #732437;
+}

@@ -1,0 +1,26 @@
+/* Custom Theme - aubade */
+:root[data-theme="aubade"] {
+    /* Map your 4 swatches to the Tonika tokens */
+    --color-bg:        #f3cba5; /* first-color */
+    --color-surface:   #975a5e; /* second-color */
+    --color-border:    #453953; /* third-color */
+    --color-text:      #25161b; /* fourth-color (ensure contrast is good) */
+    --color-muted: #5a4e5a; /* optional softened variant of third/fourth */
+
+    --color-accent:    #975a5e; /* strong accent from second-color */
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #ffffff;
+    --btn-border:      transparent;
+
+    --kbd-black-active:#2c94ff; /* consistent Tonika highlight */
+    --kbd-white-active:#7ab4ff;
+}
+
+/* Optional dark mode flavor */
+:root[data-theme="aubade"][data-mode="dark"] {
+    --color-bg:      #1f1a20;
+    --color-surface: #2c2029;
+    --color-border:  #3a2d38;
+    --color-text:    #f3eae6;
+    --color-muted:   #a08b96;
+}

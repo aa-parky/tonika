@@ -1,0 +1,28 @@
+/* Custom Theme - Glacierpulse */
+:root[data-theme="glacierpulse"] {
+    /* Core palette */
+    --color-bg:        #323643; /* Deep slate */
+    --color-surface:   #606470; /* Soft steel grey */
+    --color-border:    #93deff; /* Electric ice blue */
+    --color-text:      #f7f7f7; /* Clean snow white */
+    --color-muted:     #a0a4a8; /* Neutral soft grey */
+
+    /* Accents & components */
+    --color-accent:    #93deff; /* Frosted neon blue */
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #323643;
+    --btn-border:      transparent;
+
+    /* Keyboard highlights */
+    --kbd-black-active:#93deff;
+    --kbd-white-active:#c2efff;
+}
+
+/* Optional dark mode flavor */
+:root[data-theme="glacierpulse"][data-mode="dark"] {
+    --color-bg:      #22242d;
+    --color-surface: #323643;
+    --color-border:  #606470;
+    --color-text:    #f7f7f7;
+    --color-muted:   #7c808c;
+}
