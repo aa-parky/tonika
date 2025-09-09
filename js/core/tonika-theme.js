@@ -15,9 +15,9 @@ const availableThemes = [
     { name: "Brown 02", value: "brown-02", href: "css/themes/brown_02.css" },
     { name: "Aubade", value: "aubade", href: "css/themes/aubade.css" },
     { name: "Nocturne", value: "nocturne", href: "css/themes/nocturne.css" },
-    { name: "Emberforge", value: "emberforge", href: "css/themes/emberforge.css" },
-    { name: "Crimson Veil", value: "crimsonveil", href: "css/themes/crimsonveil.css" },
-    { name: "Glacier Pulse", value: "glacierpulse", href: "css/themes/glacierpulse.css" },
+    { name: "Ember Forge", value: "emberforge", href: "css/themes/ember-forge.css" },
+    { name: "Crimson Veil", value: "crimsonveil", href: "css/themes/crimson-veil.css" },
+    { name: "Glacier Pulse", value: "glacierpulse", href: "css/themes/glacier-pulse.css" },
     { name: "Crimson Noir", value: "crimson-noir", href: "css/themes/crimson-noir.css" },
     { name: "Aurora Clash", value: "aurora-clash", href: "css/themes/aurora-clash.css" },
 ];
@@ -53,7 +53,7 @@ window.addEventListener("DOMContentLoaded", () => {
         selector.appendChild(opt);
     });
 
-    // Set initial selected option
+    // Set the initially selected option
     selector.value = savedTheme;
 
     // Change handler
@@ -66,17 +66,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // 5. Global helpers (e.g. for "Toggle Mode" button)
 window.TonikaTheme = {
-    setTheme(name) {
-        root.setAttribute("data-theme", name);
-        localStorage.setItem("tonika.theme", name);
-    },
     toggleMode() {
         const next = root.getAttribute("data-mode") === "dark" ? "light" : "dark";
         root.setAttribute("data-mode", next);
         localStorage.setItem("tonika.mode", next);
-    },
-    setMode(mode) {
-        root.setAttribute("data-mode", mode);
-        localStorage.setItem("tonika.mode", mode);
     }
 };
