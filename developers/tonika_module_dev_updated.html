@@ -28,12 +28,12 @@
          Load order (critical):
          1) tonika-core.css        → tokens & base styles
          2) tonika-components.css  → shared UI components (.tonika-btn, etc.)
-         3) layout.css             → page layout helpers (for this workbench)
+         3) tonika-layout.css             → page layout helpers (for this workbench)
          4) Your module CSS        → optional module-specific styles
          =================================================================== -->
     <link rel="stylesheet" href="../css/tonika-core.css"/>
     <link rel="stylesheet" href="../css/tonika-components.css"/>
-    <link rel="stylesheet" href="../css/layout.css"/>
+    <link rel="stylesheet" href="../css/tonika-layout.css"/>
 
     <!-- Optional: replace with your own module CSS or remove if not needed -->
     <!-- <link rel="stylesheet" href="../css/your-module.css"/> -->
@@ -60,7 +60,7 @@
     <!-- ===================================================================
          DEVELOPMENT INFORMATION (updated)
          =================================================================== -->
-    <div class="demo-note">
+    <div class="tonika-callout">
         <strong>Development Note:</strong> This workbench loads the Tonika design
         system and core modules <em>locally</em> from the repo. Your module CSS should
         only contain styles unique to your module and should respect Tonika tokens/components.
@@ -110,10 +110,10 @@
              =================================================================== -->
         <section>
             <h3>Tonika Component Gallery</h3>
-            <div class="demo--component-grid">
+            <div class="tonika-grid-responsive">
                 <div class="tonika-module">
                     <h4>Buttons</h4>
-                    <div class="demo--button-group">
+                    <div class="tonika-button-group">
                         <button class="tonika-btn">Default</button>
                         <button class="tonika-btn tonika-btn--primary">Primary</button>
                         <button class="tonika-btn tonika-btn--danger">Danger</button>
@@ -154,7 +154,7 @@
              =================================================================== -->
         <section>
             <h3>Layout Test</h3>
-            <div class="demo--layout-grid">
+            <div class="tonika-grid-2">
                 <div class="tonika-module">
                     <h4>Card 1</h4>
                     <p>This demonstrates the standard module card layout.</p>
@@ -194,7 +194,7 @@
                 <h4>🧃 Soundonika Audio Integration (local, emitter-based)</h4>
                 <p>Soundonika is part of Tonika core. Initialize the engine and listen to <code>status</code> events. Then schedule sounds.</p>
 
-                <div class="demo--code-block">
+                <div class="tonika-code">
 <pre>// Ensure core scripts are loaded (see &lt;head&gt;)
 const ac = new (window.AudioContext || window.webkitAudioContext)();
 const engine = new Tonika.SoundonikaEngine(ac, {

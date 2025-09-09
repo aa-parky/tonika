@@ -246,7 +246,7 @@
                     <div class="demo__section">
                         <div class="demo__section-header">
                             <h4 class="demo__section-title">MIDI Inputs</h4>
-                            <div class="demo__badge">
+                            <div class="tonika-badge">
                                 <span class="demo__input-count">0</span> devices
                             </div>
                         </div>
@@ -260,7 +260,7 @@
                     <div class="demo__section">
                         <div class="demo__section-header">
                             <h4 class="demo__section-title">MIDI Outputs</h4>
-                            <div class="demo__badge">
+                            <div class="tonika-badge">
                                 <span class="demo__output-count">0</span> devices
                             </div>
                         </div>

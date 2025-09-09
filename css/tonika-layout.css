@@ -123,3 +123,25 @@ footer {
 footer p {
     margin: 0; /* reset default paragraph margin */
 }
+
+/* ===================================================================
+   Tonika Layout — Added shared from demo.css
+   =================================================================== */
+
+/* Responsive grid helpers */
+.tonika-grid-responsive {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* Two-column grid */
+.tonika-grid-2 {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Inline groups */
+.tonika-button-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.tonika-input-group  { display: flex; flex-direction: column; gap: 8px; }
