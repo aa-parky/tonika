@@ -1,512 +1,613 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chernobyl Industrial Drone Synthesizer</title>
     <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <style>
-        body {
-            font-family: 'Courier New', monospace;
-            background: #1a1a1a;
-            color: #00ff00;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: #2a2a2a;
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-        }
-        
-        h1 {
-            text-align: center;
-            color: #ff6b6b;
-            text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
-            margin-bottom: 30px;
-        }
-        
-        .section {
-            margin: 20px 0;
-            padding: 15px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            background: #333;
-        }
-        
-        .section h3 {
-            color: #ffff00;
-            margin-top: 0;
-        }
-        
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        label {
-            color: #00ffff;
-            font-weight: bold;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            background: #555;
-            outline: none;
-            border-radius: 3px;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #00ff00;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        }
-        
-        button {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 10px;
-        }
-        
-        button:hover {
-            background: #ff5252;
-            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
-        }
-        
-        button:disabled {
-            background: #666;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        
-        .value-display {
-            color: #ffff00;
-            font-weight: bold;
-            text-align: center;
-            margin-top: 5px;
-        }
-        
-        .main-controls {
-            text-align: center;
-            margin: 30px 0;
-        }
-        
-        .warning {
-            background: #ff6b6b;
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            text-align: center;
-            font-weight: bold;
-        }
+      body {
+        font-family: "Courier New", monospace;
+        background: #1a1a1a;
+        color: #00ff00;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #2a2a2a;
+        border: 2px solid #00ff00;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+      }
+
+      h1 {
+        text-align: center;
+        color: #ff6b6b;
+        text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        margin-bottom: 30px;
+      }
+
+      .section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #444;
+        border-radius: 5px;
+        background: #333;
+      }
+
+      .section h3 {
+        color: #ffff00;
+        margin-top: 0;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      label {
+        color: #00ffff;
+        font-weight: bold;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 6px;
+        background: #555;
+        outline: none;
+        border-radius: 3px;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #00ff00;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      }
+
+      button {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin: 10px;
+      }
+
+      button:hover {
+        background: #ff5252;
+        box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+      }
+
+      button:disabled {
+        background: #666;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .value-display {
+        color: #ffff00;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 5px;
+      }
+
+      .main-controls {
+        text-align: center;
+        margin: 30px 0;
+      }
+
+      .warning {
+        background: #ff6b6b;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+        text-align: center;
+        font-weight: bold;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>🏭 CHERNOBYL INDUSTRIAL DRONE SYNTHESIZER 🏭</h1>
-        
-        <div class="warning">
-            ⚠️ WARNING: This synthesizer produces deep, low-frequency sounds. Start with low volume and adjust gradually. ⚠️
+      <h1>🏭 CHERNOBYL INDUSTRIAL DRONE SYNTHESIZER 🏭</h1>
+
+      <div class="warning">
+        ⚠️ WARNING: This synthesizer produces deep, low-frequency sounds. Start
+        with low volume and adjust gradually. ⚠️
+      </div>
+
+      <div class="main-controls">
+        <button id="startBtn">START REACTOR</button>
+        <button id="stopBtn" disabled>SHUTDOWN</button>
+      </div>
+
+      <div class="section">
+        <h3>🔊 MASTER CONTROLS</h3>
+        <div class="controls">
+          <div class="control-group">
+            <label for="masterVolume">Master Volume</label>
+            <input
+              type="range"
+              id="masterVolume"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.3"
+            />
+            <div class="value-display" id="masterVolumeValue">30%</div>
+          </div>
         </div>
-        
-        <div class="main-controls">
-            <button id="startBtn">START REACTOR</button>
-            <button id="stopBtn" disabled>SHUTDOWN</button>
+      </div>
+
+      <div class="section">
+        <h3>🌊 OSCILLATORS</h3>
+        <div class="controls">
+          <div class="control-group">
+            <label for="osc1Freq">Oscillator 1 Frequency (Hz)</label>
+            <input
+              type="range"
+              id="osc1Freq"
+              min="20"
+              max="200"
+              step="1"
+              value="55"
+            />
+            <div class="value-display" id="osc1FreqValue">55 Hz</div>
+          </div>
+          <div class="control-group">
+            <label for="osc2Freq">Oscillator 2 Frequency (Hz)</label>
+            <input
+              type="range"
+              id="osc2Freq"
+              min="20"
+              max="200"
+              step="1"
+              value="58"
+            />
+            <div class="value-display" id="osc2FreqValue">58 Hz</div>
+          </div>
+          <div class="control-group">
+            <label for="osc3Freq">Oscillator 3 Frequency (Hz)</label>
+            <input
+              type="range"
+              id="osc3Freq"
+              min="20"
+              max="200"
+              step="1"
+              value="110"
+            />
+            <div class="value-display" id="osc3FreqValue">110 Hz</div>
+          </div>
+          <div class="control-group">
+            <label for="noiseLevel">Noise Level</label>
+            <input
+              type="range"
+              id="noiseLevel"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.1"
+            />
+            <div class="value-display" id="noiseLevelValue">10%</div>
+          </div>
         </div>
-        
-        <div class="section">
-            <h3>🔊 MASTER CONTROLS</h3>
-            <div class="controls">
-                <div class="control-group">
-                    <label for="masterVolume">Master Volume</label>
-                    <input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.3">
-                    <div class="value-display" id="masterVolumeValue">30%</div>
-                </div>
-            </div>
+      </div>
+
+      <div class="section">
+        <h3>🎛️ FILTER</h3>
+        <div class="controls">
+          <div class="control-group">
+            <label for="filterFreq">Filter Cutoff (Hz)</label>
+            <input
+              type="range"
+              id="filterFreq"
+              min="50"
+              max="2000"
+              step="10"
+              value="400"
+            />
+            <div class="value-display" id="filterFreqValue">400 Hz</div>
+          </div>
+          <div class="control-group">
+            <label for="filterRes">Filter Resonance</label>
+            <input
+              type="range"
+              id="filterRes"
+              min="0"
+              max="30"
+              step="0.5"
+              value="5"
+            />
+            <div class="value-display" id="filterResValue">5</div>
+          </div>
+          <div class="control-group">
+            <label for="lfoRate">LFO Rate (Hz)</label>
+            <input
+              type="range"
+              id="lfoRate"
+              min="0.01"
+              max="2"
+              step="0.01"
+              value="0.1"
+            />
+            <div class="value-display" id="lfoRateValue">0.1 Hz</div>
+          </div>
+          <div class="control-group">
+            <label for="lfoDepth">LFO Depth</label>
+            <input
+              type="range"
+              id="lfoDepth"
+              min="0"
+              max="500"
+              step="10"
+              value="100"
+            />
+            <div class="value-display" id="lfoDepthValue">100</div>
+          </div>
         </div>
-        
-        <div class="section">
-            <h3>🌊 OSCILLATORS</h3>
-            <div class="controls">
-                <div class="control-group">
-                    <label for="osc1Freq">Oscillator 1 Frequency (Hz)</label>
-                    <input type="range" id="osc1Freq" min="20" max="200" step="1" value="55">
-                    <div class="value-display" id="osc1FreqValue">55 Hz</div>
-                </div>
-                <div class="control-group">
-                    <label for="osc2Freq">Oscillator 2 Frequency (Hz)</label>
-                    <input type="range" id="osc2Freq" min="20" max="200" step="1" value="58">
-                    <div class="value-display" id="osc2FreqValue">58 Hz</div>
-                </div>
-                <div class="control-group">
-                    <label for="osc3Freq">Oscillator 3 Frequency (Hz)</label>
-                    <input type="range" id="osc3Freq" min="20" max="200" step="1" value="110">
-                    <div class="value-display" id="osc3FreqValue">110 Hz</div>
-                </div>
-                <div class="control-group">
-                    <label for="noiseLevel">Noise Level</label>
-                    <input type="range" id="noiseLevel" min="0" max="1" step="0.01" value="0.1">
-                    <div class="value-display" id="noiseLevelValue">10%</div>
-                </div>
-            </div>
+      </div>
+
+      <div class="section">
+        <h3>🔥 EFFECTS</h3>
+        <div class="controls">
+          <div class="control-group">
+            <label for="distortion">Distortion</label>
+            <input
+              type="range"
+              id="distortion"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.2"
+            />
+            <div class="value-display" id="distortionValue">20%</div>
+          </div>
+          <div class="control-group">
+            <label for="reverbWet">Reverb Wet</label>
+            <input
+              type="range"
+              id="reverbWet"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.3"
+            />
+            <div class="value-display" id="reverbWetValue">30%</div>
+          </div>
+          <div class="control-group">
+            <label for="reverbDecay">Reverb Decay</label>
+            <input
+              type="range"
+              id="reverbDecay"
+              min="0.1"
+              max="10"
+              step="0.1"
+              value="4"
+            />
+            <div class="value-display" id="reverbDecayValue">4s</div>
+          </div>
+          <div class="control-group">
+            <label for="delayTime">Delay Time</label>
+            <input
+              type="range"
+              id="delayTime"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.3"
+            />
+            <div class="value-display" id="delayTimeValue">0.3s</div>
+          </div>
         </div>
-        
-        <div class="section">
-            <h3>🎛️ FILTER</h3>
-            <div class="controls">
-                <div class="control-group">
-                    <label for="filterFreq">Filter Cutoff (Hz)</label>
-                    <input type="range" id="filterFreq" min="50" max="2000" step="10" value="400">
-                    <div class="value-display" id="filterFreqValue">400 Hz</div>
-                </div>
-                <div class="control-group">
-                    <label for="filterRes">Filter Resonance</label>
-                    <input type="range" id="filterRes" min="0" max="30" step="0.5" value="5">
-                    <div class="value-display" id="filterResValue">5</div>
-                </div>
-                <div class="control-group">
-                    <label for="lfoRate">LFO Rate (Hz)</label>
-                    <input type="range" id="lfoRate" min="0.01" max="2" step="0.01" value="0.1">
-                    <div class="value-display" id="lfoRateValue">0.1 Hz</div>
-                </div>
-                <div class="control-group">
-                    <label for="lfoDepth">LFO Depth</label>
-                    <input type="range" id="lfoDepth" min="0" max="500" step="10" value="100">
-                    <div class="value-display" id="lfoDepthValue">100</div>
-                </div>
-            </div>
+      </div>
+
+      <div class="section">
+        <h3>📊 PRESETS</h3>
+        <div style="text-align: center">
+          <button onclick="loadPreset('chernobyl')">CHERNOBYL ORIGINAL</button>
+          <button onclick="loadPreset('deep')">DEEP ABYSS</button>
+          <button onclick="loadPreset('industrial')">INDUSTRIAL COMPLEX</button>
+          <button onclick="loadPreset('haunting')">HAUNTING ATMOSPHERE</button>
         </div>
-        
-        <div class="section">
-            <h3>🔥 EFFECTS</h3>
-            <div class="controls">
-                <div class="control-group">
-                    <label for="distortion">Distortion</label>
-                    <input type="range" id="distortion" min="0" max="1" step="0.01" value="0.2">
-                    <div class="value-display" id="distortionValue">20%</div>
-                </div>
-                <div class="control-group">
-                    <label for="reverbWet">Reverb Wet</label>
-                    <input type="range" id="reverbWet" min="0" max="1" step="0.01" value="0.3">
-                    <div class="value-display" id="reverbWetValue">30%</div>
-                </div>
-                <div class="control-group">
-                    <label for="reverbDecay">Reverb Decay</label>
-                    <input type="range" id="reverbDecay" min="0.1" max="10" step="0.1" value="4">
-                    <div class="value-display" id="reverbDecayValue">4s</div>
-                </div>
-                <div class="control-group">
-                    <label for="delayTime">Delay Time</label>
-                    <input type="range" id="delayTime" min="0" max="1" step="0.01" value="0.3">
-                    <div class="value-display" id="delayTimeValue">0.3s</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="section">
-            <h3>📊 PRESETS</h3>
-            <div style="text-align: center;">
-                <button onclick="loadPreset('chernobyl')">CHERNOBYL ORIGINAL</button>
-                <button onclick="loadPreset('deep')">DEEP ABYSS</button>
-                <button onclick="loadPreset('industrial')">INDUSTRIAL COMPLEX</button>
-                <button onclick="loadPreset('haunting')">HAUNTING ATMOSPHERE</button>
-            </div>
-        </div>
+      </div>
     </div>
 
     <script>
-        // Tone.js components
-        let isPlaying = false;
-        let osc1, osc2, osc3, noise;
-        let filter, lfo, distortion, reverb, delay;
-        let masterGain, mixer;
-        
-        // Initialize audio context
-        async function initAudio() {
-            // Create oscillators
-            osc1 = new Tone.Oscillator(55, "sawtooth");
-            osc2 = new Tone.Oscillator(58, "square");
-            osc3 = new Tone.Oscillator(110, "triangle");
-            noise = new Tone.Noise("brown");
-            
-            // Create filter with LFO
-            filter = new Tone.Filter(400, "lowpass");
-            lfo = new Tone.LFO(0.1, 300, 500);
-            
-            // Create effects
-            distortion = new Tone.Distortion(0.2);
-            reverb = new Tone.Reverb(4);
-            delay = new Tone.Delay(0.3);
-            
-            // Create mixer and master gain
-            mixer = new Tone.Gain(1);
-            masterGain = new Tone.Gain(0.3);
-            
-            // Create noise gain for mixing
-            const noiseGain = new Tone.Gain(0.1);
-            
-            // Connect the signal chain
-            // Oscillators -> mixer
-            osc1.connect(mixer);
-            osc2.connect(mixer);
-            osc3.connect(mixer);
-            
-            // Noise -> noise gain -> mixer
-            noise.connect(noiseGain);
-            noiseGain.connect(mixer);
-            
-            // Mixer -> filter -> distortion -> reverb -> delay -> master gain -> destination
-            mixer.connect(filter);
-            filter.connect(distortion);
-            distortion.connect(reverb);
-            reverb.connect(delay);
-            delay.connect(masterGain);
-            masterGain.toDestination();
-            
-            // Connect LFO to filter frequency
-            lfo.connect(filter.frequency);
-            
-            // Wait for reverb to be ready
-            await reverb.ready;
-        }
-        
-        // Control event listeners
-        function setupControls() {
-            // Master volume
-            document.getElementById('masterVolume').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (masterGain) masterGain.gain.value = value;
-                document.getElementById('masterVolumeValue').textContent = Math.round(value * 100) + '%';
-            });
-            
-            // Oscillator frequencies
-            document.getElementById('osc1Freq').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (osc1) osc1.frequency.value = value;
-                document.getElementById('osc1FreqValue').textContent = value + ' Hz';
-            });
-            
-            document.getElementById('osc2Freq').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (osc2) osc2.frequency.value = value;
-                document.getElementById('osc2FreqValue').textContent = value + ' Hz';
-            });
-            
-            document.getElementById('osc3Freq').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (osc3) osc3.frequency.value = value;
-                document.getElementById('osc3FreqValue').textContent = value + ' Hz';
-            });
-            
-            // Noise level
-            document.getElementById('noiseLevel').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                const noiseGain = noise.output;
-                if (noiseGain) noiseGain.gain.value = value;
-                document.getElementById('noiseLevelValue').textContent = Math.round(value * 100) + '%';
-            });
-            
-            // Filter controls
-            document.getElementById('filterFreq').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (filter) filter.frequency.value = value;
-                document.getElementById('filterFreqValue').textContent = value + ' Hz';
-            });
-            
-            document.getElementById('filterRes').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (filter) filter.Q.value = value;
-                document.getElementById('filterResValue').textContent = value;
-            });
-            
-            // LFO controls
-            document.getElementById('lfoRate').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (lfo) lfo.frequency.value = value;
-                document.getElementById('lfoRateValue').textContent = value + ' Hz';
-            });
-            
-            document.getElementById('lfoDepth').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (lfo) {
-                    const baseFreq = filter.frequency.value;
-                    lfo.min = Math.max(50, baseFreq - value);
-                    lfo.max = baseFreq + value;
-                }
-                document.getElementById('lfoDepthValue').textContent = value;
-            });
-            
-            // Effects controls
-            document.getElementById('distortion').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (distortion) distortion.distortion = value;
-                document.getElementById('distortionValue').textContent = Math.round(value * 100) + '%';
-            });
-            
-            document.getElementById('reverbWet').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (reverb) reverb.wet.value = value;
-                document.getElementById('reverbWetValue').textContent = Math.round(value * 100) + '%';
-            });
-            
-            document.getElementById('reverbDecay').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (reverb) reverb.decay = value;
-                document.getElementById('reverbDecayValue').textContent = value + 's';
-            });
-            
-            document.getElementById('delayTime').addEventListener('input', (e) => {
-                const value = parseFloat(e.target.value);
-                if (delay) delay.delayTime.value = value;
-                document.getElementById('delayTimeValue').textContent = value + 's';
-            });
-        }
-        
-        // Start/Stop functions
-        async function startDrone() {
-            if (!isPlaying) {
-                await Tone.start();
-                await initAudio();
-                
-                // Start all oscillators and LFO
-                osc1.start();
-                osc2.start();
-                osc3.start();
-                noise.start();
-                lfo.start();
-                
-                isPlaying = true;
-                document.getElementById('startBtn').disabled = true;
-                document.getElementById('stopBtn').disabled = false;
-            }
-        }
-        
-        function stopDrone() {
-            if (isPlaying) {
-                // Stop all oscillators and LFO
-                osc1.stop();
-                osc2.stop();
-                osc3.stop();
-                noise.stop();
-                lfo.stop();
-                
-                isPlaying = false;
-                document.getElementById('startBtn').disabled = false;
-                document.getElementById('stopBtn').disabled = true;
-            }
-        }
-        
-        // Preset functions
-        function loadPreset(presetName) {
-            const presets = {
-                chernobyl: {
-                    osc1Freq: 55,
-                    osc2Freq: 58,
-                    osc3Freq: 110,
-                    noiseLevel: 0.1,
-                    filterFreq: 400,
-                    filterRes: 5,
-                    lfoRate: 0.1,
-                    lfoDepth: 100,
-                    distortion: 0.2,
-                    reverbWet: 0.3,
-                    reverbDecay: 4,
-                    delayTime: 0.3
-                },
-                deep: {
-                    osc1Freq: 35,
-                    osc2Freq: 37,
-                    osc3Freq: 70,
-                    noiseLevel: 0.05,
-                    filterFreq: 200,
-                    filterRes: 8,
-                    lfoRate: 0.05,
-                    lfoDepth: 50,
-                    distortion: 0.1,
-                    reverbWet: 0.5,
-                    reverbDecay: 8,
-                    delayTime: 0.5
-                },
-                industrial: {
-                    osc1Freq: 80,
-                    osc2Freq: 83,
-                    osc3Freq: 160,
-                    noiseLevel: 0.2,
-                    filterFreq: 600,
-                    filterRes: 12,
-                    lfoRate: 0.3,
-                    lfoDepth: 200,
-                    distortion: 0.4,
-                    reverbWet: 0.2,
-                    reverbDecay: 2,
-                    delayTime: 0.1
-                },
-                haunting: {
-                    osc1Freq: 45,
-                    osc2Freq: 67,
-                    osc3Freq: 90,
-                    noiseLevel: 0.15,
-                    filterFreq: 300,
-                    filterRes: 15,
-                    lfoRate: 0.08,
-                    lfoDepth: 150,
-                    distortion: 0.15,
-                    reverbWet: 0.7,
-                    reverbDecay: 10,
-                    delayTime: 0.8
-                }
-            };
-            
-            const preset = presets[presetName];
-            if (preset) {
-                // Update all controls
-                Object.keys(preset).forEach(key => {
-                    const element = document.getElementById(key);
-                    if (element) {
-                        element.value = preset[key];
-                        element.dispatchEvent(new Event('input'));
-                    }
-                });
-            }
-        }
-        
-        // Event listeners
-        document.getElementById('startBtn').addEventListener('click', startDrone);
-        document.getElementById('stopBtn').addEventListener('click', stopDrone);
-        
-        // Initialize controls
-        setupControls();
-        
-        // Load default preset
-        loadPreset('chernobyl');
-    </script>
-</body>
-</html>
+      // Tone.js components
+      let isPlaying = false;
+      let osc1, osc2, osc3, noise;
+      let filter, lfo, distortion, reverb, delay;
+      let masterGain, mixer;
 
+      // Initialize audio context
+      async function initAudio() {
+        // Create oscillators
+        osc1 = new Tone.Oscillator(55, "sawtooth");
+        osc2 = new Tone.Oscillator(58, "square");
+        osc3 = new Tone.Oscillator(110, "triangle");
+        noise = new Tone.Noise("brown");
+
+        // Create filter with LFO
+        filter = new Tone.Filter(400, "lowpass");
+        lfo = new Tone.LFO(0.1, 300, 500);
+
+        // Create effects
+        distortion = new Tone.Distortion(0.2);
+        reverb = new Tone.Reverb(4);
+        delay = new Tone.Delay(0.3);
+
+        // Create mixer and master gain
+        mixer = new Tone.Gain(1);
+        masterGain = new Tone.Gain(0.3);
+
+        // Create noise gain for mixing
+        const noiseGain = new Tone.Gain(0.1);
+
+        // Connect the signal chain
+        // Oscillators -> mixer
+        osc1.connect(mixer);
+        osc2.connect(mixer);
+        osc3.connect(mixer);
+
+        // Noise -> noise gain -> mixer
+        noise.connect(noiseGain);
+        noiseGain.connect(mixer);
+
+        // Mixer -> filter -> distortion -> reverb -> delay -> master gain -> destination
+        mixer.connect(filter);
+        filter.connect(distortion);
+        distortion.connect(reverb);
+        reverb.connect(delay);
+        delay.connect(masterGain);
+        masterGain.toDestination();
+
+        // Connect LFO to filter frequency
+        lfo.connect(filter.frequency);
+
+        // Wait for reverb to be ready
+        await reverb.ready;
+      }
+
+      // Control event listeners
+      function setupControls() {
+        // Master volume
+        document
+          .getElementById("masterVolume")
+          .addEventListener("input", (e) => {
+            const value = parseFloat(e.target.value);
+            if (masterGain) masterGain.gain.value = value;
+            document.getElementById("masterVolumeValue").textContent =
+              Math.round(value * 100) + "%";
+          });
+
+        // Oscillator frequencies
+        document.getElementById("osc1Freq").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (osc1) osc1.frequency.value = value;
+          document.getElementById("osc1FreqValue").textContent = value + " Hz";
+        });
+
+        document.getElementById("osc2Freq").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (osc2) osc2.frequency.value = value;
+          document.getElementById("osc2FreqValue").textContent = value + " Hz";
+        });
+
+        document.getElementById("osc3Freq").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (osc3) osc3.frequency.value = value;
+          document.getElementById("osc3FreqValue").textContent = value + " Hz";
+        });
+
+        // Noise level
+        document.getElementById("noiseLevel").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          const noiseGain = noise.output;
+          if (noiseGain) noiseGain.gain.value = value;
+          document.getElementById("noiseLevelValue").textContent =
+            Math.round(value * 100) + "%";
+        });
+
+        // Filter controls
+        document.getElementById("filterFreq").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (filter) filter.frequency.value = value;
+          document.getElementById("filterFreqValue").textContent =
+            value + " Hz";
+        });
+
+        document.getElementById("filterRes").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (filter) filter.Q.value = value;
+          document.getElementById("filterResValue").textContent = value;
+        });
+
+        // LFO controls
+        document.getElementById("lfoRate").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (lfo) lfo.frequency.value = value;
+          document.getElementById("lfoRateValue").textContent = value + " Hz";
+        });
+
+        document.getElementById("lfoDepth").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (lfo) {
+            const baseFreq = filter.frequency.value;
+            lfo.min = Math.max(50, baseFreq - value);
+            lfo.max = baseFreq + value;
+          }
+          document.getElementById("lfoDepthValue").textContent = value;
+        });
+
+        // Effects controls
+        document.getElementById("distortion").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (distortion) distortion.distortion = value;
+          document.getElementById("distortionValue").textContent =
+            Math.round(value * 100) + "%";
+        });
+
+        document.getElementById("reverbWet").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (reverb) reverb.wet.value = value;
+          document.getElementById("reverbWetValue").textContent =
+            Math.round(value * 100) + "%";
+        });
+
+        document
+          .getElementById("reverbDecay")
+          .addEventListener("input", (e) => {
+            const value = parseFloat(e.target.value);
+            if (reverb) reverb.decay = value;
+            document.getElementById("reverbDecayValue").textContent =
+              value + "s";
+          });
+
+        document.getElementById("delayTime").addEventListener("input", (e) => {
+          const value = parseFloat(e.target.value);
+          if (delay) delay.delayTime.value = value;
+          document.getElementById("delayTimeValue").textContent = value + "s";
+        });
+      }
+
+      // Start/Stop functions
+      async function startDrone() {
+        if (!isPlaying) {
+          await Tone.start();
+          await initAudio();
+
+          // Start all oscillators and LFO
+          osc1.start();
+          osc2.start();
+          osc3.start();
+          noise.start();
+          lfo.start();
+
+          isPlaying = true;
+          document.getElementById("startBtn").disabled = true;
+          document.getElementById("stopBtn").disabled = false;
+        }
+      }
+
+      function stopDrone() {
+        if (isPlaying) {
+          // Stop all oscillators and LFO
+          osc1.stop();
+          osc2.stop();
+          osc3.stop();
+          noise.stop();
+          lfo.stop();
+
+          isPlaying = false;
+          document.getElementById("startBtn").disabled = false;
+          document.getElementById("stopBtn").disabled = true;
+        }
+      }
+
+      // Preset functions
+      function loadPreset(presetName) {
+        const presets = {
+          chernobyl: {
+            osc1Freq: 55,
+            osc2Freq: 58,
+            osc3Freq: 110,
+            noiseLevel: 0.1,
+            filterFreq: 400,
+            filterRes: 5,
+            lfoRate: 0.1,
+            lfoDepth: 100,
+            distortion: 0.2,
+            reverbWet: 0.3,
+            reverbDecay: 4,
+            delayTime: 0.3,
+          },
+          deep: {
+            osc1Freq: 35,
+            osc2Freq: 37,
+            osc3Freq: 70,
+            noiseLevel: 0.05,
+            filterFreq: 200,
+            filterRes: 8,
+            lfoRate: 0.05,
+            lfoDepth: 50,
+            distortion: 0.1,
+            reverbWet: 0.5,
+            reverbDecay: 8,
+            delayTime: 0.5,
+          },
+          industrial: {
+            osc1Freq: 80,
+            osc2Freq: 83,
+            osc3Freq: 160,
+            noiseLevel: 0.2,
+            filterFreq: 600,
+            filterRes: 12,
+            lfoRate: 0.3,
+            lfoDepth: 200,
+            distortion: 0.4,
+            reverbWet: 0.2,
+            reverbDecay: 2,
+            delayTime: 0.1,
+          },
+          haunting: {
+            osc1Freq: 45,
+            osc2Freq: 67,
+            osc3Freq: 90,
+            noiseLevel: 0.15,
+            filterFreq: 300,
+            filterRes: 15,
+            lfoRate: 0.08,
+            lfoDepth: 150,
+            distortion: 0.15,
+            reverbWet: 0.7,
+            reverbDecay: 10,
+            delayTime: 0.8,
+          },
+        };
+
+        const preset = presets[presetName];
+        if (preset) {
+          // Update all controls
+          Object.keys(preset).forEach((key) => {
+            const element = document.getElementById(key);
+            if (element) {
+              element.value = preset[key];
+              element.dispatchEvent(new Event("input"));
+            }
+          });
+        }
+      }
+
+      // Event listeners
+      document.getElementById("startBtn").addEventListener("click", startDrone);
+      document.getElementById("stopBtn").addEventListener("click", stopDrone);
+
+      // Initialize controls
+      setupControls();
+
+      // Load default preset
+      loadPreset("chernobyl");
+    </script>
+  </body>
+</html>

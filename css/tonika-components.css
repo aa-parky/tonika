@@ -2,94 +2,94 @@
 
 /* === Base Module Container === */
 .tonika-module {
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-md);
-    font-family: var(--font-family-sans), serif;
-    font-size: var(--font-size-base);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-md);
+  font-family: var(--font-family-sans), serif;
+  font-size: var(--font-size-base);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
 /* === Buttons === */
 .tonika-btn {
-    background-color: var(--color-bg-secondary);
-    color: var(--color-text-primary);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-sm) var(--spacing-md);
-    cursor: pointer;
-    transition: background-color 120ms ease;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  transition: background-color 120ms ease;
 }
 .tonika-btn:hover {
-    filter: brightness(95%);
+  filter: brightness(95%);
 }
 .tonika-btn--primary {
-    background-color: var(--color-accent);
-    color: var(--color-accent-text);
-    border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
 }
 .tonika-btn--danger {
-    background-color: var(--color-danger);
-    color: var(--color-accent-text);
-    border-color: var(--color-danger);
+  background-color: var(--color-danger);
+  color: var(--color-accent-text);
+  border-color: var(--color-danger);
 }
 
 /* === Inputs & Dropdowns === */
 .tonika-input,
 .tonika-select {
-    background-color: var(--color-bg-secondary);
-    color: var(--color-text-primary);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--border-radius-sm);
-    padding: var(--spacing-sm);
-    width: 100%;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm);
+  width: 100%;
 }
 
 /* === Utility Classes === */
 .tonika-text-muted {
-    color: var(--color-text-muted);
+  color: var(--color-text-muted);
 }
 
 /* === Progress Bar (tonika-progress) === */
 .tonika-progress {
-    width: 100%;
-    height: 20px;
-    background: var(--color-bg-secondary);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--border-radius-md);
-    overflow: hidden;
-    position: relative;
+  width: 100%;
+  height: 20px;
+  background: var(--color-bg-secondary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  position: relative;
 }
 
 .tonika-progress__bar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(
-            90deg,
-            var(--color-accent),
-            rgba(75, 153, 255, 0.6)
-    );
-    transition: width 0.25s ease;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    rgba(75, 153, 255, 0.6)
+  );
+  transition: width 0.25s ease;
 }
 
 /* === Beat / Step Pills (tonika-beat) === */
 .tonika-beat {
-    text-align: center;
-    padding: var(--spacing-sm) 0;
-    border-radius: var(--border-radius-sm);
-    background: var(--color-bg-secondary);
-    border: var(--border-width) solid var(--color-border);
-    user-select: none;
+  text-align: center;
+  padding: var(--spacing-sm) 0;
+  border-radius: var(--border-radius-sm);
+  background: var(--color-bg-secondary);
+  border: var(--border-width) solid var(--color-border);
+  user-select: none;
 }
 
 .tonika-beat--active {
-    background: var(--color-accent);
-    color: var(--color-accent-text);
-    border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
 }
 /* ===================================================================
    Tonika Components — Added shared from demo.css
@@ -97,88 +97,88 @@
 
 /* Callout / Note */
 .tonika-callout {
-    background: var(--color-bg-secondary);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-md);
-    margin: var(--spacing-lg) 0;
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
+  background: var(--color-bg-secondary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
 /* Code block */
 .tonika-code {
-    background: var(--color-bg-secondary);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--border-radius-sm);
-    padding: var(--spacing-sm);
-    font-family: var(--font-family-mono), monospace;
-    font-size: var(--font-size-sm);
-    overflow-x: auto;
-    margin: var(--spacing-sm) 0;
+  background: var(--color-bg-secondary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm);
+  font-family: var(--font-family-mono), monospace;
+  font-size: var(--font-size-sm);
+  overflow-x: auto;
+  margin: var(--spacing-sm) 0;
 }
 
 /* Badge / Pill */
 .tonika-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background-color: var(--color-bg-secondary);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--border-radius-md);
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-bg-secondary);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
 }
 
 /* Status dot */
 .tonika-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 .tonika-dot--ok {
-    background-color: var(--color-accent);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
+  background-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 .tonika-dot--error {
-    background-color: var(--color-danger);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-danger) 20%, transparent);
+  background-color: var(--color-danger);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-danger) 20%, transparent);
 }
 
 /* Alert strip */
 .tonika-alert {
-    font-size: var(--font-size-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius-sm);
-    background-color: var(--color-bg-secondary);
-    border: var(--border-width) solid var(--color-border);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-bg-secondary);
+  border: var(--border-width) solid var(--color-border);
 }
 .tonika-alert--success {
-    background-color: color-mix(
-            in srgb,
-            var(--color-accent) 10%,
-            var(--color-bg-secondary)
-    );
-    border-color: color-mix(
-            in srgb,
-            var(--color-accent) 30%,
-            var(--color-border)
-    );
-    color: var(--color-accent);
+  background-color: color-mix(
+    in srgb,
+    var(--color-accent) 10%,
+    var(--color-bg-secondary)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--color-accent) 30%,
+    var(--color-border)
+  );
+  color: var(--color-accent);
 }
 .tonika-alert--error {
-    background-color: color-mix(
-            in srgb,
-            var(--color-danger) 10%,
-            var(--color-bg-secondary)
-    );
-    border-color: color-mix(
-            in srgb,
-            var(--color-danger) 30%,
-            var(--color-border)
-    );
-    color: var(--color-danger);
+  background-color: color-mix(
+    in srgb,
+    var(--color-danger) 10%,
+    var(--color-bg-secondary)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--color-danger) 30%,
+    var(--color-border)
+  );
+  color: var(--color-danger);
 }

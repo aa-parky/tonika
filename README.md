@@ -26,9 +26,9 @@ Samples + `sample-index.json` live under `/samples/`.
 On your HTML page:
 
 ```html
-<link rel="stylesheet" href="css/tonika-core.css">
-<link rel="stylesheet" href="css/tonika-components.css">
-<link rel="stylesheet" href="css/clavonika.css">
+<link rel="stylesheet" href="css/tonika-core.css" />
+<link rel="stylesheet" href="css/tonika-components.css" />
+<link rel="stylesheet" href="css/clavonika.css" />
 
 <script src="js/core/tonika-emitter.js"></script>
 <script src="js/core/clavonika.js"></script>
@@ -51,7 +51,7 @@ Example:
 
 ```js
 const eng = new Tonika.SoundonikaEngine(audioContext);
-eng.on('status', e => console.log('engine status', e.detail));
+eng.on("status", (e) => console.log("engine status", e.detail));
 ```
 
 ---
@@ -61,18 +61,19 @@ eng.on('status', e => console.log('engine status', e.detail));
 Factory-style UI piano.
 
 ```js
-const piano = Tonika.Clavonika.init('piano-container');
+const piano = Tonika.Clavonika.init("piano-container");
 
 // Listen for UI events
-piano.on('ui:noteon', e => console.log('note on', e.detail.midi));
-piano.on('ui:noteoff', e => console.log('note off', e.detail.midi));
+piano.on("ui:noteon", (e) => console.log("note on", e.detail.midi));
+piano.on("ui:noteoff", (e) => console.log("note off", e.detail.midi));
 
 // Trigger programmatically
-piano.noteOn(60, 0.9);  // C4, velocity 0.9
+piano.noteOn(60, 0.9); // C4, velocity 0.9
 piano.noteOff(60);
 ```
 
 Emits:
+
 - `ui:noteon` `{ midi, velocity }`
 - `ui:noteoff` `{ midi }`
 - `status` `{ state, msg }`
@@ -85,21 +86,24 @@ Web MIDI bridge. Handles device hot-plug, remembers last input, and emits
 events for note data.
 
 ```js
-Tonika.Jackonika.init({ selectorId: 'midiDeviceSelector' });
+Tonika.Jackonika.init({ selectorId: "midiDeviceSelector" });
 
 // Event style
-Tonika.Jackonika.on('midi:noteon', e => piano.noteOn(e.detail.midi, e.detail.velocity));
-Tonika.Jackonika.on('midi:noteoff', e => piano.noteOff(e.detail.midi));
+Tonika.Jackonika.on("midi:noteon", (e) =>
+  piano.noteOn(e.detail.midi, e.detail.velocity),
+);
+Tonika.Jackonika.on("midi:noteoff", (e) => piano.noteOff(e.detail.midi));
 
 // Still supports old callbacks (shimmed to events):
 Tonika.Jackonika.init({
-  onNoteOn: (m,v) => piano.noteOn(m,v),
-  onNoteOff: m => piano.noteOff(m),
-  onStatus: (t,m) => console.log(t,m)
+  onNoteOn: (m, v) => piano.noteOn(m, v),
+  onNoteOff: (m) => piano.noteOff(m),
+  onStatus: (t, m) => console.log(t, m),
 });
 ```
 
 Emits:
+
 - `midi:noteon` `{ midi, velocity }`
 - `midi:noteoff` `{ midi }`
 - `midi:devicechange` `{ inputs:[{id,name}] }`
@@ -112,23 +116,27 @@ Emits:
 Audio/sampler engine. Loads samples from `/samples/sample-index.json`.
 
 ```js
-const ac = Tonika.getAudioContext ? Tonika.getAudioContext() : new AudioContext();
-const eng = new Tonika.SoundonikaEngine(ac, { sampleBasePath: './samples' });
+const ac = Tonika.getAudioContext
+  ? Tonika.getAudioContext()
+  : new AudioContext();
+const eng = new Tonika.SoundonikaEngine(ac, { sampleBasePath: "./samples" });
 
-eng.on('status', e => console.log('soundonika status', e.detail));
+eng.on("status", (e) => console.log("soundonika status", e.detail));
 
 await eng.init();
 
-piano.on('ui:noteon', e => {
+piano.on("ui:noteon", (e) => {
   const t = ac.currentTime + 0.02;
-  eng.scheduleSound(t, 'kick', e.detail.velocity);
+  eng.scheduleSound(t, "kick", e.detail.velocity);
 });
 ```
 
 Emits:
+
 - `status` `{ state:'loading'|'ready'|'error'|'info', message?, progress? }`
 
 API highlights:
+
 - `init()`, `scheduleSound(time, soundType, velocity)`
 - `setVolume(v)`, `getVolume()`
 - `setSoundMode('samples'|'clicks')`
@@ -144,7 +152,7 @@ Base class, used by all modules.
 ```js
 class MyThing extends Tonika.TonikaEmitter {
   doStuff() {
-    this.emit('status', { state: 'ready' });
+    this.emit("status", { state: "ready" });
   }
 }
 ```
@@ -158,6 +166,7 @@ class MyThing extends Tonika.TonikaEmitter {
 ## Demo pages
 
 See `/demo/` for working examples:
+
 - `clavonika.html`
 - `jackonika.html`
 - `soundonika.html`

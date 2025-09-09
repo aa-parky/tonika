@@ -19,84 +19,71 @@
 -->
 <!--suppress ALL -->
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Tonika - Curated</title>
 
     <!-- 1) Core Design System: CSS Variables and Base Styles -->
-    <link rel="stylesheet" href="css/tonika-core.css"/>
+    <link rel="stylesheet" href="css/tonika-core.css" />
 
     <!-- 2) Shared Components: Buttons, Inputs, Cards, etc. -->
-    <link rel="stylesheet" href="css/tonika-components.css"/>
+    <link rel="stylesheet" href="css/tonika-components.css" />
 
     <!-- 3) Layout System: Page structure and responsive grid -->
-    <link rel="stylesheet" href="css/tonika-layout.css"/>
+    <link rel="stylesheet" href="css/tonika-layout.css" />
 
     <!-- 4) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
-    <link rel="stylesheet" href="css/clavonika.css"/>
+    <link rel="stylesheet" href="css/clavonika.css" />
 
     <script src="js/core/tonika-emitter.js"></script>
     <script src="js/core/soundonika.js"></script>
     <script src="js/core/jackonika.js"></script>
     <script src="js/core/clavonika.js"></script>
+  </head>
 
-</head>
+  <body class="tonika-theme-dark">
+    <header>
+      <h1>Tonika - Curated</h1>
+    </header>
 
-<body class="tonika-theme-dark">
-
-<header>
-    <h1>Tonika - Curated</h1>
-</header>
-
-<main class="tonika-container">
-
-    <div class="tabs">
+    <main class="tonika-container">
+      <div class="tabs">
         <button class="active" onclick="openTab(0)">1</button>
         <button onclick="openTab(1)">2</button>
         <button onclick="openTab(2)">3</button>
         <button onclick="openTab(3)">4</button>
         <button onclick="openTab(4)">Settings</button>
-    </div>
+      </div>
 
-    <div class="tab-content">
-
+      <div class="tab-content">
         <section class="active">
-            <div class="tonika-module">
-            Tab 1 Content
-            </div>
-        </section>
-
-
-        <section>
-            <div class="tonika-module">
-            Tab 2 Content
-            </div>
+          <div class="tonika-module">Tab 1 Content</div>
         </section>
 
         <section>
-            <div class="tonika-module">
-            Tab 3 Content
-            </div>
+          <div class="tonika-module">Tab 2 Content</div>
         </section>
 
         <section>
-            <div class="tonika-module">
-            Tab 4 Content
-            </div>
+          <div class="tonika-module">Tab 3 Content</div>
         </section>
 
         <section>
-            <div class="tonika-module">
-                <h3>Settings</h3>
-                Theme:
-                <button class="tonika-btn" onclick="toggleTheme()">
-                    Toggle Theme
-                </button>
-            </div>
+          <div class="tonika-module">Tab 4 Content</div>
         </section>
-    </div>
 
-    <!-- ===================================================================
+        <section>
+          <div class="tonika-module">
+            <h3>Settings</h3>
+            Theme:
+            <button class="tonika-btn" onclick="toggleTheme()">
+              Toggle Theme
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ===================================================================
          PIANO ROLL PLACEHOLDER
 
          This represents where a global piano/keyboard component might be
@@ -104,68 +91,67 @@
          for development purposes.
 
          ================================================================== -->
-    <div class="roll88">
+      <div class="roll88">
         <div class="piano-placeholder" id="piano">
-            <script type="module">
-                const piano = Tonika.Clavonika.init('piano');
-                piano.on('ui:noteon', e => console.log('UI note on', e.detail));
-                piano.on('ui:noteoff', e => console.log('UI note off', e.detail));
-            </script>
+          <script type="module">
+            const piano = Tonika.Clavonika.init("piano");
+            piano.on("ui:noteon", (e) => console.log("UI note on", e.detail));
+            piano.on("ui:noteoff", (e) => console.log("UI note off", e.detail));
+          </script>
         </div>
-    </div>
-</main>
+      </div>
+    </main>
 
-<footer>
-    <p>MIT License © 2025 <a href="https://github.com/aa-parky/tonika/tree/main" title="aa-parky">aa-parky</a></p>
-</footer>
+    <footer>
+      <p>
+        MIT License © 2025
+        <a href="https://github.com/aa-parky/tonika/tree/main" title="aa-parky"
+          >aa-parky</a
+        >
+      </p>
+    </footer>
 
-<script>
-    // Handle tab switching in the interface
-    function openTab(index) {
+    <script>
+      // Handle tab switching in the interface
+      function openTab(index) {
         const tabs = document.querySelectorAll(".tabs button");
         const sections = document.querySelectorAll(".tab-content section");
 
         tabs.forEach((tab, i) => {
-            tab.classList.toggle("active", i === index);
-            sections[i].classList.toggle("active", i === index);
+          tab.classList.toggle("active", i === index);
+          sections[i].classList.toggle("active", i === index);
         });
-    }
+      }
 
-    // Handle theme switching for testing purposes
-    function toggleTheme() {
+      // Handle theme switching for testing purposes
+      function toggleTheme() {
         const body = document.body;
         if (body.classList.contains("tonika-theme-dark")) {
-            body.classList.remove("tonika-theme-dark");
-            body.classList.add("tonika-theme-light");
+          body.classList.remove("tonika-theme-dark");
+          body.classList.add("tonika-theme-light");
         } else {
-            body.classList.remove("tonika-theme-light");
-            body.classList.add("tonika-theme-dark");
+          body.classList.remove("tonika-theme-light");
+          body.classList.add("tonika-theme-dark");
         }
-    }
-</script>
+      }
+    </script>
 
-<script>
-    // ===================================================================
-    // MODULE INITIALIZATION
-    //
-    // This is where you initialize your module. Replace "Demo" with your
-    // actual module class name and adjust the options as needed.
-    //
-    // COMMON OPTIONS:
-    // - mount: CSS selector or DOM element where module should render
-    // - mode: "card" for contained layout, "floating" for overlay
-    // - onEvent: Callback functions for module events
-    //
-    // PRODUCTION: Keep this initialization code and customize as needed.
-    // ===================================================================
+    <script>
+      // ===================================================================
+      // MODULE INITIALIZATION
+      //
+      // This is where you initialize your module. Replace "Demo" with your
+      // actual module class name and adjust the options as needed.
+      //
+      // COMMON OPTIONS:
+      // - mount: CSS selector or DOM element where module should render
+      // - mode: "card" for contained layout, "floating" for overlay
+      // - onEvent: Callback functions for module events
+      //
+      // PRODUCTION: Keep this initialization code and customize as needed.
+      // ===================================================================
 
-    // Initialize your modules in the tabs
-
-
-
-
-</script>
-
-</body>
+      // Initialize your modules in the tabs
+    </script>
+  </body>
 </html>
-
