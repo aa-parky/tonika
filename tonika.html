@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 
 <!--
   ===================================================================
@@ -21,20 +21,24 @@
 <!--suppress ALL -->
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>Tonika - Curated</title>
     <!-- 1) Core Design System: CSS Variables and Base Styles -->
-    <link href="css/tonika-core.css" rel="stylesheet"/>
+    <link href="css/tonika-theme-base.css" rel="stylesheet" />
     <!-- 2) Layout System: Page structure and responsive grid -->
-    <link href="css/tonika-layout.css" rel="stylesheet"/>
+    <link href="css/tonika-layout.css" rel="stylesheet" />
     <!-- 3) Shared Components: Buttons, Inputs, Cards, etc. -->
-    <link href="css/tonika-components.css" rel="stylesheet"/>
+    <link href="css/tonika-components.css" rel="stylesheet" />
     <!-- 4) module overrides/sizes -->
-    <link rel="stylesheet" href="css/testing.css">
+    <link rel="stylesheet" href="css/tonika-tokens.css" />
+    <link rel="stylesheet" href="css/themes/brown_01.css" />
+    <link rel="stylesheet" href="css/themes/brown_02.css" />
 
     <!-- 5) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
-    <link href="css/clavonika.css" rel="stylesheet"/>
+    <link href="css/clavonika.css" rel="stylesheet" />
 
+    <script src="js/core/tonika-ui.js"></script>
+    <script src="js/core/tonika-theme.js"></script>
     <script src="js/core/tonika-emitter.js"></script>
     <script src="js/core/soundonika.js"></script>
     <script src="js/core/jackonika.js"></script>
@@ -46,11 +50,11 @@
 </header>
 <main class="tonika-container">
     <div class="tabs">
-        <button class="active" onclick="openTab(0)">1</button>
-        <button onclick="openTab(1)">2</button>
-        <button onclick="openTab(2)">3</button>
-        <button onclick="openTab(3)">4</button>
-        <button onclick="openTab(4)">Settings</button>
+        <button class="active" onclick="Tonika.UI.openTab(0)">1</button>
+        <button onclick="Tonika.UI.openTab(1)">2</button>
+        <button onclick="Tonika.UI.openTab(2)">3</button>
+        <button onclick="Tonika.UI.openTab(3)">4</button>
+        <button onclick="Tonika.UI.openTab(4)">Settings</button>
     </div>
     <div class="tab-content">
         <section class="active">
@@ -68,12 +72,23 @@
         <section>
             <div class="tonika-grid-2">
                 <div class="tonika-module">
-                <h3>Settings UI</h3>
-                    <p>Theme:</p>
-                <button class="tonika-btn tonika-btn--primary" data-action="toggle-theme" onclick="toggleTheme()">
-                    Toggle Theme
-                </button>
+                    <h3>Settings UI</h3>
+
+                    <p>Select Theme:</p>
+                    <select
+                            class="tonika-select tonika-max-220"
+                            id="theme-selector"
+                    ></select>
+
+                    <p class="tonika-mt-lg">Toggle Light/Dark:</p>
+                    <button
+                            class="tonika-btn tonika-btn--primary"
+                            onclick="TonikaTheme.toggleMode()"
+                    >
+                        Toggle Mode
+                    </button>
                 </div>
+
                 <div class="tonika-module">
                     <h4>Modules</h4>
                     <p>Cards automatically adapt to the current theme.</p>
@@ -83,13 +98,13 @@
         </section>
     </div>
     <!-- ===================================================================
-             PIANO ROLL PLACEHOLDER
+           PIANO ROLL PLACEHOLDER
 
-             This represents where a global piano/keyboard component might be
-             placed in the full Tonika application. It's just a placeholder
-             for development purposes.
+           This represents where a global piano/keyboard component might be
+           placed in the full Tonika application. It's just a placeholder
+           for development purposes.
 
-             ================================================================== -->
+           ================================================================== -->
     <div class="roll88">
         <div class="piano-placeholder" id="piano">
             <script type="module">
@@ -103,7 +118,9 @@
 <footer>
     <p>
         MIT License © 2025
-        <a href="https://github.com/aa-parky/tonika/tree/main" title="aa-parky">aa-parky</a>
+        <a href="https://github.com/aa-parky/tonika/tree/main" title="aa-parky"
+        >aa-parky</a
+        >
     </p>
 </footer>
 
@@ -124,5 +141,5 @@
 
     // Initialize your modules in the tabs
 </script>
-<script src="js/core/tonika-ui.js"></script></body>
+</body>
 </html>

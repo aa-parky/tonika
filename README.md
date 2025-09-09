@@ -26,9 +26,10 @@ Samples + `sample-index.json` live under `/samples/`.
 On your HTML page:
 
 ```html
-<link rel="stylesheet" href="css/tonika-core.css" />
-<link rel="stylesheet" href="css/tonika-components.css" />
-<link rel="stylesheet" href="css/clavonika.css" />
+
+<link rel="stylesheet" href="css/tonika-theme-base.css"/>
+<link rel="stylesheet" href="css/tonika-components.css"/>
+<link rel="stylesheet" href="css/clavonika.css"/>
 
 <script src="js/core/tonika-emitter.js"></script>
 <script src="js/core/clavonika.js"></script>
