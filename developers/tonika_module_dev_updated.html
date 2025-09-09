@@ -1,181 +1,76 @@
 <!doctype html>
 <!--
   ===================================================================
-  TONIKA MODULE DEVELOPMENT TEMPLATE
+  TONIKA MODULE DEVELOPMENT TEMPLATE (UPDATED)
 
-  This is a comprehensive development template for creating Tonika modules.
-  It provides a complete testing environment with multiple tabs for different
-  aspects of module development and testing.
+  What this file provides:
+  - Live preview area for your module
+  - Theme testing (dark/light)
+  - Component gallery reference
+  - Layout test grid
+  - Dev documentation aligned to Tonika core (Emitter, Clavonika, Jackonika, Soundonika)
 
-  WHAT THIS FILE PROVIDES:
-  - Live preview of your module
-  - Theme testing (dark/light mode)
-  - Component gallery for reference
-  - Layout testing environment
-  - Development documentation
-  - Proper Tonika design system integration
-
+  Notes:
+  - The Tonika design system CSS is loaded LOCALLY from this repo (not a CDN).
+  - Core JS modules are also LOCAL and expose a global Tonika namespace.
+  - All core modules use TonikaEmitter (EventTarget-based).
   ===================================================================
 -->
-<!--suppress ALL -->
+
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <title>Tonika Module Development Demo</title>
 
     <!-- ===================================================================
-		 TONIKA DESIGN SYSTEM - EXTERNAL CDN LOADING
+         TONIKA DESIGN SYSTEM (LOCAL)
 
-		 These CSS files are loaded directly from the main Tonika design
-		 system repository via GitHub CDN. This approach ensures:
+         Load order (critical):
+         1) tonika-core.css        → tokens & base styles
+         2) tonika-components.css  → shared UI components (.tonika-btn, etc.)
+         3) layout.css             → page layout helpers (for this workbench)
+         4) Your module CSS        → optional module-specific styles
+         =================================================================== -->
+    <link rel="stylesheet" href="../css/tonika-core.css"/>
+    <link rel="stylesheet" href="../css/tonika-components.css"/>
+    <link rel="stylesheet" href="../css/layout.css"/>
 
-		 ✅ Always testing against the latest design system
-		 ✅ No need to manually sync design system files
-		 ✅ Consistent styling across all Tonika modules
-		 ✅ Automatic updates when a design system improves
+    <!-- Optional: replace with your own module CSS or remove if not needed -->
+    <!-- <link rel="stylesheet" href="../css/your-module.css"/> -->
+    <link rel="stylesheet" href="../css/clavonika.css"/>
+    <link rel="stylesheet" href="../css/demo.css"/>
 
-		 LOAD ORDER IS CRITICAL:
-		 1. tonika-core.css     → CSS variables and base styles
-		 2. tonika-components.css → Shared components (.tonika-btn, etc.)
-		 3. layout.css          → Page layout and structure
-		 4. Your module CSS     → Module-specific styles only
+    <!-- Core Tonika JS (LOCAL). Emitter must load first. -->
+    <script src="../js/core/tonika-emitter.js"></script>
+    <script src="../js/core/soundonika.js"></script>
+    <script src="../js/core/jackonika.js"></script>
+    <script src="../js/core/clavonika.js"></script>
 
-		 NOTE: Your IDE may show "Cannot resolve" warnings for CSS variables
-		 because it can't analyze external CDN files. This is normal and
-		 doesn't affect functionality. You can disable these warnings in
-		 your IDE settings.
-		 ================================================================== -->
-
-    <!-- 1) Core Design System: CSS Variables and Base Styles -->
-    <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/gh/aa-parky/tonika@main/css/tonika-core.css"
-    />
-
-    <!-- 2) Shared Components: Buttons, Inputs, Cards, etc. -->
-    <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/gh/aa-parky/tonika@main/css/tonika-components.css"
-    />
-
-    <!-- 3) Layout System: Page structure and responsive grid -->
-    <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/gh/aa-parky/tonika@main/css/layout.css"
-    />
-
-    <!-- 4) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
-    <link rel="stylesheet" href="../css/demo.css" />
-
-    <style>
-        /* ===================================================================
-           DEMO-SPECIFIC STYLES
-
-           PURPOSE:
-           - Style the demo information boxes
-           - Layout the component gallery
-           - Create development-friendly layouts
-
-           ================================================================== */
-
-        /* Information boxes used throughout the demo */
-        .demo-note {
-            background: var(--color-bg-secondary);
-            border: var(--border-width) solid var(--color-border);
-            border-radius: var(--border-radius-md);
-            padding: var(--spacing-md);
-            margin: var(--spacing-lg) 0;
-            color: var(--color-text-muted);
-            font-size: var(--font-size-sm);
-        }
-
-        /* Grid layout for component gallery (Tab 3) */
-        .component-grid {
-            display: grid;
-            gap: 16px;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        }
-
-        /* Button group layout for demo buttons */
-        .button-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        /* Input group layout for demo inputs */
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        /* Two-column layout for layout testing (Tab 4) */
-        .layout-grid {
-            display: grid;
-            gap: 16px;
-            grid-template-columns: 1fr 1fr;
-        }
-
-        /* Placeholder styling for piano roll area */
-        .piano-placeholder {
-            background: var(--color-bg-secondary);
-            padding: 16px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        /* Code block styling for documentation */
-        .code-block {
-            background: var(--color-bg-secondary);
-            border: var(--border-width) solid var(--color-border);
-            border-radius: var(--border-radius-sm);
-            padding: var(--spacing-sm);
-            font-family: 'Courier New', monospace;
-            font-size: var(--font-size-sm);
-            overflow-x: auto;
-            margin: var(--spacing-sm) 0;
-        }
-    </style>
 </head>
 
 <body class="tonika-theme-dark">
 <!-- ===================================================================
-     PAGE HEADER
-
-     Simple header for the development demo. In production, this would
-     be part of your main application layout.
-     ================================================================== -->
+     PAGE HEADER (dev-only)
+     =================================================================== -->
 <header>
     <h1>Tonika Module Development Demo</h1>
 </header>
 
 <main class="tonika-container">
     <!-- ===================================================================
-         DEVELOPMENT INFORMATION
-
-         This info box explains the development setup. Remove this in
-         production as it's only relevant for developers.
-         ================================================================== -->
+         DEVELOPMENT INFORMATION (updated)
+         =================================================================== -->
     <div class="demo-note">
-        <strong>Development Note:</strong> This demo loads the Tonika design
-        system directly from GitHub, ensuring you're always testing against the
-        latest version. Your module's CSS should only contain layout and
-        structural styles unique to your module.
+        <strong>Development Note:</strong> This workbench loads the Tonika design
+        system and core modules <em>locally</em> from the repo. Your module CSS should
+        only contain styles unique to your module and should respect Tonika tokens/components.
+        All core modules (Clavonika, Jackonika, Soundonika) use the shared
+        EventTarget-based <code>TonikaEmitter</code> for events.
     </div>
 
     <!-- ===================================================================
          DEMO TABS NAVIGATION
-
-         These tabs provide different testing environments for your module:
-
-         Tab 1: Your Module        → Main development/preview area
-         Tab 2: Light Theme Test   → Test your module in light mode
-         Tab 3: Component Gallery  → Reference for available Tonika components
-         Tab 4: Layout Test        → Test how your module looks in different layouts
-         Tab 5: Documentation      → Development guidelines and best practices
-
-         ================================================================== -->
+         =================================================================== -->
     <div class="tabs">
         <button class="active" onclick="openTab(0)">Your Module</button>
         <button onclick="openTab(1)">Light Theme Test</button>
@@ -187,90 +82,52 @@
     <div class="tab-content">
         <!-- ===================================================================
              TAB 1: YOUR MODULE PREVIEW
-
-             This is where your module will be rendered during development.
-             The #demo-mount div is where your JavaScript will inject your
-             module's HTML content.
-
-             Replace "demo.js" with your actual module filename (e.g.,
-             "chordonika.js", "catchonika.js").
-
-             PRODUCTION: This is the only tab content you need to keep.
-             ================================================================== -->
+             - Render your module into #demo-mount.
+             - Replace Demo (../js/demo.js) with your own module for testing.
+             =================================================================== -->
         <section class="active">
             <div id="demo-mount"></div>
         </section>
 
         <!-- ===================================================================
              TAB 2: LIGHT THEME TESTING
-
-             This tab helps you test your module in light mode. The toggle
-             button switches between tonika-theme-dark and tonika-theme-light
-             classes on the body element.
-
-             IMPORTANT: Always test your module in both themes to ensure
-             proper contrast and readability.
-
-             ================================================================== -->
+             - Toggle body class between tonika-theme-dark and tonika-theme-light
+             - Always test in both themes for contrast/accessibility
+             =================================================================== -->
         <section>
             <div class="demo-note">
                 <p>
-                    Switch the body class from <code>tonika-theme-dark</code> to
-                    <code>tonika-theme-light</code> (or remove it entirely) to test
-                    your module in light mode.
+                    Toggle between <code>tonika-theme-dark</code> and
+                    <code>tonika-theme-light</code> to verify contrast and tokens.
                 </p>
-                <button class="tonika-btn" onclick="toggleTheme()">
-                    Toggle Theme
-                </button>
+                <button class="tonika-btn" onclick="toggleTheme()">Toggle Theme</button>
             </div>
-
         </section>
 
         <!-- ===================================================================
              TAB 3: COMPONENT GALLERY
-
-             This tab shows examples of all available Tonika components that
-             you can use in your module. Use these as reference when building
-             your module's UI.
-
-             AVAILABLE COMPONENTS:
-             - .tonika-btn (with variants: --primary, --danger)
-             - .tonika-input (text inputs)
-             - .tonika-select (dropdown selects)
-             - .tonika-module (container for modules)
-
-             ================================================================== -->
+             - Reference for tokens/components you can reuse
+             =================================================================== -->
         <section>
             <h3>Tonika Component Gallery</h3>
-            <div class="component-grid">
-                <!-- Button Examples -->
+            <div class="demo--component-grid">
                 <div class="tonika-module">
                     <h4>Buttons</h4>
-                    <div class="button-group">
+                    <div class="demo--button-group">
                         <button class="tonika-btn">Default</button>
                         <button class="tonika-btn tonika-btn--primary">Primary</button>
                         <button class="tonika-btn tonika-btn--danger">Danger</button>
                     </div>
                 </div>
 
-                <!-- Input Examples -->
                 <div class="tonika-module">
                     <h4>Inputs</h4>
-                    <div class="input-group">
+                    <div class="demo--input-group">
                         <label>
-                            <input
-                                    class="tonika-input"
-                                    type="text"
-                                    placeholder="Text input"
-                            />
+                            <input class="tonika-input" type="text" placeholder="Text input"/>
                         </label>
                         <label>
-                            <input
-                                    class="tonika-input"
-                                    type="number"
-                                    placeholder="120"
-                                    style="width: 80px"
-                            />
+                            <input class="tonika-input" type="number" placeholder="120" style="width: 80px"/>
                         </label>
                         <label>
                             <select class="tonika-select">
@@ -282,7 +139,6 @@
                     </div>
                 </div>
 
-                <!-- Typography Examples -->
                 <div class="tonika-module">
                     <h4>Typography</h4>
                     <p>Normal text</p>
@@ -294,15 +150,11 @@
 
         <!-- ===================================================================
              TAB 4: LAYOUT TESTING
-
-             This tab demonstrates how your module looks when placed alongside
-             other modules in different layout configurations. Use this to
-             ensure your module plays well with others.
-
-             ================================================================== -->
+             - See how your module behaves alongside others
+             =================================================================== -->
         <section>
             <h3>Layout Test</h3>
-            <div class="layout-grid">
+            <div class="demo--layout-grid">
                 <div class="tonika-module">
                     <h4>Card 1</h4>
                     <p>This demonstrates the standard module card layout.</p>
@@ -317,135 +169,84 @@
         </section>
 
         <!-- ===================================================================
-             TAB 5: DEVELOPMENT DOCUMENTATION
-
-             This tab provides development guidelines and best practices for
-             creating Tonika modules. Keep this as a reference during development.
-
-             ================================================================== -->
+             TAB 5: DEVELOPMENT DOCUMENTATION (updated)
+             =================================================================== -->
         <section>
             <div class="tonika-module">
                 <h3>Module Development Guidelines</h3>
 
                 <h4>CSS Structure</h4>
                 <ul>
-                    <li>
-                        <strong>Use BEM naming:</strong> <code>.yourmodule</code>,
-                        <code>.yourmodule__element</code>,
-                        <code>.yourmodule--modifier</code>
-                    </li>
-                    <li>
-                        <strong>Root container:</strong> Always use
-                        <code>class="tonika-module yourmodule yourmodule--card"</code>
-                    </li>
-                    <li>
-                        <strong>Use global components:</strong>
-                        <code>.tonika-btn</code>, <code>.tonika-input</code>,
-                        <code>.tonika-select</code>
-                    </li>
-                    <li>
-                        <strong>Use CSS variables:</strong>
-                        <code>var(--color-bg-primary)</code>,
-                        <code>var(--spacing-md)</code>, etc.
-                    </li>
+                    <li><strong>Use BEM naming:</strong> <code>.yourmodule</code>, <code>.yourmodule__element</code>, <code>.yourmodule--modifier</code></li>
+                    <li><strong>Root container:</strong> wrap with <code>class="tonika-module yourmodule yourmodule--card"</code></li>
+                    <li><strong>Use global components:</strong> <code>.tonika-btn</code>, <code>.tonika-input</code>, <code>.tonika-select</code></li>
+                    <li><strong>Use CSS variables:</strong> e.g. <code>var(--color-bg-primary)</code>, <code>var(--spacing-md)</code></li>
                 </ul>
 
                 <h4>JavaScript Integration</h4>
                 <ul>
-                    <li>
-                        Mount your module with:
-                        <code>new YourModule({ mount: "#element-id" })</code>
-                    </li>
+                    <li>Mount your module into <code>#demo-mount</code> (or your target element)</li>
                     <li>Generate HTML with proper BEM classes</li>
-                    <li>Use global CSS classes for common elements</li>
-                    <li>Provide a destroy() method for cleanup</li>
+                    <li>Provide a <code>destroy()</code> for cleanup</li>
+                    <li>Prefer the event system (see <strong>TonikaEmitter</strong> below)</li>
                 </ul>
 
-                <h4>🧃 Soundonika Audio Integration</h4>
-                <p>For modules that need audio playback (drums, metronomes, sound effects), integrate with Soundonika:</p>
-                
-                <div class="code-block">
-<pre>
-    // 1. Load Soundonika from CDN
-    &lt;script src="https://cdn.jsdelivr.net/gh/aa-parky/soundonika@main/js/soundonika.js"&gt;&lt;/script&gt;
+                <h4>🧃 Soundonika Audio Integration (local, emitter-based)</h4>
+                <p>Soundonika is part of Tonika core. Initialize the engine and listen to <code>status</code> events. Then schedule sounds.</p>
 
-    // 2. Initialize in your module
-    async initAudio() {
-    this.audioContext = new AudioContext();
-    this.audioEngine = new Soundonika.Engine(this.audioContext, {
-    sampleBasePath: './samples'  // Local samples for Tonika users
-    });
-    await this.audioEngine.init();
-}
-    // 3. Schedule sounds with precise timing
-    playSound(soundType, velocity = 1.0) {
-    this.audioEngine.scheduleSound(
-        this.audioContext.currentTime, 
-        soundType, 
-        velocity
-    );
-}
-</pre>>
+                <div class="demo--code-block">
+<pre>// Ensure core scripts are loaded (see &lt;head&gt;)
+const ac = new (window.AudioContext || window.webkitAudioContext)();
+const engine = new Tonika.SoundonikaEngine(ac, {
+  sampleBasePath: './samples',
+  volume: 0.9
+});
+
+// Optional: status events (loading → ready → error)
+const off = engine.addEventListener('status', e =&gt; console.log('[sound]', e.detail));
+
+// Init then schedule
+engine.init().then(() =&gt; {
+  const t = ac.currentTime + 0.02; // small schedule-ahead
+  engine.scheduleSound(t, 'kick', 1.0);
+});</pre>
                 </div>
 
-                <p><strong>Supported Sound Types:</strong> 'kick', 'snare', 'hihat_closed', 'hihat_open', 'perc', 'shaker', 'accent', 'normal'</p>
-                
-                <p><strong>Sample Path Strategy:</strong></p>
+                <p><strong>Supported default sound types:</strong> <code>'kick'</code>, <code>'snare'</code>, <code>'hihat'</code>, <code>'perc'</code>, <code>'clap'</code>. You can override with <code>setSampleMappings()</code>.</p>
+
+                <p><strong>Sample path strategy:</strong></p>
                 <ul>
-                    <li><strong>Tonika users:</strong> Include samples in your module's <code>./samples</code> directory</li>
-                    <li><strong>Standalone users:</strong> Soundonika automatically falls back to click sounds</li>
-                    <li><strong>Custom paths:</strong> Use <code>setSampleBasePath()</code> for flexible deployment</li>
+                    <li><strong>Local samples:</strong> keep packs under <code>/samples/</code> and update <code>sample-index.json</code> as needed.</li>
+                    <li><strong>Custom mappings:</strong> call <code>engine.setSampleMappings({...})</code> to map friendly names to file paths.</li>
+                    <li><strong>Missing sample fallback:</strong> engine will play a click tone if a mapping/path isn’t loaded.</li>
+                </ul>
+
+                <h4>Events you can rely on (core)</h4>
+                <ul>
+                    <li><strong>Clavonika</strong>: <code>ui:noteon</code>, <code>ui:noteoff</code>, <code>status</code> (factory returns an instance with <code>on/off</code>).</li>
+                    <li><strong>Jackonika</strong>: <code>midi:noteon</code>, <code>midi:noteoff</code>, <code>midi:devicechange</code>, <code>status</code> (singleton).</li>
+                    <li><strong>Soundonika</strong>: <code>status</code> (loading/progress/ready/error).</li>
                 </ul>
 
                 <h4>Testing Checklist</h4>
                 <ul>
                     <li>✅ Test in both light and dark themes</li>
-                    <li>✅ Ensure responsive behavior on mobile</li>
-                    <li>✅ Verify accessibility with screen readers</li>
-                    <li>✅ Test alongside other modules (layout compatibility)</li>
-                    <li>✅ Check browser console for errors</li>
-                    <li>✅ <strong>Test audio with and without local samples</strong></li>
-                    <li>✅ <strong>Verify graceful fallback to click sounds</strong></li>
-                </ul>
-
-                <h4>Module Architecture Patterns</h4>
-                
-                <h5>Basic Module Structure</h5>
-                <div class="code-block">
-
-
-                </div>
-
-                <h5>Audio-Enabled Module Structure</h5>
-                <div class="code-block">
-
-                </div>
-
-                <h4>Best Practices Summary</h4>
-                <ul>
-                    <li><strong>Always test audio fallbacks</strong> - not all users will have samples</li>
-                    <li><strong>Initialize audio on user interaction</strong> - browsers require user gesture</li>
-                    <li><strong>Handle audio failures gracefully</strong> - provide non-audio alternatives</li>
-                    <li><strong>Use consistent BEM naming</strong> - keeps CSS maintainable</li>
-                    <li><strong>Leverage Tonika design system</strong> - don't reinvent components</li>
-                    <li><strong>Test in both themes</strong> - ensure accessibility</li>
+                    <li>✅ Responsive on mobile</li>
+                    <li>✅ Accessible focus and labels</li>
+                    <li>✅ Plays well alongside other modules (layout)</li>
+                    <li>✅ Check console for errors</li>
+                    <li>✅ Audio with and without local samples</li>
+                    <li>✅ Graceful fallback to click sounds</li>
                 </ul>
             </div>
         </section>
     </div>
 
     <!-- ===================================================================
-         PIANO ROLL PLACEHOLDER
-
-         This represents where a global piano/keyboard component might be
-         placed in the full Tonika application. It's just a placeholder
-         for development purposes.
-
-         ================================================================== -->
+         PIANO PLACEHOLDER (dev convenience)
+         =================================================================== -->
     <div class="roll88">
-        <div class="piano-placeholder">
-            <span style="color: var(--color-text-muted)">Piano Roll / Keyboard Component Area</span>
-        </div>
+        <div class="piano-placeholder" id="piano"></div>
     </div>
 </main>
 
@@ -454,25 +255,17 @@
 </footer>
 
 <!-- ===================================================================
-     DEMO FUNCTIONALITY SCRIPTS
-
-     These scripts handle the tab switching and theme toggling functionality
-     for the development demo. They are NOT part of your module.
-
-     ================================================================== -->
+     DEMO SCRIPTS (tabs & theme) — not part of your module
+     =================================================================== -->
 <script>
-    // Handle tab switching in the interface
     function openTab(index) {
         const tabs = document.querySelectorAll(".tabs button");
         const sections = document.querySelectorAll(".tab-content section");
-
         tabs.forEach((tab, i) => {
             tab.classList.toggle("active", i === index);
             sections[i].classList.toggle("active", i === index);
         });
     }
-
-    // Handle theme switching for testing purposes
     function toggleTheme() {
         const body = document.body;
         if (body.classList.contains("tonika-theme-dark")) {
@@ -486,43 +279,25 @@
 </script>
 
 <!-- ===================================================================
-     MODULE DEPENDENCIES
-
-     Load any external libraries or dependencies your module needs here.
-     For audio modules, you'll typically want to include Soundonika:
-
-     <script src="https://cdn.jsdelivr.net/gh/aa-parky/soundonika@main/js/soundonika.js"></script>
-
-     ================================================================== -->
-
-<!-- YOUR MODULE SCRIPT: Replace "demo.js" with your module filename -->
+     MODULE DEMO WIRED-UP
+     Replace Demo with your module. (Demo lives at ../js/core/demo.js)
+     =================================================================== -->
 <script src="../js/core/demo.js"></script>
-
 <script>
-    // ===================================================================
-    // MODULE INITIALIZATION
-    //
-    // This is where you initialize your module. Replace "Demo" with your
-    // actual module class name and adjust the options as needed.
-    //
-    // COMMON OPTIONS:
-    // - mount: CSS selector or DOM element where module should render
-    // - mode: "card" for contained layout, "floating" for overlay
-    // - onEvent: Callback functions for module events
-    //
-    // PRODUCTION: Keep this initialization code and customize as needed.
-    // ===================================================================
-
-    // Initialize your module in the main tab
+    // Initialize your module in the main tab demo area
     new Demo({
         mount: "#demo-mount",
         mode: "card",
         autoRefresh: true
     });
 
-
+    // Quick Clavonika example in the piano placeholder
+    (function(){
+        const piano = Tonika.Clavonika.init('piano');
+        piano.on('ui:noteon', e => console.log('UI note on', e.detail));
+        piano.on('ui:noteoff', e => console.log('UI note off', e.detail));
+    })();
 </script>
 
 </body>
 </html>
-
