@@ -1,4 +1,4 @@
-# Tonika 🎹🎛️
+# 🧃Tonika
 
 Tonika is a modular, browser-based playground for music interaction, built on vanilla JS + Web APIs.
 It provides **core modules** (Clavonika piano, Jackonika MIDI bridge, Soundonika audio engine) and
@@ -13,7 +13,7 @@ All core lives in `/js/core/`:
 - ⚡️`tonika-emitter.js` → base event emitter (`Tonika.TonikaEmitter`)
 - 🎹`clavonika.js` → piano UI keyboard (`Tonika.Clavonika`)
 - 🔌`jackonika.js` → MIDI input bridge (`Tonika.Jackonika`)
-- 🧃`soundonika.js` → audio/sampler engine (`Tonika.SoundonikaEngine`)
+- 📻`soundonika.js` → audio/sampler engine (`Tonika.SoundonikaEngine`)
 
 CSS lives in `/css/` (global tokens/components + `clavonika.css`).
 
