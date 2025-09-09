@@ -1,0 +1,26 @@
+/* Cozy Brown 01 */
+:root[data-theme="brown-01"] {
+    /* Map your 4 swatches to the Tonika tokens */
+    --color-bg:        #f0ece2; /* first-color */
+    --color-surface:   #dfd3c3; /* second-color */
+    --color-border:    #c7b198; /* third-color */
+    --color-text:      #1e2428; /* choose a readable dark text */
+    --color-muted:     #596e79; /* fourth-color */
+
+    --color-accent:    #596e79; /* use the deep teal as accent */
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #ffffff;
+    --btn-border:      transparent;
+
+    --kbd-black-active:#2c94ff;
+    --kbd-white-active:#7ab4ff;
+}
+
+/* Optional light/dark flavor of the same palette */
+:root[data-theme="brown-01"][data-mode="dark"] {
+    --color-bg:      #1f2226;
+    --color-surface: #2a2f34;
+    --color-border:  #3a4047;
+    --color-text:    #e9edf2;
+    --color-muted:   #9fb0b8;
+}

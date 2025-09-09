@@ -25,12 +25,16 @@
     <title>Tonika - Curated</title>
     <!-- 1) Core Design System: CSS Variables and Base Styles -->
     <link href="css/tonika-core.css" rel="stylesheet"/>
-    <!-- 2) Shared Components: Buttons, Inputs, Cards, etc. -->
-    <link href="css/tonika-components.css" rel="stylesheet"/>
-    <!-- 3) Layout System: Page structure and responsive grid -->
+    <!-- 2) Layout System: Page structure and responsive grid -->
     <link href="css/tonika-layout.css" rel="stylesheet"/>
-    <!-- 4) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
+    <!-- 3) Shared Components: Buttons, Inputs, Cards, etc. -->
+    <link href="css/tonika-components.css" rel="stylesheet"/>
+    <!-- 4) module overrides/sizes -->
+    <link rel="stylesheet" href="css/testing.css">
+
+    <!-- 5) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
     <link href="css/clavonika.css" rel="stylesheet"/>
+
     <script src="js/core/tonika-emitter.js"></script>
     <script src="js/core/soundonika.js"></script>
     <script src="js/core/jackonika.js"></script>
@@ -62,12 +66,19 @@
             <div class="tonika-module">Tab 4 Content</div>
         </section>
         <section>
-            <div class="tonika-module">
-                <h3>Settings</h3>
-                Theme:
-                <button class="tonika-btn" data-action="toggle-theme" onclick="toggleTheme()">
+            <div class="tonika-grid-2">
+                <div class="tonika-module">
+                <h3>Settings UI</h3>
+                    <p>Theme:</p>
+                <button class="tonika-btn tonika-btn--primary" data-action="toggle-theme" onclick="toggleTheme()">
                     Toggle Theme
                 </button>
+                </div>
+                <div class="tonika-module">
+                    <h4>Modules</h4>
+                    <p>Cards automatically adapt to the current theme.</p>
+                    <button class="tonika-btn">Another Action</button>
+                </div>
             </div>
         </section>
     </div>

@@ -1,0 +1,24 @@
+/* Deep Amber 02 */
+:root[data-theme="brown-02"] {
+    --color-bg:        #1d1716; /* first-color */
+    --color-surface:   #402a23; /* second-color */
+    --color-border:    #a55233; /* third-color */
+    --color-text:      #f7ede2;
+    --color-muted:     #f3bc77; /* fourth-color */
+
+    --color-accent:    #f3bc77;
+    --btn-bg:          var(--color-accent);
+    --btn-text:        #241a11;
+    --btn-border:      transparent;
+
+    --kbd-black-active:#2c94ff;
+    --kbd-white-active:#7ab4ff;
+}
+
+:root[data-theme="brown-02"][data-mode="light"] {
+    --color-bg:      #fff8f1;
+    --color-surface: #ffe8c7;
+    --color-border:  #f3bc77;
+    --color-text:    #2a1c16;
+    --color-muted:   #8a5a33;
+}
