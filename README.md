@@ -10,10 +10,10 @@ a unified **event system** for wiring them together.
 
 All core lives in `/js/core/`:
 
-- `tonika-emitter.js` → base event emitter (`Tonika.TonikaEmitter`)
-- `clavonika.js` → piano UI keyboard (`Tonika.Clavonika`)
-- `jackonika.js` → MIDI input bridge (`Tonika.Jackonika`)
-- `soundonika.js` → audio/sampler engine (`Tonika.SoundonikaEngine`)
+- ⚡️`tonika-emitter.js` → base event emitter (`Tonika.TonikaEmitter`)
+- 🎹`clavonika.js` → piano UI keyboard (`Tonika.Clavonika`)
+- 🔌`jackonika.js` → MIDI input bridge (`Tonika.Jackonika`)
+- 🧃`soundonika.js` → audio/sampler engine (`Tonika.SoundonikaEngine`)
 
 CSS lives in `/css/` (global tokens/components + `clavonika.css`).
 
