@@ -1,0 +1,341 @@
+/*
+ * ===================================================================
+ * CHORDONIKA MODULE STYLES
+ *
+ * This file demonstrates proper CSS separation in the Tonika ecosystem:
+ *
+ * ✅ WHAT THIS FILE CONTAINS:
+ * - Layout and structural styles unique to the Chordonika module
+ * - Module-specific visual elements (keyboard, chord selector)
+ * - BEM naming convention examples
+ * - Proper use of global CSS variables
+ *
+ * ❌ WHAT THIS FILE DOES NOT CONTAIN:
+ * - Color definitions (handled by tonika-core.css)
+ * - Common component styles (handled by tonika-components.css)
+ * - Button/input styling (use .tonika-btn, .tonika-input classes)
+ * - Typography base styles (inherited from global system)
+ *
+ * HTML Structure Assumption:
+ * <div class="tonika-module chordonika chordonika--card">
+ *   <div class="chordonika__header">...</div>
+ *   <div class="chordonika__content">
+ *     <div class="chordonika__chord-selector">...</div>
+ *     <div class="chordonika__keyboard">...</div>
+ *   </div>
+ * </div>
+ * ===================================================================
+ */
+
+/* ===================================================================
+   CARD LAYOUT MODIFIER
+   ================================================================== */
+
+.chordonika--card {
+    /* Fixed height with internal scrolling for consistent layout */
+    height: 337px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===================================================================
+   HEADER SECTION
+   ================================================================== */
+
+.chordonika__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    /*noinspection CssUnresolvedCustomProperty*/
+    gap: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: var(--border-width) solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.chordonika__title {
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.chordonika__subtitle {
+    font-size: var(--font-size-sm);
+    line-height: 1.3;
+    color: var(--color-text-muted);
+}
+
+/* ===================================================================
+   MAIN CONTENT AREA
+   ================================================================== */
+
+.chordonika__content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--spacing-sm) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* ===================================================================
+   CHORD SELECTOR SECTION
+   ================================================================== */
+
+.chordonika__chord-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.chordonika__controls {
+    display: flex;
+    justify-content: flex-start;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.chordonika__dropdown-group {
+    flex: 0 0 auto;
+    min-width: 180px;
+}
+
+.chordonika__dropdown-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+}
+
+.chordonika__dropdown {
+    width: 100%;
+    /* Uses global .tonika-select styling */
+}
+
+/* ===================================================================
+   CHORD INFO DISPLAY
+   ================================================================== */
+
+.chordonika__chord-info {
+    display: flex;
+    background-color: var(--color-bg-secondary);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+    align-items: center;
+    width: 510px;
+}
+
+.chordonika__chord-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.chordonika__chord-symbol {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-text-primary);
+}
+
+.chordonika__chord-symbol:empty::before {
+    content: "–";
+    color: var(--color-text-muted);
+}
+
+.chordonika__chord-notes {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono), serif;
+}
+
+.chordonika__chord-notes:empty::before {
+    content: "No chord selected.";
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.chordonika__clear-btn {
+    /* Uses global .tonika-btn .tonika-btn--danger styling */
+    flex-shrink: 0;
+}
+
+/* ===================================================================
+   KEYBOARD SECTION
+   ================================================================== */
+
+.chordonika__keyboard-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-secondary);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-md);
+    width: 510px;
+}
+
+.chordonika__keyboard {
+    position: relative;
+    width: 510px;
+    height: 88px;
+    background-color: var(--color-text-primary);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm);
+    box-sizing: border-box;
+}
+
+.chordonika__keys {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* ===================================================================
+   KEYBOARD KEYS (using only available Tonika variables)
+   ================================================================== */
+
+.chordonika__key {
+    position: absolute;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    font-weight: 600;
+    user-select: none;
+}
+
+.chordonika__key--white {
+    width: 35px;
+    height: 68px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+    padding-bottom: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    color: #333;
+}
+
+.chordonika__key--white:hover {
+    background-color: #f0f0f0;
+}
+
+.chordonika__key--white.chordonika__key--active {
+    /*background-color: var(--color-accent);8/
+    /*color: var(--color-accent-text);*/
+    background: #2b8cff !important;
+
+}
+
+.chordonika__key--black {
+    width: 20px;
+    height: 42px;
+    background-color: #333;
+    border: 1px solid #000;
+    border-radius: 0 0 2px 2px;
+    padding-bottom: 3px;
+    font-size: 6px;
+    color: #fff;
+    z-index: 2;
+}
+
+.chordonika__key--black:hover {
+    background-color: #555;
+}
+
+.chordonika__key--black.chordonika__key--active {
+    /*background-color: var(--color-accent);
+    color: var(--color-accent-text);*/
+    background: #2b8cff !important;
+}
+
+.chordonika__note-label {
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* ===================================================================
+   KEY POSITIONS (C3 to B4)
+   ================================================================== */
+
+/* White key positions */
+.chordonika__position--c3 { left: 0; }
+.chordonika__position--d3 { left: 35px; }
+.chordonika__position--e3 { left: 70px; }
+.chordonika__position--f3 { left: 105px; }
+.chordonika__position--g3 { left: 140px; }
+.chordonika__position--a3 { left: 175px; }
+.chordonika__position--b3 { left: 210px; }
+.chordonika__position--c4 { left: 245px; }
+.chordonika__position--d4 { left: 280px; }
+.chordonika__position--e4 { left: 315px; }
+.chordonika__position--f4 { left: 350px; }
+.chordonika__position--g4 { left: 385px; }
+.chordonika__position--a4 { left: 420px; }
+.chordonika__position--b4 { left: 455px; }
+
+/* Black key positions */
+.chordonika__position--cs3 { left: 25px; }
+.chordonika__position--ds3 { left: 60px; }
+.chordonika__position--fs3 { left: 130px; }
+.chordonika__position--gs3 { left: 165px; }
+.chordonika__position--as3 { left: 200px; }
+.chordonika__position--cs4 { left: 270px; }
+.chordonika__position--ds4 { left: 305px; }
+.chordonika__position--fs4 { left: 375px; }
+.chordonika__position--gs4 { left: 410px; }
+.chordonika__position--as4 { left: 445px; }
+
+/* ===================================================================
+   RESPONSIVE ADJUSTMENTS
+   ================================================================== */
+
+@media (max-width: 768px) {
+    .chordonika__controls {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .chordonika__dropdown-group {
+        min-width: auto;
+    }
+
+    .chordonika__chord-info {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .chordonika__keyboard {
+        width: 100%;
+        max-width: 548px;
+        transform: scale(0.8);
+        transform-origin: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .chordonika__keyboard {
+        transform: scale(0.6);
+    }
+}
+
+/* ===================================================================
+   FLOATING MODE MODIFIER (if needed)
+   ================================================================== */
+
+.chordonika--floating {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 600px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+

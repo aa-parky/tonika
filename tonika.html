@@ -31,10 +31,9 @@
     <link href="css/tonika-components.css" rel="stylesheet"  />
     <!-- 4) module overrides/sizes -->
     <link href="css/tonika-tokens.css" rel="stylesheet"  />
-
-
     <!-- 5) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
     <link href="css/clavonika.css" rel="stylesheet" />
+    <link href="css/chordonika.css" rel="stylesheet" />
 
     <script src="js/core/tonika-ui.js"></script>
     <script src="js/core/tonika-theme.js"></script>
@@ -42,6 +41,7 @@
     <script src="js/core/soundonika.js"></script>
     <script src="js/core/jackonika.js"></script>
     <script src="js/core/clavonika.js"></script>
+    <script src="js/core/chordonika.js"></script>
 </head>
 <body class="tonika-theme-dark">
 <header>
@@ -50,7 +50,7 @@
 <main class="tonika-container">
     <div class="tabs">
         <button class="active" onclick="Tonika.UI.openTab(0)">1</button>
-        <button onclick="Tonika.UI.openTab(1)">2</button>
+        <button onclick="Tonika.UI.openTab(1)">Chordonika</button>
         <button onclick="Tonika.UI.openTab(2)">3</button>
         <button onclick="Tonika.UI.openTab(3)">4</button>
         <button onclick="Tonika.UI.openTab(4)">Settings</button>
@@ -60,7 +60,8 @@
             <div class="tonika-module">Tab 1 Content</div>
         </section>
         <section>
-            <div class="tonika-module">Tab 2 Content</div>
+            <div id="chord-selector"></div>
+
         </section>
         <section>
             <div class="tonika-module">Tab 3 Content</div>
@@ -139,6 +140,16 @@
     // ===================================================================
 
     // Initialize your modules in the tabs
+
+    // Chordonika (Chord selector + visualizer)
+    new Chordonika({
+        mount: "#chord-selector",
+        mode: "card",
+        onChordSelected: (chord) => {
+            console.log("Selected chord:", chord);
+        }
+    });
+
 </script>
 </body>
 </html>
