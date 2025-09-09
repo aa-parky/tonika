@@ -33,9 +33,12 @@
     <link rel="stylesheet" href="css/layout.css"/>
 
     <!-- 4) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/aa-parky/clavonika@main/css/clavonika.css"
-    />
+    <link rel="stylesheet" href="css/clavonika.css"/>
+
+    <script src="../js/core/tonika-emitter.js"></script>
+    <script src="../js/core/soundonika.js"></script>
+    <script src="../js/core/jackonika.js"></script>
+    <script src="../js/core/clavonika.js"></script>
 
 </head>
 
@@ -102,22 +105,11 @@
 
          ================================================================== -->
     <div class="roll88">
-        <div class="piano-placeholder">
-            <div id="piano-container"></div>
-
+        <div class="piano-placeholder" id="piano">
             <script type="module">
-                import Clavonika from 'https://cdn.jsdelivr.net/gh/aa-parky/clavonika@main/js/clavonika.js';
-
-                const piano = Clavonika.init('piano-container');
-
-                // You can also control the piano programmatically:
-                setTimeout(() => {
-                    piano.noteOn(60); // Light up Middle C
-                }, 1000);
-
-                setTimeout(() => {
-                    piano.noteOff(60); // Turn off Middle C
-                }, 2000);
+                const piano = Tonika.Clavonika.init('piano');
+                piano.on('ui:noteon', e => console.log('UI note on', e.detail));
+                piano.on('ui:noteoff', e => console.log('UI note off', e.detail));
             </script>
         </div>
     </div>
@@ -152,9 +144,6 @@
     }
 </script>
 
-<!-- YOUR MODULE SCRIPT: Replace "demo.js" with your module filename -->
-
-
 <script>
     // ===================================================================
     // MODULE INITIALIZATION
@@ -170,7 +159,10 @@
     // PRODUCTION: Keep this initialization code and customize as needed.
     // ===================================================================
 
-    // Initialize your module in the main tab
+    // Initialize your modules in the tabs
+
+
+
 
 </script>
 

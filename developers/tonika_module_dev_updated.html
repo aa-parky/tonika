@@ -365,26 +365,27 @@
                 <p>For modules that need audio playback (drums, metronomes, sound effects), integrate with Soundonika:</p>
                 
                 <div class="code-block">
-// 1. Load Soundonika from CDN
-&lt;script src="https://cdn.jsdelivr.net/gh/aa-parky/soundonika@main/js/soundonika.js"&gt;&lt;/script&gt;
+<pre>
+    // 1. Load Soundonika from CDN
+    &lt;script src="https://cdn.jsdelivr.net/gh/aa-parky/soundonika@main/js/soundonika.js"&gt;&lt;/script&gt;
 
-// 2. Initialize in your module
-async initAudio() {
+    // 2. Initialize in your module
+    async initAudio() {
     this.audioContext = new AudioContext();
     this.audioEngine = new Soundonika.Engine(this.audioContext, {
-        sampleBasePath: './samples'  // Local samples for Tonika users
+    sampleBasePath: './samples'  // Local samples for Tonika users
     });
     await this.audioEngine.init();
 }
-
-// 3. Schedule sounds with precise timing
-playSound(soundType, velocity = 1.0) {
+    // 3. Schedule sounds with precise timing
+    playSound(soundType, velocity = 1.0) {
     this.audioEngine.scheduleSound(
         this.audioContext.currentTime, 
         soundType, 
         velocity
     );
 }
+</pre>>
                 </div>
 
                 <p><strong>Supported Sound Types:</strong> 'kick', 'snare', 'hihat_closed', 'hihat_open', 'perc', 'shaker', 'accent', 'normal'</p>
@@ -411,77 +412,13 @@ playSound(soundType, velocity = 1.0) {
                 
                 <h5>Basic Module Structure</h5>
                 <div class="code-block">
-class YourModule {
-    constructor(opts = {}) {
-        this.mount = opts.mount;
-        this.audioContext = null;
-        this.audioEngine = null;
-        
-        this._render();
-        this._bindUI();
-    }
-    
-    async initAudio() {
-        // Initialize Soundonika if needed
-    }
-    
-    _render() {
-        // Generate HTML with BEM classes
-    }
-    
-    _bindUI() {
-        // Bind event listeners
-    }
-    
-    destroy() {
-        // Cleanup resources
-    }
-}
+
+
                 </div>
 
                 <h5>Audio-Enabled Module Structure</h5>
                 <div class="code-block">
-class AudioModule {
-    constructor(opts = {}) {
-        this.mount = opts.mount;
-        this.audioContext = null;
-        this.audioEngine = null;
-        this.isAudioReady = false;
-        
-        this._render();
-        this._bindUI();
-    }
-    
-    async start() {
-        try {
-            // Initialize audio on user interaction
-            if (!this.audioContext) {
-                await this._initAudio();
-            }
-            // Start your audio functionality
-        } catch (error) {
-            console.warn('Audio initialization failed:', error);
-            // Continue with non-audio functionality
-        }
-    }
-    
-    async _initAudio() {
-        this.audioContext = new AudioContext();
-        this.audioEngine = new Soundonika.Engine(this.audioContext, {
-            sampleBasePath: './samples'
-        });
-        
-        try {
-            await this.audioEngine.init();
-            this.isAudioReady = true;
-        } catch (error) {
-            // Fallback to click sounds
-            this.audioEngine.setSoundMode('clicks');
-            await this.audioEngine.init();
-            this.isAudioReady = true;
-        }
-    }
-}
+
                 </div>
 
                 <h4>Best Practices Summary</h4>

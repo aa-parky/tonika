@@ -1,8 +1,9 @@
 /* ===================================================================
    Soundonika.js
-   Core audio engine for Tonika
+   Core audio engine for Tonika — EventTarget/Emitter-enabled
    ================================================================== */
 
+/* eslint-env browser, node */
 /* global module */
 
 /**
@@ -14,17 +15,25 @@ function encodePathSegments(relPath) {
     return relPath.split('/').map(encodeURIComponent).join('/');
 }
 
-class SoundonikaEngine {
+// Choose the emitter base (TonikaEmitter if present; otherwise EventTarget)
+const _EmitterBase = (typeof window !== 'undefined' && window.Tonika && window.Tonika.TonikaEmitter)
+    ? window.Tonika.TonikaEmitter
+    : EventTarget;
+
+class SoundonikaEngine extends _EmitterBase {
     /**
      * @param {AudioContext} audioContext
      * @param {{
      *   sampleBasePath?: string,
      *   volume?: number,
      *   mode?: 'samples'|'clicks',
-     *   sampleMappings?: Record<string,string>
+     *   sampleMappings?: Record<string,string>,
+     *   onStatus?: (state:string, messageOrProgress?: any) => void
      * }} [options]
      */
     constructor(audioContext, options = {}) {
+        super();
+
         this.audioContext = audioContext;
         this.sampleBasePath = options.sampleBasePath || 'samples';
         this.volume = options.volume ?? 0.8;
@@ -37,6 +46,15 @@ class SoundonikaEngine {
         this.soundTypeMap = new Map();
         /** @type {Record<string, any>} */
         this.sampleIndex = undefined;
+
+        // Legacy-friendly status callback shim (non-breaking)
+        if (typeof options.onStatus === 'function') {
+            this.addEventListener('status', (e) => {
+                const { state, message, progress } = e.detail || {};
+                // messageOrProgress for backward compatibility (either string or number)
+                options.onStatus(state, message ?? progress);
+            });
+        }
 
         this._initDefaultMappings();
     }
@@ -55,10 +73,32 @@ class SoundonikaEngine {
         this.soundTypeMap = new Map(Object.entries(this.sampleMappings));
     }
 
+    // ===== INTERNAL EMIT HELPERS =====
+    _emitStatus(detail) {
+        this.dispatchEvent(new CustomEvent('status', { detail }));
+    }
+    _emitLoading(message, progress) {
+        this._emitStatus({ state: 'loading', message, progress });
+    }
+    _emitReady(message) {
+        this._emitStatus({ state: 'ready', message });
+    }
+    _emitError(message) {
+        this._emitStatus({ state: 'error', message });
+    }
+
     // ===== INIT =====
     async init() {
-        await this.loadSampleIndex();
-        await this.preloadSamples();
+        try {
+            this._emitLoading('Fetching sample index…', 0);
+            await this.loadSampleIndex();
+            this._emitLoading('Preloading samples…', 0);
+            await this.preloadSamples();
+            this._emitReady('All samples loaded');
+        } catch (err) {
+            this._emitError(err?.message || String(err));
+            throw err;
+        }
     }
 
     async loadSampleIndex() {
@@ -99,6 +139,12 @@ class SoundonikaEngine {
             // eslint-disable-next-line no-await-in-loop
             await this.loadSampleByPath(samplePath);
             this.loadingProgress.loaded++;
+
+            // Emit numeric progress (0..1) and a short message for UIs
+            const prog = this.loadingProgress.total > 0
+                ? this.loadingProgress.loaded / this.loadingProgress.total
+                : 1;
+            this._emitLoading(`Loaded ${this.loadingProgress.loaded}/${this.loadingProgress.total}`, prog);
         }
     }
 
@@ -120,6 +166,7 @@ class SoundonikaEngine {
             const response = await fetch(fetchUrl);
             if (!response.ok) {
                 console.error(`Failed to fetch sample: ${response.status} @ ${fetchUrl}`);
+                this._emitError(`Fetch failed for ${samplePath} (${response.status})`);
                 return;
             }
 
@@ -128,10 +175,11 @@ class SoundonikaEngine {
             const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
 
             this.sampleBuffers.set(samplePath, audioBuffer);
-            // You can quiet this log if you like once you’re confident.
+            // Verbose log helpful during dev; safe to mute later
             console.log(`Successfully loaded: ${samplePath}`);
         } catch (error) {
             console.error(`Failed to load sample ${samplePath}:`, error);
+            this._emitError(`Decode/load failed: ${samplePath}`);
         }
     }
 
@@ -158,6 +206,7 @@ class SoundonikaEngine {
         const samplePath = this.soundTypeMap.get(soundType);
         if (!samplePath) {
             console.warn(`No sample mapping for: ${soundType}. Falling back to click.`);
+            this._emitStatus({ state: 'info', message: `Missing mapping: ${soundType}` });
             this.scheduleClickSound(when, soundType, velocity);
             return;
         }
@@ -165,6 +214,7 @@ class SoundonikaEngine {
         const audioBuffer = this.sampleBuffers.get(samplePath);
         if (!audioBuffer) {
             console.warn(`Sample not loaded: ${samplePath}. Falling back to click.`);
+            this._emitStatus({ state: 'info', message: `Sample not loaded: ${samplePath}` });
             this.scheduleClickSound(when, soundType, velocity);
             return;
         }
@@ -202,6 +252,7 @@ class SoundonikaEngine {
     // ===== HELPERS / GETTERS / SETTERS =====
     setVolume(vol) {
         this.volume = Math.max(0, Math.min(vol, 1));
+        this._emitStatus({ state: 'info', message: `volume:${this.volume}` });
     }
 
     getVolume() {
@@ -211,6 +262,7 @@ class SoundonikaEngine {
     setSoundMode(mode) {
         if (mode === 'samples' || mode === 'clicks') {
             this.soundMode = mode;
+            this._emitStatus({ state: 'info', message: `mode:${this.soundMode}` });
         }
     }
 
@@ -220,11 +272,12 @@ class SoundonikaEngine {
 
     /**
      * Replace the current sound type → samplePath mapping at runtime.
-     * @param {{kick: string, snare: string, hihat_closed: string, hihat_open: string, perc: string, shaker: string, accent: string, normal: string}|{kick: string, snare: string, hihat_closed: string, hihat_open: string, perc: string, shaker: string, accent: string, normal: string}} mappings
+     * @param {Record<string,string>} mappings
      */
     setSampleMappings(mappings) {
         this.sampleMappings = { ...mappings };
         this.soundTypeMap = new Map(Object.entries(this.sampleMappings));
+        this._emitStatus({ state: 'info', message: 'mappings:updated' });
     }
 
     /**
@@ -277,10 +330,14 @@ class SoundonikaEngine {
 
 // ===== GLOBAL EXPOSURE =====
 if (typeof window !== 'undefined') {
-    window.SoundonikaEngine = SoundonikaEngine;
+    window.Tonika = window.Tonika || {};
+    window.Tonika.SoundonikaEngine = SoundonikaEngine; // preferred namespace
+    window.SoundonikaEngine = SoundonikaEngine;        // back-compat alias
 }
 
 // ===== MODULE EXPORTS (Node/CommonJS) =====
+// noinspection JSUnresolvedVariable
 if (typeof module === 'object' && module && typeof module.exports === 'object') {
+    // noinspection JSUnresolvedVariable
     module.exports = { SoundonikaEngine };
 }
