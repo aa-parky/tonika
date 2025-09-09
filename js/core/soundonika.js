@@ -272,7 +272,7 @@ class SoundonikaEngine extends _EmitterBase {
 
     /**
      * Replace the current sound type → samplePath mapping at runtime.
-     * @param {Record<string,string>} mappings
+     * @param {{kick: string, snare: string, hihat_closed: string, hihat_open: string, perc: string, shaker: string, accent: string, normal: string}|{kick: string, snare: string, hihat_closed: string, hihat_open: string, perc: string, shaker: string, accent: string, normal: string}} mappings
      */
     setSampleMappings(mappings) {
         this.sampleMappings = { ...mappings };

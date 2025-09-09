@@ -12,14 +12,14 @@ body {
 header {
     background: #333;
     color: white;
-    padding: 0.25rem 0.5rem;  /* less padding top/bottom */
+    padding: 0.25rem 0.5rem; /* less padding top/bottom */
     text-align: center;
 }
 
 header h1 {
-    margin: 0;         /* remove default browser margin */
+    margin: 0; /* remove default browser margin */
     font-size: 1.25rem; /* smaller text if you want */
-    line-height: 1.5;  /* tighter vertical spacing */
+    line-height: 1.5; /* tighter vertical spacing */
 }
 
 /* This new rule creates the main centered content column */
@@ -32,8 +32,8 @@ header h1 {
 /* Tabs */
 /* Wrapper to constrain width + content height */
 .tab-wrapper {
-    width: 1140px;          /* fixed width */
-    margin: 0 auto;         /* center on page */
+    width: 1140px; /* fixed width */
+    margin: 0 auto; /* center on page */
 }
 
 .tabs {
@@ -57,7 +57,9 @@ header h1 {
     border-style: none;
 
     /* Smooth transition for background color */
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition:
+            background-color 0.15s ease,
+            color 0.15s ease;
 }
 
 /* Hover state: a slightly different background for non-active tabs */
@@ -70,20 +72,21 @@ header h1 {
 .tabs button.active {
     /* Use the main content background color to make it look "cut out" */
     background-color: var(--color-bg-primary);
-    color: var(--color-text-primary); /* Use the primary text color for emphasis */
+    color: var(
+            --color-text-primary
+    ); /* Use the primary text color for emphasis */
     font-weight: 700; /* Optional: make active tab text bolder */
 }
 
-
 /* Fixed content area size - Refactored with Tonika Core variables */
 .tab-content {
-    width: 1140px;          /* This remains a fixed value as per your design */
-    height: 400px;          /* This remains a fixed value as per your design */
+    width: 1140px; /* This remains a fixed value as per your design */
+    height: 400px; /* This remains a fixed value as per your design */
     box-sizing: border-box;
 
     /* Replaced hard-coded border with theme variables */
     border: var(--border-width) solid var(--color-border);
-    border-top: none;       /* joins with the tab bar line */
+    border-top: none; /* joins with the tab bar line */
 
     /* Replaced hard-coded padding with a standard spacing variable */
     padding: var(--spacing-lg); /* 16px, using calc(4px * 4) from core */
@@ -91,10 +94,9 @@ header h1 {
     /* Replaced hard-coded background with a theme variable */
     background: var(--color-bg-primary);
 
-    overflow: auto;         /* scroll if content exceeds 400px */
-    margin: 0 auto;         /* center if used outside .tab-wrapper */
+    overflow: auto; /* scroll if content exceeds 400px */
+    margin: 0 auto; /* center if used outside .tab-wrapper */
 }
-
 
 .tab-content section {
     display: none;
@@ -106,8 +108,8 @@ header h1 {
 
 /* Piano keyboard container */
 .roll88 {
-    margin-top: 2rem;       /* Add breathing room from tab content above */
-    margin-bottom: 1rem;    /* Optional: space before footer */
+    margin-top: 2rem; /* Add breathing room from tab content above */
+    margin-bottom: 1rem; /* Optional: space before footer */
 }
 
 footer {
@@ -116,8 +118,8 @@ footer {
     color: white;
     text-align: center;
     padding: 0.25rem 0.5rem; /* smaller padding top/bottom */
-    font-size: 0.9rem;       /* slightly smaller text if desired */
-    line-height: 1.4;        /* compact vertical spacing */
+    font-size: 0.9rem; /* slightly smaller text if desired */
+    line-height: 1.4; /* compact vertical spacing */
 }
 
 footer p {
@@ -143,5 +145,73 @@ footer p {
 }
 
 /* Inline groups */
-.tonika-button-group { display: flex; gap: 8px; flex-wrap: wrap; }
-.tonika-input-group  { display: flex; flex-direction: column; gap: 8px; }
+.tonika-button-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.tonika-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ===================================================================
+   Tonika Layout — Utilities (added for Soundonika demo refactor)
+   =================================================================== */
+
+/* Vertical stacks with consistent gaps */
+.tonika-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+.tonika-stack-xs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+.tonika-stack-sm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+.tonika-stack-lg {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* Horizontal row with center alignment and gaps */
+.tonika-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+/* Margin utility helpers */
+.tonika-m-0 {
+    margin: 0 !important;
+}
+.tonika-mb-sm {
+    margin-bottom: var(--spacing-sm) !important;
+}
+.tonika-mt-lg {
+    margin-top: var(--spacing-lg) !important;
+}
+
+/* Constrained max-width utility (for compact inputs/selects) */
+.tonika-max-220 {
+    max-width: 220px;
+}
+
+/* Four-column fixed grid */
+.tonika-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-sm);
+}
+
+/* Width utility (narrow numeric inputs etc.) */
+.tonika-w-80 { width: 80px; }

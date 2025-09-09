@@ -1,53 +1,21 @@
 /*
  * ===================================================================
- * DEMO MODULE STYLES (Enhanced with Connect Buttons and Message Display)
- *
- * This file demonstrates proper CSS separation in the Tonika ecosystem:
- *
- * ✅ WHAT THIS FILE CONTAINS:
- * - Layout and structural styles unique to the Demo module
- * - Module-specific visual elements (status indicators, device lists, message display)
- * - BEM naming convention examples
- * - Proper use of global CSS variables
- * - Enhanced layout for connect buttons and MIDI message display
- *
- * ❌ WHAT THIS FILE DOES NOT CONTAIN:
- * - Color definitions (handled by tonika-core.css)
- * - Common component styles (handled by tonika-components.css)
- * - Button/input styling (use .tonika-btn, .tonika-input classes)
- * - Typography base styles (inherited from global system)
- *
- * HTML Structure Assumption:
- * <div class="tonika-module demo demo--card">
- *   <div class="demo__header">...</div>
- *   <div class="demo__content">
- *     <div class="demo__device-item">
- *       <div class="demo__device-info">...</div>
- *       <div class="demo__last-message">...</div>
- *       <div class="demo__device-controls">...</div>
- *       <div class="demo__device-status">...</div>
- *     </div>
- *   </div>
- * </div>
+ * DEMO MODULE STYLES — Slimmed
+ * Keeps only module-specific layout & device list visuals.
+ * Relies on Tonika core/components for colors, tokens, typography,
+ * buttons/inputs, badges, alerts, dots, etc.
  * ===================================================================
  */
 
-/* ===================================================================
-   CARD LAYOUT MODIFIER
-   ================================================================== */
-
+/* Card layout modifier */
 .demo--card {
-    /* Fixed height with internal scrolling for consistent layout */
     height: 400px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
-/* ===================================================================
-   HEADER SECTION
-   ================================================================== */
-
+/* Header */
 .demo__header {
     display: flex;
     align-items: flex-start;
@@ -55,71 +23,20 @@
     gap: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
     border-bottom: var(--border-width) solid var(--color-border);
-    flex-shrink: 0; /* Prevent header from shrinking */
-}
-
-.demo__title-section {
-    flex: 1;
-    min-width: 0; /* Allow text truncation */
-}
-
-.demo__title {
-    margin: 0 0 var(--spacing-xs) 0;
-    font-size: 1.1em;
-    font-weight: 600;
-    color: var(--color-text-primary);
-}
-
-.demo__subtitle {
-    font-size: var(--font-size-sm);
-    line-height: 1.3;
-}
-
-.demo__actions {
     flex-shrink: 0;
 }
+.demo__title-section { flex: 1; min-width: 0; }
+.demo__title { margin: 0 0 var(--spacing-xs) 0; font-size: 1.1em; font-weight: 600; }
+.demo__subtitle { font-size: var(--font-size-sm); line-height: 1.3; }
+.demo__actions { flex-shrink: 0; }
 
-/* ===================================================================
-   STATUS BAR
-   ================================================================== */
+/* Status bar (uses .tonika-alert inside) */
+.demo__status-bar { padding: var(--spacing-sm) 0; flex-shrink: 0; }
 
-.demo__status-bar {
-    padding: var(--spacing-sm) 0;
-    flex-shrink: 0;
-}
-
-.demo__status {
-    font-size: var(--font-size-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius-sm);
-    background-color: var(--color-bg-secondary);
-    border: var(--border-width) solid var(--color-border);
-}
-
-/* Status type modifiers */
-.demo__status--success {
-    background-color: color-mix(in srgb, var(--color-accent) 10%, var(--color-bg-secondary));
-    border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
-    color: var(--color-accent);
-}
-
-.demo__status--error {
-    background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg-secondary));
-    border-color: color-mix(in srgb, var(--color-danger) 30%, var(--color-border));
-    color: var(--color-danger);
-}
-
-.demo__status--info {
-    /* Uses default styling */
-}
-
-/* ===================================================================
-   MAIN CONTENT AREA
-   ================================================================== */
-
+/* Content area */
 .demo__content {
     flex: 1;
-    min-height: 0; /* Critical for flexbox scrolling */
+    min-height: 0;
     overflow-y: auto;
     padding: var(--spacing-sm) 10px;
     display: flex;
@@ -127,62 +44,14 @@
     gap: var(--spacing-lg);
 }
 
-/* Custom scrollbar for content area */
-.demo__content::-webkit-scrollbar {
-    width: 8px;
-}
+/* Device sections */
+.demo__section { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.demo__section-header { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); }
+.demo__section-title { margin: 0; font-size: 1em; font-weight: 600; }
 
-.demo__content::-webkit-scrollbar-track {
-    background: var(--color-bg-primary);
-    border-radius: var(--border-radius-sm);
-}
-
-.demo__content::-webkit-scrollbar-thumb {
-    background: var(--color-bg-secondary);
-    border-radius: var(--border-radius-sm);
-}
-
-.demo__content::-webkit-scrollbar-thumb:hover {
-    background: var(--color-border);
-}
-
-/* ===================================================================
-   DEVICE SECTIONS
-   ================================================================== */
-
-.demo__section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-sm);
-}
-
-.demo__section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-md);
-}
-
-.demo__section-title {
-    margin: 0;
-    font-size: 1em;
-    font-weight: 600;
-    color: var(--color-text-primary);
-}
-
-/* ===================================================================
-   DEVICE LIST (Enhanced Layout)
-   ================================================================== */
-
-.demo__device-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-    min-height: 60px; /* Ensure space for empty state */
-}
-
+/* Device list */
+.demo__device-list { display: flex; flex-direction: column; gap: var(--spacing-xs); min-height: 60px; }
 .demo__device-item {
-    /* Enhanced grid layout: [device-info] [message] [controls] [status] */
     display: grid;
     grid-template-columns: 1fr 2fr auto auto;
     align-items: center;
@@ -193,190 +62,68 @@
     border-radius: var(--border-radius-md);
     transition: background-color 0.15s ease;
 }
+.demo__device-item:hover { background-color: var(--color-bg-secondary); }
 
-.demo__device-item:hover {
-    background-color: var(--color-bg-secondary);
-}
+/* Device columns */
+.demo__device-info { min-width: 0; }
+.demo__device-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.demo__device-meta { font-size: var(--font-size-sm); margin-top: var(--spacing-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Device Info Column */
-.demo__device-info {
-    min-width: 0; /* Allow text truncation */
-}
-
-.demo__device-name {
-    font-weight: 500;
-    color: var(--color-text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.demo__device-meta {
-    font-size: var(--font-size-sm);
-    margin-top: var(--spacing-xs);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* MIDI Message Display Column */
 .demo__last-message {
     font-size: var(--font-size-sm);
-    font-family: var(--font-family-mono), serif;
+    font-family: var(--font-family-mono), monospace;
     padding: var(--spacing-xs) var(--spacing-sm);
     background-color: color-mix(in srgb, var(--color-bg-primary) 80%, var(--color-bg-secondary));
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--border-radius-sm);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-    max-width: 250px; /* Prevent message from taking too much space */
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    min-width: 0; max-width: 250px;
 }
 
-/* Controls Column */
-.demo__device-controls {
-    flex-shrink: 0;
-}
+.demo__device-controls { flex-shrink: 0; }
+.demo__device-controls .tonika-btn { font-size: var(--font-size-sm); padding: var(--spacing-xs) var(--spacing-sm); min-width: 80px; }
 
-.demo__device-controls .tonika-btn {
-    font-size: var(--font-size-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    min-width: 80px; /* Consistent button width */
-}
+.demo__device-status { display: flex; align-items: center; gap: var(--spacing-sm); flex-shrink: 0; }
+.demo__connection-status { font-size: var(--font-size-xs); font-weight: 500; min-width: 40px; }
 
-/* Status Column */
-.demo__device-status {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    flex-shrink: 0;
-}
-
-/* ===================================================================
-   STATUS INDICATORS
-   ================================================================== */
-
-/* moved to core: use .tonika-dot */
-.demo__status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.demo__connection-status {
-    font-size: var(--font-size-xs);
-    font-weight: 500;
-    min-width: 40px; /* Consistent width for "Open"/"Closed" */
-}
-
-/* ===================================================================
-   EMPTY STATES
-   ================================================================== */
-
+/* Empty state */
 .demo__empty-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--spacing-lg);
-    text-align: center;
-    font-style: italic;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--spacing-lg); text-align: center; font-style: italic;
     border: 2px dashed var(--color-border);
     border-radius: var(--border-radius-md);
     background-color: color-mix(in srgb, var(--color-bg-secondary) 30%, transparent);
 }
 
-/* ===================================================================
-   FOOTER SECTION
-   ================================================================== */
+/* Footer */
+.demo__footer { flex-shrink: 0; padding-top: var(--spacing-sm); border-top: var(--border-width) solid var(--color-border); }
+.demo__info { font-size: var(--font-size-sm); line-height: 1.4; text-align: center; }
 
-.demo__footer {
-    flex-shrink: 0;
-    padding-top: var(--spacing-sm);
-    border-top: var(--border-width) solid var(--color-border);
-}
-
-.demo__info {
-    font-size: var(--font-size-sm);
-    line-height: 1.4;
-    text-align: center;
-}
-
-/* ===================================================================
-   RESPONSIVE ADJUSTMENTS
-   ================================================================== */
-
+/* Responsive */
 @media (max-width: 768px) {
-    .demo__device-item {
-        /* Stack layout on smaller screens */
-        grid-template-columns: 1fr;
-        gap: var(--spacing-sm);
-    }
-
-    .demo__device-status {
-        justify-content: space-between;
-    }
-
-    .demo__device-controls {
-        justify-self: stretch;
-    }
-
-    .demo__device-controls .tonika-btn {
-        width: 100%;
-    }
-
-    .demo__last-message {
-        max-width: none; /* Allow full width on mobile */
-    }
+    .demo__device-item { grid-template-columns: 1fr; gap: var(--spacing-sm); }
+    .demo__device-status { justify-content: space-between; }
+    .demo__device-controls { justify-self: stretch; }
+    .demo__device-controls .tonika-btn { width: 100%; }
+    .demo__last-message { max-width: none; }
 }
-
 @media (max-width: 480px) {
-    .demo__header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--spacing-sm);
-    }
-
-    .demo__device-item {
-        padding: var(--spacing-sm);
-    }
+    .demo__header { flex-direction: column; align-items: stretch; gap: var(--spacing-sm); }
+    .demo__device-item { padding: var(--spacing-sm); }
 }
 
-/* ===================================================================
-   FLOATING MODE MODIFIER (if needed)
-   ================================================================== */
-
+/* Floating mode (optional) */
 .demo--floating {
-    /* Add any floating-specific styles here */
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 400px; /* Wider to accommodate new layout */
-    z-index: 1000;
+    position: fixed; top: 20px; right: 20px; width: 400px; z-index: 1000;
     box-shadow: 0 4px 12px color-mix(in srgb, var(--color-text-primary) 20%, transparent);
 }
 
-/* ===================================================================
-   SPECIAL STATES
-   ================================================================== */
-
-/* Highlight connected devices */
+/* Special states */
 .demo__device-item[data-connected="true"] {
     border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
 }
-
-/* Animate message updates */
-.demo__last-message {
-    transition: background-color 0.2s ease;
-}
-
+.demo__last-message { transition: background-color 0.2s ease; }
 .demo__last-message.updated {
     background-color: color-mix(in srgb, var(--color-accent) 20%, var(--color-bg-secondary));
 }
-
-/* Disabled button styling for outputs */
-.demo__device-controls .tonika-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+.demo__device-controls .tonika-btn:disabled { opacity: 0.5; cursor: not-allowed; }

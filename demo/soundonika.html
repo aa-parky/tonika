@@ -1,189 +1,249 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Soundonika Refactored Demo</title>
-
     <!-- Tonika design system -->
-    <link rel="stylesheet" href="../css/tonika-core.css"/>
-    <link rel="stylesheet" href="../css/tonika-components.css"/>
+    <link href="../css/tonika-core.css" rel="stylesheet" />
+    <link href="../css/tonika-components.css" rel="stylesheet" />
     <!-- If you have a tonika-layout.css, keep it; otherwise safe to remove -->
-    <link rel="stylesheet" href="../css/tonika-layout.css"/>
-
+    <link href="../css/tonika-layout.css" rel="stylesheet" />
     <!-- Note: We intentionally avoid inline styles to surface any missing components -->
 </head>
-<body class="tonika-theme-dark" style="padding: var(--spacing-lg); font-family: var(--font-family-sans),serif;">
-<header style="margin-bottom: var(--spacing-lg);">
-    <h1 style="margin: 0 0 var(--spacing-sm) 0;">🧃 Soundonika Refactored Demo</h1>
-    <p class="tonika-text-muted" style="margin: 0;">Demonstrating the new configurable architecture and flexible sample mappings</p>
-</header>
-
-<!-- Refactoring Overview -->
-<section class="tonika-module" aria-labelledby="refactor-title">
-    <h2 id="refactor-title" style="margin: 0;">🔧 Refactoring Overview</h2>
-
-    <div class="tonika-module" style="gap: var(--spacing-xs);">
-        <strong>Key Changes:</strong>
-        <ul style="margin: 0; padding-left: 1.25rem;">
-            <li><strong>Hard-coded Sample Mappings:</strong> removed from source; now configured via constructor options.</li>
-            <li><strong>Global namespace:</strong> legacy shim removed; proper module/one global export.</li>
-        </ul>
-    </div>
-
-    <div class="tonika-module" style="gap: var(--spacing-xs);">
-        <strong>New Benefits:</strong>
-        <ul style="margin: 0; padding-left: 1.25rem;">
-            <li>CDN-friendly while working with local Tonika directory structures</li>
-            <li>Runtime kit switching and custom sample mappings</li>
-            <li>Modern ES6 module support with backward compatibility</li>
-            <li>Flexible configuration system for different deployment scenarios</li>
-        </ul>
-    </div>
-</section>
-
-<!-- Initialization -->
-<section class="tonika-module" aria-labelledby="init-title">
-    <h2 id="init-title" style="margin: 0;">🚀 Initialization</h2>
-
-    <p class="tonika-text-muted" style="margin: 0;">
-        Creates <code>AudioContext</code> and <code>SoundonikaEngine</code>; calls <code>engine.init()</code> to load the index and preload samples.
-        Progress polls <code>engine.getLoadingProgress()</code> every 100 ms.
+<body class="tonika-theme-dark tonika-theme-dark">
+<div class="tonika-container tonika-stack-lg">
+    <header class="tonika-stack-sm">
+        <h1 class="tonika-m-0">🧃 Soundonika Refactored Demo</h1>
+        <p class="tonika-text-muted tonika-m-0 tonika-text-muted">
+            Demonstrating the new configurable architecture and flexible sample
+            mappings
+        </p>
+    </header>
+    <!-- Refactoring Overview -->
+    <section aria-labelledby="refactor-title" class="tonika-module">
+        <h2 class="tonika-m-0" id="refactor-title">🔧 Refactoring Overview</h2>
+        <div class="tonika-module tonika-stack-xs">
+            <strong>Key Changes:</strong>
+            <ul>
+                <li>
+                    <strong>Hard-coded Sample Mappings:</strong> removed from source;
+                    now configured via constructor options.
+                </li>
+                <li>
+                    <strong>Global namespace:</strong> legacy shim removed; proper
+                    module/one global export.
+                </li>
+            </ul>
+        </div>
+        <div class="tonika-module tonika-stack-xs">
+            <strong>New Benefits:</strong>
+            <ul>
+                <li>
+                    CDN-friendly while working with local Tonika directory structures
+                </li>
+                <li>Runtime kit switching and custom sample mappings</li>
+                <li>Modern ES6 module support with backward compatibility</li>
+                <li>
+                    Flexible configuration system for different deployment scenarios
+                </li>
+            </ul>
+        </div>
+    </section>
+    <!-- Initialization -->
+    <section aria-labelledby="init-title" class="tonika-module">
+        <h2 class="tonika-m-0" id="init-title">🚀 Initialization</h2>
+        <p class="tonika-text-muted" style="margin: 0">
+            Creates <code>AudioContext</code> and <code>SoundonikaEngine</code>;
+            calls <code>engine.init()</code> to load the index and preload
+            samples. Progress polls <code>engine.getLoadingProgress()</code> every
+            100 ms.
+        </p>
+        <div>
+            <button class="tonika-btn tonika-btn--primary" id="initBtn">
+                Initialize Engine
+            </button>
+        </div>
+        <div
+                class="tonika-module tonika-stack-xs"
+                id="initStatus"
+                role="status"
+        >
+            Not initialized
+        </div>
+        <!-- Placeholder for a future Tonika component: progress -->
+        <div
+                aria-valuemax="100"
+                aria-valuemin="0"
+                aria-valuenow="0"
+                class="tonika-module tonika-progress tonika-stack-xs"
+                role="progressbar"
+        >
+            <div class="tonika-progress__bar" id="progressBar"></div>
+            <!-- NOTE: tonika-progress is not yet in the lib; this surfaces a missing component -->
+        </div>
+    </section>
+    <!-- Basic Controls -->
+    <section aria-labelledby="basic-title" class="tonika-module">
+        <h2 class="tonika-m-0" id="basic-title">🎛️ Basic Controls</h2>
+        <p class="tonika-text-muted" style="margin: 0">
+            Volume uses <code>engine.setVolume()</code>. Mode uses
+            <code>engine.setSoundMode()</code> to toggle samples/clicks.
+        </p>
+        <div style="display: flex; align-items: center; gap: var(--spacing-sm)">
+            <label for="volumeSlider">Volume:</label>
+            <input
+                    class="tonika-input tonika-max-220"
+                    id="volumeSlider"
+                    max="1"
+                    min="0"
+                    step="0.1"
+                    type="range"
+                    value="0.8"
+            />
+            <span id="volumeDisplay">0.8</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--spacing-sm)">
+            <label for="modeSelect">Mode:</label>
+            <select class="tonika-select tonika-max-220" id="modeSelect">
+                <option value="samples">Samples</option>
+                <option value="clicks">Clicks</option>
+            </select>
+        </div>
+    </section>
+    <!-- Immediate Playback -->
+    <section aria-labelledby="immediate-title" class="tonika-module">
+        <h2 class="tonika-m-0" id="immediate-title">🎵 Immediate Playback</h2>
+        <p class="tonika-text-muted" style="margin: 0">
+            Each button calls
+            <code>engine.scheduleSound(ctx.currentTime, type, 1.0)</code>.
+        </p>
+        <div class="tonika-row tonika-button-group">
+            <button class="tonika-btn" onclick="testSound('kick')">Kick</button>
+            <button class="tonika-btn" onclick="testSound('snare')">Snare</button>
+            <button class="tonika-btn" onclick="testSound('hihat_closed')">
+                Hi-Hat Closed
+            </button>
+            <button class="tonika-btn" onclick="testSound('hihat_open')">
+                Hi-Hat Open
+            </button>
+            <button class="tonika-btn" onclick="testSound('perc')">Perc</button>
+            <button class="tonika-btn" onclick="testSound('shaker')">
+                Shaker
+            </button>
+        </div>
+    </section>
+    <!-- Runtime Kit Switching -->
+    <section aria-labelledby="kit-title" class="tonika-module">
+        <h2 class="tonika-m-0" id="kit-title">🥁 Runtime Kit Switching</h2>
+        <p class="tonika-text-muted" style="margin: 0">
+            Use <code>setSampleMappings()</code> at runtime; no re-init required.
+        </p>
+        <div class="tonika-module tonika-stack-xs" id="kitInfo">
+            Kit: Not initialized
+        </div>
+        <div class="tonika-row tonika-button-group">
+            <button class="tonika-btn" onclick="switchToVinylKit()">
+                Switch to Vinyl Kit 01
+            </button>
+            <button class="tonika-btn" onclick="switchToVinylKit2()">
+                Switch to Vinyl Kit 02
+            </button>
+            <button class="tonika-btn" onclick="switchToDefaultKit()">
+                Switch to Default Kit
+            </button>
+            <button class="tonika-btn" onclick="testKitSequence()">
+                Test Kit Sequence
+            </button>
+            <button class="tonika-btn" id="showConfigBtn">
+                Toggle Configuration Display
+            </button>
+        </div>
+        <div class="tonika-module tonika-stack-xs" id="kitStatus">
+            Default kit active
+        </div>
+        <pre class="tonika-module" id="configDisplay">
+Engine not initialized</pre
+        >
+    </section>
+    <!-- Scheduled Playback -->
+    <section aria-labelledby="sched-title" class="tonika-module">
+        <h2 class="tonika-m-0" id="sched-title">⏰ Scheduled Playback</h2>
+        <p class="tonika-text-muted" style="margin: 0">
+            Uses Web Audio’s precise timestamps with future scheduling.
+        </p>
+        <div class="tonika-row tonika-button-group">
+            <button class="tonika-btn" onclick="testScheduledSequence()">
+                Play Scheduled Sequence
+            </button>
+            <button class="tonika-btn" onclick="testVelocityDemo()">
+                Velocity Demo
+            </button>
+            <button class="tonika-btn" onclick="testPrecisionTiming()">
+                Precision Timing Test
+            </button>
+        </div>
+        <div class="tonika-module tonika-stack-xs" id="scheduleStatus">
+            Ready for scheduling tests
+        </div>
+    </section>
+    <!-- Rhythm Demo -->
+    <section aria-labelledby="rhythm-title" class="tonika-module">
+        <h2 class="tonika-m-0" id="rhythm-title">🥁 Rhythm Demo</h2>
+        <p class="tonika-text-muted" style="margin: 0">
+            Simple four-beat metronome using engine scheduling with accent/normal
+            mappings.
+        </p>
+        <div class="tonika-row tonika-row tonika-mb-sm">
+            <button class="tonika-btn" onclick="startMetronome()">
+                Start Metronome
+            </button>
+            <button
+                    class="tonika-btn tonika-btn--danger"
+                    onclick="stopMetronome()"
+            >
+                Stop Metronome
+            </button>
+            <label for="bpmSlider">BPM:</label>
+            <input
+                    class="tonika-input tonika-max-220"
+                    id="bpmSlider"
+                    max="180"
+                    min="60"
+                    type="range"
+                    value="120"
+            />
+            <span id="bpmDisplay">120</span>
+        </div>
+        <div class="tonika-module tonika-stack-xs tonika-grid-4">
+            <div class="tonika-beat" id="beat1">1</div>
+            <div class="tonika-beat" id="beat2">2</div>
+            <div class="tonika-beat" id="beat3">3</div>
+            <div class="tonika-beat" id="beat4">4</div>
+        </div>
+    </section>
+    <!-- Performance Stats -->
+    <section aria-labelledby="stats-title" class="tonika-module">
+        <h2 class="tonika-m-0" id="stats-title">📊 Performance Stats</h2>
+        <p class="tonika-text-muted" style="margin: 0">
+            Gathered from engine methods and the AudioContext; updates every
+            second.
+        </p>
+        <div class="tonika-module tonika-stack-xs" id="statsDisplay">
+            Loaded Samples: 0<br />
+            Audio Context State: suspended<br />
+            Current Time: 0.000s
+        </div>
+        <button class="tonika-btn" onclick="updateStats()">
+            Refresh Stats
+        </button>
+    </section>
+    <p class="tonika-text-muted" style="margin-top: var(--spacing-lg)">
+        Tip: Press <kbd>t</kbd> for an auto-test sequence (play → switch kit →
+        play)
     </p>
-
-    <div>
-        <button id="initBtn" class="tonika-btn tonika-btn--primary">Initialize Engine</button>
-    </div>
-
-    <div id="initStatus" class="tonika-module" role="status">Not initialized</div>
-
-    <!-- Placeholder for a future Tonika component: progress -->
-    <div class="tonika-module tonika-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div id="progressBar" class="tonika-progress__bar"></div>
-        <!-- NOTE: tonika-progress is not yet in the lib; this surfaces a missing component -->
-    </div>
-</section>
-
-<!-- Basic Controls -->
-<section class="tonika-module" aria-labelledby="basic-title">
-    <h2 id="basic-title" style="margin: 0;">🎛️ Basic Controls</h2>
-    <p class="tonika-text-muted" style="margin: 0;">
-        Volume uses <code>engine.setVolume()</code>. Mode uses <code>engine.setSoundMode()</code> to toggle samples/clicks.
-    </p>
-
-    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
-        <label for="volumeSlider">Volume:</label>
-        <input id="volumeSlider" type="range" min="0" max="1" step="0.1" value="0.8" class="tonika-input" style="max-width: 220px;"/>
-        <span id="volumeDisplay">0.8</span>
-    </div>
-
-    <div style="display: flex; align-items: center; gap: var(--spacing-sm);">
-        <label for="modeSelect">Mode:</label>
-        <select id="modeSelect" class="tonika-select" style="max-width: 220px;">
-            <option value="samples">Samples</option>
-            <option value="clicks">Clicks</option>
-        </select>
-    </div>
-</section>
-
-<!-- Immediate Playback -->
-<section class="tonika-module" aria-labelledby="immediate-title">
-    <h2 id="immediate-title" style="margin: 0;">🎵 Immediate Playback</h2>
-    <p class="tonika-text-muted" style="margin: 0;">
-        Each button calls <code>engine.scheduleSound(ctx.currentTime, type, 1.0)</code>.
-    </p>
-
-    <div style="display:flex; flex-wrap: wrap; gap: var(--spacing-sm);">
-        <button class="tonika-btn" onclick="testSound('kick')">Kick</button>
-        <button class="tonika-btn" onclick="testSound('snare')">Snare</button>
-        <button class="tonika-btn" onclick="testSound('hihat_closed')">Hi-Hat Closed</button>
-        <button class="tonika-btn" onclick="testSound('hihat_open')">Hi-Hat Open</button>
-        <button class="tonika-btn" onclick="testSound('perc')">Perc</button>
-        <button class="tonika-btn" onclick="testSound('shaker')">Shaker</button>
-    </div>
-</section>
-
-<!-- Runtime Kit Switching -->
-<section class="tonika-module" aria-labelledby="kit-title">
-    <h2 id="kit-title" style="margin: 0;">🥁 Runtime Kit Switching</h2>
-
-    <p class="tonika-text-muted" style="margin: 0;">
-        Use <code>setSampleMappings()</code> at runtime; no re-init required.
-    </p>
-
-    <div id="kitInfo" class="tonika-module">Kit: Not initialized</div>
-
-    <div style="display:flex; flex-wrap: wrap; gap: var(--spacing-sm);">
-        <button class="tonika-btn" onclick="switchToVinylKit()">Switch to Vinyl Kit 01</button>
-        <button class="tonika-btn" onclick="switchToVinylKit2()">Switch to Vinyl Kit 02</button>
-        <button class="tonika-btn" onclick="switchToDefaultKit()">Switch to Default Kit</button>
-        <button class="tonika-btn" onclick="testKitSequence()">Test Kit Sequence</button>
-        <button class="tonika-btn" id="showConfigBtn">Toggle Configuration Display</button>
-    </div>
-
-    <div id="kitStatus" class="tonika-module">Default kit active</div>
-    <pre id="configDisplay" class="tonika-module">Engine not initialized</pre>
-</section>
-
-<!-- Scheduled Playback -->
-<section class="tonika-module" aria-labelledby="sched-title">
-    <h2 id="sched-title" style="margin: 0;">⏰ Scheduled Playback</h2>
-    <p class="tonika-text-muted" style="margin: 0;">
-        Uses Web Audio’s precise timestamps with future scheduling.
-    </p>
-
-    <div style="display:flex; flex-wrap: wrap; gap: var(--spacing-sm);">
-        <button class="tonika-btn" onclick="testScheduledSequence()">Play Scheduled Sequence</button>
-        <button class="tonika-btn" onclick="testVelocityDemo()">Velocity Demo</button>
-        <button class="tonika-btn" onclick="testPrecisionTiming()">Precision Timing Test</button>
-    </div>
-
-    <div id="scheduleStatus" class="tonika-module">Ready for scheduling tests</div>
-</section>
-
-<!-- Rhythm Demo -->
-<section class="tonika-module" aria-labelledby="rhythm-title">
-    <h2 id="rhythm-title" style="margin: 0;">🥁 Rhythm Demo</h2>
-    <p class="tonika-text-muted" style="margin: 0;">
-        Simple four-beat metronome using engine scheduling with accent/normal mappings.
-    </p>
-
-    <div style="display:flex; align-items:center; gap: var(--spacing-sm); margin-bottom: var(--spacing-sm);">
-        <button class="tonika-btn" onclick="startMetronome()">Start Metronome</button>
-        <button class="tonika-btn tonika-btn--danger" onclick="stopMetronome()">Stop Metronome</button>
-        <label for="bpmSlider">BPM:</label>
-        <input id="bpmSlider" type="range" min="60" max="180" value="120" class="tonika-input" style="max-width:220px;"/>
-        <span id="bpmDisplay">120</span>
-    </div>
-
-    <div class="tonika-module" style="display:grid; grid-template-columns:repeat(4,1fr); gap: var(--spacing-sm);">
-        <div id="beat1" class="tonika-beat">1</div>
-        <div id="beat2" class="tonika-beat">2</div>
-        <div id="beat3" class="tonika-beat">3</div>
-        <div id="beat4" class="tonika-beat">4</div>
-    </div>
-</section>
-
-<!-- Performance Stats -->
-<section class="tonika-module" aria-labelledby="stats-title">
-    <h2 id="stats-title" style="margin: 0;">📊 Performance Stats</h2>
-    <p class="tonika-text-muted" style="margin: 0;">
-        Gathered from engine methods and the AudioContext; updates every second.
-    </p>
-
-    <div id="statsDisplay" class="tonika-module">
-        Loaded Samples: 0<br/>
-        Audio Context State: suspended<br/>
-        Current Time: 0.000s
-    </div>
-
-    <button class="tonika-btn" onclick="updateStats()">Refresh Stats</button>
-</section>
-
-<p class="tonika-text-muted" style="margin-top: var(--spacing-lg);">
-    Tip: Press <kbd>t</kbd> for an auto-test sequence (play → switch kit → play)
-</p>
-
+</div>
 <script src="../js/core/soundonika.js"></script>
 <script>
     // ===== Existing demo logic (unchanged) =====
@@ -192,87 +252,87 @@
     let metronomeInterval = null;
     let currentBeat = 0;
     let isMetronomeRunning = false;
-    let currentKit = 'default';
+    let currentKit = "default";
     let configDisplayVisible = true;
 
     const defaultKitConfig = {
-        'kick': 'percussion/DopeDrumsVol5/DD5_Kick_01.wav',
-        'snare': 'percussion/DopeDrumsVol5/DD5_Snare_01.wav',
-        'hihat_closed': 'percussion/DopeDrumsVol5/DD5_CH_01.wav',
-        'hihat_open': 'percussion/DopeDrumsVol5/DD5_OH_01.wav',
-        'perc': 'percussion/DopeDrumsVol5/DD5_Perc_01.wav',
-        'shaker': 'percussion/DopeDrumsVol5/DD5_Shk_01.wav',
-        'accent': 'percussion/DopeDrumsVol5/DD5_Kick_01.wav',
-        'normal': 'percussion/DopeDrumsVol5/DD5_CH_01.wav'
+        kick: "percussion/DopeDrumsVol5/DD5_Kick_01.wav",
+        snare: "percussion/DopeDrumsVol5/DD5_Snare_01.wav",
+        hihat_closed: "percussion/DopeDrumsVol5/DD5_CH_01.wav",
+        hihat_open: "percussion/DopeDrumsVol5/DD5_OH_01.wav",
+        perc: "percussion/DopeDrumsVol5/DD5_Perc_01.wav",
+        shaker: "percussion/DopeDrumsVol5/DD5_Shk_01.wav",
+        accent: "percussion/DopeDrumsVol5/DD5_Kick_01.wav",
+        normal: "percussion/DopeDrumsVol5/DD5_CH_01.wav",
     };
 
     const vinylKit1Config = {
-        'kick': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_kick.wav',
-        'snare': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_snare.wav',
-        'hihat_closed': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat1.wav',
-        'hihat_open': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat2.wav',
-        'perc': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_snare.wav',
-        'shaker': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat1.wav',
-        'accent': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_kick.wav',
-        'normal': 'percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat1.wav'
+        kick: "percussion/VinylDrumKitsVol1/VDK1_Kit01_kick.wav",
+        snare: "percussion/VinylDrumKitsVol1/VDK1_Kit01_snare.wav",
+        hihat_closed: "percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat1.wav",
+        hihat_open: "percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat2.wav",
+        perc: "percussion/VinylDrumKitsVol1/VDK1_Kit01_snare.wav",
+        shaker: "percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat1.wav",
+        accent: "percussion/VinylDrumKitsVol1/VDK1_Kit01_kick.wav",
+        normal: "percussion/VinylDrumKitsVol1/VDK1_Kit01_hihat1.wav",
     };
 
     const vinylKit2Config = {
-        'kick': 'percussion/VinylDrumKitsVol1/VDK1_Kit02_kick.wav',
-        'snare': 'percussion/VinylDrumKitsVol1/VDK1_Kit02_snare.wav',
-        'hihat_closed': 'percussion/VinylDrumKitsVol1/VDK1_Kit02_hihat1.wav',
-        'hihat_open': 'percussion/VinylDrumKitsVol1/VDK1_Kit02_hihat2.wav',
-        'perc': 'percussion/VinylDrumKitsVol1/VDK1_Kit02_snare.wav',
-        'shaker': 'percussion/VinylDrumKitsVol1/VDK1_Kit02_hihat1.wav',
-        'accent': 'percussion/VinylDrumKitsVol1/VDK1_Kit02_kick.wav',
-        'normal': 'percussion/VinylDrumKitsVol1/VDK1_Kit02_hihat1.wav'
+        kick: "percussion/VinylDrumKitsVol1/VDK1_Kit02_kick.wav",
+        snare: "percussion/VinylDrumKitsVol1/VDK1_Kit02_snare.wav",
+        hihat_closed: "percussion/VinylDrumKitsVol1/VDK1_Kit02_hihat1.wav",
+        hihat_open: "percussion/VinylDrumKitsVol1/VDK1_Kit02_hihat2.wav",
+        perc: "percussion/VinylDrumKitsVol1/VDK1_Kit02_snare.wav",
+        shaker: "percussion/VinylDrumKitsVol1/VDK1_Kit02_hihat1.wav",
+        accent: "percussion/VinylDrumKitsVol1/VDK1_Kit02_kick.wav",
+        normal: "percussion/VinylDrumKitsVol1/VDK1_Kit02_hihat1.wav",
     };
 
-    const initBtn = document.getElementById('initBtn');
-    const initStatus = document.getElementById('initStatus');
-    const progressBar = document.getElementById('progressBar');
-    const volumeSlider = document.getElementById('volumeSlider');
-    const volumeDisplay = document.getElementById('volumeDisplay');
-    const modeSelect = document.getElementById('modeSelect');
-    const scheduleStatus = document.getElementById('scheduleStatus');
-    const bpmSlider = document.getElementById('bpmSlider');
-    const bpmDisplay = document.getElementById('bpmDisplay');
-    const statsDisplay = document.getElementById('statsDisplay');
-    const configDisplay = document.getElementById('configDisplay');
-    const kitStatus = document.getElementById('kitStatus');
-    const kitInfo = document.getElementById('kitInfo');
-    const showConfigBtn = document.getElementById('showConfigBtn');
+    const initBtn = document.getElementById("initBtn");
+    const initStatus = document.getElementById("initStatus");
+    const progressBar = document.getElementById("progressBar");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const volumeDisplay = document.getElementById("volumeDisplay");
+    const modeSelect = document.getElementById("modeSelect");
+    const scheduleStatus = document.getElementById("scheduleStatus");
+    const bpmSlider = document.getElementById("bpmSlider");
+    const bpmDisplay = document.getElementById("bpmDisplay");
+    const statsDisplay = document.getElementById("statsDisplay");
+    const configDisplay = document.getElementById("configDisplay");
+    const kitStatus = document.getElementById("kitStatus");
+    const kitInfo = document.getElementById("kitInfo");
+    const showConfigBtn = document.getElementById("showConfigBtn");
 
     function updateKitDisplay() {
-        if (currentKit === 'default') {
-            kitInfo.textContent = 'Kit: Default (DopeDrumsVol5)';
-        } else if (currentKit === 'vinyl1') {
-            kitInfo.textContent = 'Kit: Vinyl Kit 01 (VinylDrumKitsVol1)';
-        } else if (currentKit === 'vinyl2') {
-            kitInfo.textContent = 'Kit: Vinyl Kit 02 (VinylDrumKitsVol1)';
+        if (currentKit === "default") {
+            kitInfo.textContent = "Kit: Default (DopeDrumsVol5)";
+        } else if (currentKit === "vinyl1") {
+            kitInfo.textContent = "Kit: Vinyl Kit 01 (VinylDrumKitsVol1)";
+        } else if (currentKit === "vinyl2") {
+            kitInfo.textContent = "Kit: Vinyl Kit 02 (VinylDrumKitsVol1)";
         }
         updateConfigDisplay();
     }
 
     function updateConfigDisplay() {
         if (!engine) {
-            configDisplay.textContent = 'Engine not initialized';
+            configDisplay.textContent = "Engine not initialized";
             return;
         }
         const mappings = engine.getSampleMappings();
         configDisplay.textContent = JSON.stringify(mappings, null, 2);
     }
 
-    initBtn.addEventListener('click', async () => {
+    initBtn.addEventListener("click", async () => {
         try {
             initBtn.disabled = true;
-            initStatus.textContent = 'Initializing...';
+            initStatus.textContent = "Initializing...";
 
             ctx = new AudioContext();
 
             const engineOptions = {
-                sampleBasePath: '../samples',
-                sampleMappings: defaultKitConfig
+                sampleBasePath: "../samples",
+                sampleMappings: defaultKitConfig,
             };
 
             engine = new SoundonikaEngine(ctx, engineOptions);
@@ -282,19 +342,22 @@
                 const { loaded, total } = engine.getLoadingProgress();
                 const pct = total ? (loaded / total) * 100 : 0;
                 progressBar.style.width = `${Math.floor(pct)}%`;
-                progressBar.parentElement.setAttribute('aria-valuenow', String(Math.floor(pct)));
+                progressBar.parentElement.setAttribute(
+                    "aria-valuenow",
+                    String(Math.floor(pct)),
+                );
                 if (total > 0 && loaded >= total) clearInterval(progressInterval);
             }, 100);
 
             await engine.init();
 
-            progressBar.style.width = '100%';
-            progressBar.parentElement.setAttribute('aria-valuenow', '100');
+            progressBar.style.width = "100%";
+            progressBar.parentElement.setAttribute("aria-valuenow", "100");
 
-            currentKit = 'default';
+            currentKit = "default";
             updateKitDisplay();
 
-            initStatus.textContent = 'Engine initialized successfully!';
+            initStatus.textContent = "Engine initialized successfully!";
 
             enableControls();
             updateStats();
@@ -304,17 +367,24 @@
         }
     });
 
-    showConfigBtn.addEventListener('click', () => {
+    showConfigBtn.addEventListener("click", () => {
         configDisplayVisible = !configDisplayVisible;
-        configDisplay.style.display = configDisplayVisible ? 'block' : 'none';
-        showConfigBtn.textContent = configDisplayVisible ? 'Hide Configuration Display' : 'Show Configuration Display';
+        configDisplay.style.display = configDisplayVisible ? "block" : "none";
+        showConfigBtn.textContent = configDisplayVisible
+            ? "Hide Configuration Display"
+            : "Show Configuration Display";
     });
 
     async function switchToVinylKit() {
-        if (!engine || !engine.isReady()) { alert('Engine not initialized.'); return; }
-        const targetKit = currentKit === 'vinyl1' ? 'vinyl2' : 'vinyl1';
-        const targetConfig = targetKit === 'vinyl1' ? vinylKit1Config : vinylKit2Config;
-        const kitName = targetKit === 'vinyl1' ? 'Vinyl Kit 01' : 'Vinyl Kit 02';
+        if (!engine || !engine.isReady()) {
+            alert("Engine not initialized.");
+            return;
+        }
+        const targetKit = currentKit === "vinyl1" ? "vinyl2" : "vinyl1";
+        const targetConfig =
+            targetKit === "vinyl1" ? vinylKit1Config : vinylKit2Config;
+        const kitName =
+            targetKit === "vinyl1" ? "Vinyl Kit 01" : "Vinyl Kit 02";
         kitStatus.textContent = `Loading ${kitName}...`;
         try {
             await engine.setSampleMappings(targetConfig);
@@ -325,43 +395,56 @@
             kitStatus.textContent = `Failed to load ${kitName}: ${error.message}`;
         }
     }
-    async function switchToVinylKit2() { await switchToVinylKit(); }
+    async function switchToVinylKit2() {
+        await switchToVinylKit();
+    }
     async function switchToDefaultKit() {
-        if (!engine || !engine.isReady()) { alert('Engine not initialized.'); return; }
-        kitStatus.textContent = 'Loading Default Kit...';
+        if (!engine || !engine.isReady()) {
+            alert("Engine not initialized.");
+            return;
+        }
+        kitStatus.textContent = "Loading Default Kit...";
         try {
             await engine.setSampleMappings(defaultKitConfig);
-            currentKit = 'default';
+            currentKit = "default";
             updateKitDisplay();
-            kitStatus.textContent = 'Default kit active';
+            kitStatus.textContent = "Default kit active";
         } catch (error) {
             kitStatus.textContent = `Failed to load Default Kit: ${error.message}`;
         }
     }
 
     async function testKitSequence() {
-        if (!engine || !engine.isReady()) { alert('Engine not initialized.'); return; }
-        kitStatus.textContent = 'Testing kit sequence...';
+        if (!engine || !engine.isReady()) {
+            alert("Engine not initialized.");
+            return;
+        }
+        kitStatus.textContent = "Testing kit sequence...";
         const startTime = ctx.currentTime + 0.1;
-        engine.scheduleSound(startTime, 'kick', 1.0);
-        engine.scheduleSound(startTime + 0.5, 'snare', 0.8);
+        engine.scheduleSound(startTime, "kick", 1.0);
+        engine.scheduleSound(startTime + 0.5, "snare", 0.8);
         setTimeout(async () => {
             await switchToVinylKit();
-            engine.scheduleSound(ctx.currentTime, 'kick', 1.0);
-            engine.scheduleSound(ctx.currentTime + 0.5, 'snare', 0.8);
-            kitStatus.textContent = 'Kit sequence complete';
+            engine.scheduleSound(ctx.currentTime, "kick", 1.0);
+            engine.scheduleSound(ctx.currentTime + 0.5, "snare", 0.8);
+            kitStatus.textContent = "Kit sequence complete";
         }, 1000);
     }
 
-    volumeSlider.addEventListener('input', () => {
+    volumeSlider.addEventListener("input", () => {
         const volume = parseFloat(volumeSlider.value);
         volumeDisplay.textContent = volume.toFixed(1);
         if (engine) engine.setVolume(volume);
     });
-    modeSelect.addEventListener('change', () => { if (engine) engine.setSoundMode(modeSelect.value); });
-    bpmSlider.addEventListener('input', () => {
+    modeSelect.addEventListener("change", () => {
+        if (engine) engine.setSoundMode(modeSelect.value);
+    });
+    bpmSlider.addEventListener("input", () => {
         bpmDisplay.textContent = bpmSlider.value;
-        if (isMetronomeRunning) { stopMetronome(); startMetronome(); }
+        if (isMetronomeRunning) {
+            stopMetronome();
+            startMetronome();
+        }
     });
 
     function enableControls() {
@@ -371,47 +454,78 @@
     }
 
     function testSound(soundType) {
-        if (!engine || !engine.isReady()) { alert('Initialize first.'); return; }
+        if (!engine || !engine.isReady()) {
+            alert("Initialize first.");
+            return;
+        }
         engine.scheduleSound(ctx.currentTime, soundType, 1.0);
     }
 
     function testScheduledSequence() {
-        if (!engine || !engine.isReady()) { alert('Initialize first.'); return; }
-        scheduleStatus.textContent = 'Playing scheduled sequence...';
-        const startTime = ctx.currentTime + 0.1, interval = 0.5;
-        engine.scheduleSound(startTime, 'kick', 1.0);
-        engine.scheduleSound(startTime + interval, 'snare', 0.8);
-        engine.scheduleSound(startTime + interval * 2, 'hihat_closed', 0.6);
-        engine.scheduleSound(startTime + interval * 3, 'snare', 0.8);
-        setTimeout(() => { scheduleStatus.textContent = 'Sequence complete'; }, interval * 4 * 1000);
+        if (!engine || !engine.isReady()) {
+            alert("Initialize first.");
+            return;
+        }
+        scheduleStatus.textContent = "Playing scheduled sequence...";
+        const startTime = ctx.currentTime + 0.1,
+            interval = 0.5;
+        engine.scheduleSound(startTime, "kick", 1.0);
+        engine.scheduleSound(startTime + interval, "snare", 0.8);
+        engine.scheduleSound(startTime + interval * 2, "hihat_closed", 0.6);
+        engine.scheduleSound(startTime + interval * 3, "snare", 0.8);
+        setTimeout(
+            () => {
+                scheduleStatus.textContent = "Sequence complete";
+            },
+            interval * 4 * 1000,
+        );
     }
 
     function testVelocityDemo() {
-        if (!engine || !engine.isReady()) { alert('Initialize first.'); return; }
-        scheduleStatus.textContent = 'Playing velocity demo...';
+        if (!engine || !engine.isReady()) {
+            alert("Initialize first.");
+            return;
+        }
+        scheduleStatus.textContent = "Playing velocity demo...";
         const startTime = ctx.currentTime + 0.1;
-        [0.2,0.4,0.6,0.8,1.0].forEach((v,i)=>engine.scheduleSound(startTime + i*0.3,'kick',v));
-        setTimeout(()=>{ scheduleStatus.textContent='Velocity demo complete'; }, 1500);
+        [0.2, 0.4, 0.6, 0.8, 1.0].forEach((v, i) =>
+            engine.scheduleSound(startTime + i * 0.3, "kick", v),
+        );
+        setTimeout(() => {
+            scheduleStatus.textContent = "Velocity demo complete";
+        }, 1500);
     }
 
     function testPrecisionTiming() {
-        if (!engine || !engine.isReady()) { alert('Initialize first.'); return; }
-        scheduleStatus.textContent = 'Testing precision timing...';
-        const startTime = ctx.currentTime + 0.1, interval = 0.1;
-        for (let i = 0; i < 10; i++) engine.scheduleSound(startTime + i*interval, 'hihat_closed', 0.7);
-        setTimeout(()=>{ scheduleStatus.textContent='Precision timing test complete'; }, 1000);
+        if (!engine || !engine.isReady()) {
+            alert("Initialize first.");
+            return;
+        }
+        scheduleStatus.textContent = "Testing precision timing...";
+        const startTime = ctx.currentTime + 0.1,
+            interval = 0.1;
+        for (let i = 0; i < 10; i++)
+            engine.scheduleSound(startTime + i * interval, "hihat_closed", 0.7);
+        setTimeout(() => {
+            scheduleStatus.textContent = "Precision timing test complete";
+        }, 1000);
     }
 
     function startMetronome() {
-        if (!engine || !engine.isReady()) { alert('Initialize first.'); return; }
+        if (!engine || !engine.isReady()) {
+            alert("Initialize first.");
+            return;
+        }
         if (metronomeInterval) stopMetronome();
-        const bpm = parseInt(bpmSlider.value,10);
+        const bpm = parseInt(bpmSlider.value, 10);
         const interval = 60 / bpm;
-        currentBeat = 0; isMetronomeRunning = true;
+        currentBeat = 0;
+        isMetronomeRunning = true;
         metronomeInterval = setInterval(() => {
             const now = ctx.currentTime;
-            if (currentBeat % 4 === 0) engine.scheduleSound(now + 0.01, 'accent', 1.0);
-            else engine.scheduleSound(now + 0.01, 'normal', 0.7);
+            if (currentBeat % 4 === 0)
+                engine.scheduleSound(now + 0.01, "accent", 1.0);
+            else engine.scheduleSound(now + 0.01, "normal", 0.7);
             updateBeatIndicator();
             currentBeat++;
         }, interval * 1000);
@@ -423,17 +537,23 @@
             metronomeInterval = null;
             isMetronomeRunning = false;
             for (let i = 1; i <= 4; i++) {
-                document.getElementById(`beat${i}`).classList.remove('tonika-beat--active');
+                document
+                    .getElementById(`beat${i}`)
+                    .classList.remove("tonika-beat--active");
             }
         }
     }
 
     function updateBeatIndicator() {
         for (let i = 1; i <= 4; i++) {
-            document.getElementById(`beat${i}`).classList.remove('tonika-beat--active');
+            document
+                .getElementById(`beat${i}`)
+                .classList.remove("tonika-beat--active");
         }
         const beatNumber = (currentBeat % 4) + 1;
-        document.getElementById(`beat${beatNumber}`).classList.add('tonika-beat--active');
+        document
+            .getElementById(`beat${beatNumber}`)
+            .classList.add("tonika-beat--active");
     }
 
     function updateStats() {
@@ -450,22 +570,25 @@
         Current Mode: ${engine.getSoundMode()}<br>
         Volume: ${engine.getVolume().toFixed(2)}<br>
         Active Kit: ${currentKitName}<br>
-        Metronome: ${isMetronomeRunning ? 'Running' : 'Stopped'}<br>
+        Metronome: ${isMetronomeRunning ? "Running" : "Stopped"}<br>
         BPM: ${bpmSlider.value}
       `;
     }
 
     function getCurrentKitName() {
-        if (!engine) return 'None';
-        const kickSample = engine.getSampleMappings().kick || '';
-        if (kickSample.includes('DopeDrumsVol5')) return 'Default (DopeDrumsVol5)';
-        if (kickSample.includes('VDK1_Kit01')) return 'Vinyl Kit 01';
-        if (kickSample.includes('VDK1_Kit02')) return 'Vinyl Kit 02';
-        return 'Custom';
+        if (!engine) return "None";
+        const kickSample = engine.getSampleMappings().kick || "";
+        if (kickSample.includes("DopeDrumsVol5"))
+            return "Default (DopeDrumsVol5)";
+        if (kickSample.includes("VDK1_Kit01")) return "Vinyl Kit 01";
+        if (kickSample.includes("VDK1_Kit02")) return "Vinyl Kit 02";
+        return "Custom";
     }
 
     setInterval(updateStats, 1000);
-    document.addEventListener('keydown',(e)=>{ if(e.key==='t' && engine && engine.isReady()) testKitSequence(); });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "t" && engine && engine.isReady()) testKitSequence();
+    });
 </script>
 </body>
 </html>

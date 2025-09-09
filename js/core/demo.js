@@ -1,6 +1,9 @@
 // Demo Module — MIDI Device Listing with Connect/Disconnect and Message Tracking
 // A simple example module demonstrating Tonika design system integration
-// v1.1.0 — Added connect buttons and MIDI message display
+// v1.2.0 — Aligned to Tonika core CSS (tonika-components).
+//          Replaced a demo status strip with .tonika-alert variants.
+//          Replaced custom status dot with .tonika-dot modifiers.
+//          Kept demo.css only for layout/grid/message bubble styling.
 
 (() => {
     class Demo {
@@ -35,7 +38,7 @@
             this._attachUIHandlers();
             void this._initMIDI();
         }
-// === MIDI Device Management =============================================
+        // === MIDI Device Management =============================================
 
         async _initMIDI() {
             if (!navigator.requestMIDIAccess) {
@@ -155,22 +158,24 @@
             const channel = (status & 0x0f) + 1;
 
             switch (type) {
-                case 0x90: // Note On
+                case 0x90: { // Note On
                     const noteOnVel = data[2] || 0;
                     if (noteOnVel > 0) {
                         return `Note On: ${this._midiNoteToName(data[1])} vel=${noteOnVel} ch=${channel}`;
                     } else {
                         return `Note Off: ${this._midiNoteToName(data[1])} ch=${channel}`;
                     }
+                }
                 case 0x80: // Note Off
                     return `Note Off: ${this._midiNoteToName(data[1])} ch=${channel}`;
                 case 0xb0: // Control Change
                     return `CC: ${data[1]}=${data[2]} ch=${channel}`;
-                case 0xe0: // Pitch Bend
+                case 0xe0: { // Pitch Bend
                     const lsb = data[1] || 0;
                     const msb = data[2] || 0;
                     const value = ((msb << 7) | lsb) - 8192;
                     return `Pitch Bend: ${value} ch=${channel}`;
+                }
                 case 0xc0: // Program Change
                     return `Program: ${data[1]} ch=${channel}`;
                 case 0xd0: // Channel Pressure
@@ -194,6 +199,8 @@
             if (messageEl) {
                 messageEl.textContent = message;
                 messageEl.title = message; // Full message on hover
+                messageEl.classList.add("updated");
+                window.setTimeout(() => messageEl.classList.remove("updated"), 180);
             }
         }
 
@@ -215,7 +222,7 @@
             }
 
             // Cache DOM elements
-            this._statusEl = this._mount.querySelector(".demo__status");
+            this._statusEl = this._mount.querySelector(".tonika-alert");
             this._inputCountEl = this._mount.querySelector(".demo__input-count");
             this._outputCountEl = this._mount.querySelector(".demo__output-count");
             this._inputListEl = this._mount.querySelector(".demo__input-list");
@@ -239,7 +246,7 @@
                 </div>
 
                 <div class="demo__status-bar">
-                    <div class="demo__status" aria-live="polite">Initializing MIDI...</div>
+                    <div class="tonika-alert tonika-alert--info" role="status" aria-live="polite">Initializing MIDI...</div>
                 </div>
 
                 <div class="demo__content">
@@ -320,7 +327,6 @@
         _renderDeviceItem(device, type) {
             // Show our monitoring status, not the device's connection status
             const isMonitoring = device.isListening || false;
-            const statusClass = isMonitoring ? "demo__status-indicator--open" : "demo__status-indicator--closed";
             const connectionText = isMonitoring ? "Monitoring" : "Not monitoring";
 
             // Get the last message for this device
@@ -335,6 +341,9 @@
             // Disable connect button for outputs
             const buttonDisabled = type === "output" ? "disabled" : "";
             const buttonTitle = type === "output" ? "Output devices cannot be monitored" : `${buttonText} to monitor MIDI messages`;
+
+            // Tonika core status dot
+            const dotClass = isMonitoring ? "tonika-dot tonika-dot--ok" : "tonika-dot tonika-dot--error";
 
             return `
                 <div class="demo__device-item" data-device-id="${device.id}">
@@ -358,7 +367,7 @@
                         </button>
                     </div>
                     <div class="demo__device-status">
-                        <div class="demo__status-indicator ${statusClass}" title="Status: ${connectionText}"></div>
+                        <div class="${dotClass}" title="Status: ${connectionText}"></div>
                         <div class="demo__connection-status tonika-text-muted">
                             ${connectionText}
                         </div>
@@ -409,8 +418,10 @@
         _updateStatus(message, type = "info") {
             if (!this._statusEl) return;
 
+            const valid = new Set(["info", "success", "error"]);
+            const t = valid.has(type) ? type : "info";
             this._statusEl.textContent = message;
-            this._statusEl.className = `demo__status demo__status--${type}`;
+            this._statusEl.className = `tonika-alert tonika-alert--${t}`;
         }
 
         _updateCounts() {
@@ -440,4 +451,3 @@
     // Export to global scope
     window.Demo = Demo;
 })();
-

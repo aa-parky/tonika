@@ -1,4 +1,5 @@
 <!doctype html>
+
 <!--
   ===================================================================
   TONIKA MODULE DEVELOPMENT TEMPLATE (UPDATED)
@@ -16,12 +17,10 @@
   - All core modules use TonikaEmitter (EventTarget-based).
   ===================================================================
 -->
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <title>Tonika Module Development Demo</title>
-
     <!-- ===================================================================
          TONIKA DESIGN SYSTEM (LOCAL)
 
@@ -31,46 +30,41 @@
          3) tonika-layout.css             → page layout helpers (for this workbench)
          4) Your module CSS        → optional module-specific styles
          =================================================================== -->
-    <link rel="stylesheet" href="../css/tonika-core.css"/>
-    <link rel="stylesheet" href="../css/tonika-components.css"/>
-    <link rel="stylesheet" href="../css/tonika-layout.css"/>
-
+    <link href="../css/tonika-core.css" rel="stylesheet" />
+    <link href="../css/tonika-components.css" rel="stylesheet" />
+    <link href="../css/tonika-layout.css" rel="stylesheet" />
     <!-- Optional: replace with your own module CSS or remove if not needed -->
     <!-- <link rel="stylesheet" href="../css/your-module.css"/> -->
-    <link rel="stylesheet" href="../css/clavonika.css"/>
-    <link rel="stylesheet" href="../css/demo.css"/>
-
+    <link href="../css/clavonika.css" rel="stylesheet" />
+    <link href="../css/demo.css" rel="stylesheet" />
     <!-- Core Tonika JS (LOCAL). Emitter must load first. -->
     <script src="../js/core/tonika-emitter.js"></script>
     <script src="../js/core/soundonika.js"></script>
     <script src="../js/core/jackonika.js"></script>
     <script src="../js/core/clavonika.js"></script>
-
 </head>
-
 <body class="tonika-theme-dark">
 <!-- ===================================================================
-     PAGE HEADER (dev-only)
-     =================================================================== -->
+ PAGE HEADER (dev-only)
+ =================================================================== -->
 <header>
     <h1>Tonika Module Development Demo</h1>
 </header>
-
 <main class="tonika-container">
     <!-- ===================================================================
-         DEVELOPMENT INFORMATION (updated)
-         =================================================================== -->
+       DEVELOPMENT INFORMATION (updated)
+       =================================================================== -->
     <div class="tonika-callout">
-        <strong>Development Note:</strong> This workbench loads the Tonika design
-        system and core modules <em>locally</em> from the repo. Your module CSS should
-        only contain styles unique to your module and should respect Tonika tokens/components.
-        All core modules (Clavonika, Jackonika, Soundonika) use the shared
-        EventTarget-based <code>TonikaEmitter</code> for events.
+        <strong>Development Note:</strong> This workbench loads the Tonika
+        design system and core modules <em>locally</em> from the repo. Your
+        module CSS should only contain styles unique to your module and should
+        respect Tonika tokens/components. All core modules (Clavonika,
+        Jackonika, Soundonika) use the shared EventTarget-based
+        <code>TonikaEmitter</code> for events.
     </div>
-
     <!-- ===================================================================
-         DEMO TABS NAVIGATION
-         =================================================================== -->
+       DEMO TABS NAVIGATION
+       =================================================================== -->
     <div class="tabs">
         <button class="active" onclick="openTab(0)">Your Module</button>
         <button onclick="openTab(1)">Light Theme Test</button>
@@ -78,7 +72,6 @@
         <button onclick="openTab(3)">Layout Test</button>
         <button onclick="openTab(4)">Documentation</button>
     </div>
-
     <div class="tab-content">
         <!-- ===================================================================
              TAB 1: YOUR MODULE PREVIEW
@@ -88,7 +81,6 @@
         <section class="active">
             <div id="demo-mount"></div>
         </section>
-
         <!-- ===================================================================
              TAB 2: LIGHT THEME TESTING
              - Toggle body class between tonika-theme-dark and tonika-theme-light
@@ -100,10 +92,11 @@
                     Toggle between <code>tonika-theme-dark</code> and
                     <code>tonika-theme-light</code> to verify contrast and tokens.
                 </p>
-                <button class="tonika-btn" onclick="toggleTheme()">Toggle Theme</button>
+                <button class="tonika-btn" onclick="toggleTheme()">
+                    Toggle Theme
+                </button>
             </div>
         </section>
-
         <!-- ===================================================================
              TAB 3: COMPONENT GALLERY
              - Reference for tokens/components you can reuse
@@ -119,15 +112,22 @@
                         <button class="tonika-btn tonika-btn--danger">Danger</button>
                     </div>
                 </div>
-
                 <div class="tonika-module">
                     <h4>Inputs</h4>
-                    <div class="demo--input-group">
+                    <div class="tonika-input-group">
                         <label>
-                            <input class="tonika-input" type="text" placeholder="Text input"/>
+                            <input
+                                    class="tonika-input"
+                                    placeholder="Text input"
+                                    type="text"
+                            />
                         </label>
                         <label>
-                            <input class="tonika-input" type="number" placeholder="120" style="width: 80px"/>
+                            <input
+                                    class="tonika-input tonika-input tonika-w-80"
+                                    placeholder="120"
+                                    type="number"
+                            />
                         </label>
                         <label>
                             <select class="tonika-select">
@@ -138,16 +138,14 @@
                         </label>
                     </div>
                 </div>
-
                 <div class="tonika-module">
                     <h4>Typography</h4>
                     <p>Normal text</p>
-                    <p style="color: var(--color-text-muted)">Muted text</p>
+                    <p class="tonika-text-muted">Muted text</p>
                     <small>Small text</small>
                 </div>
             </div>
         </section>
-
         <!-- ===================================================================
              TAB 4: LAYOUT TESTING
              - See how your module behaves alongside others
@@ -167,35 +165,55 @@
                 </div>
             </div>
         </section>
-
         <!-- ===================================================================
              TAB 5: DEVELOPMENT DOCUMENTATION (updated)
              =================================================================== -->
         <section>
             <div class="tonika-module">
                 <h3>Module Development Guidelines</h3>
-
                 <h4>CSS Structure</h4>
                 <ul>
-                    <li><strong>Use BEM naming:</strong> <code>.yourmodule</code>, <code>.yourmodule__element</code>, <code>.yourmodule--modifier</code></li>
-                    <li><strong>Root container:</strong> wrap with <code>class="tonika-module yourmodule yourmodule--card"</code></li>
-                    <li><strong>Use global components:</strong> <code>.tonika-btn</code>, <code>.tonika-input</code>, <code>.tonika-select</code></li>
-                    <li><strong>Use CSS variables:</strong> e.g. <code>var(--color-bg-primary)</code>, <code>var(--spacing-md)</code></li>
+                    <li>
+                        <strong>Use BEM naming:</strong> <code>.yourmodule</code>,
+                        <code>.yourmodule__element</code>,
+                        <code>.yourmodule--modifier</code>
+                    </li>
+                    <li>
+                        <strong>Root container:</strong> wrap with
+                        <code>class="tonika-module yourmodule yourmodule--card"</code>
+                    </li>
+                    <li>
+                        <strong>Use global components:</strong>
+                        <code>.tonika-btn</code>, <code>.tonika-input</code>,
+                        <code>.tonika-select</code>
+                    </li>
+                    <li>
+                        <strong>Use CSS variables:</strong> e.g.
+                        <code>var(--color-bg-primary)</code>,
+                        <code>var(--spacing-md)</code>
+                    </li>
                 </ul>
-
                 <h4>JavaScript Integration</h4>
                 <ul>
-                    <li>Mount your module into <code>#demo-mount</code> (or your target element)</li>
+                    <li>
+                        Mount your module into <code>#demo-mount</code> (or your target
+                        element)
+                    </li>
                     <li>Generate HTML with proper BEM classes</li>
                     <li>Provide a <code>destroy()</code> for cleanup</li>
-                    <li>Prefer the event system (see <strong>TonikaEmitter</strong> below)</li>
+                    <li>
+                        Prefer the event system (see
+                        <strong>TonikaEmitter</strong> below)
+                    </li>
                 </ul>
-
                 <h4>🧃 Soundonika Audio Integration (local, emitter-based)</h4>
-                <p>Soundonika is part of Tonika core. Initialize the engine and listen to <code>status</code> events. Then schedule sounds.</p>
-
+                <p>
+                    Soundonika is part of Tonika core. Initialize the engine and
+                    listen to <code>status</code> events. Then schedule sounds.
+                </p>
                 <div class="tonika-code">
-<pre>// Ensure core scripts are loaded (see &lt;head&gt;)
+              <pre>
+// Ensure core scripts are loaded (see &lt;head&gt;)
 const ac = new (window.AudioContext || window.webkitAudioContext)();
 const engine = new Tonika.SoundonikaEngine(ac, {
   sampleBasePath: './samples',
@@ -209,25 +227,49 @@ const off = engine.addEventListener('status', e =&gt; console.log('[sound]', e.d
 engine.init().then(() =&gt; {
   const t = ac.currentTime + 0.02; // small schedule-ahead
   engine.scheduleSound(t, 'kick', 1.0);
-});</pre>
+});</pre
+              >
                 </div>
-
-                <p><strong>Supported default sound types:</strong> <code>'kick'</code>, <code>'snare'</code>, <code>'hihat'</code>, <code>'perc'</code>, <code>'clap'</code>. You can override with <code>setSampleMappings()</code>.</p>
-
+                <p>
+                    <strong>Supported default sound types:</strong>
+                    <code>'kick'</code>, <code>'snare'</code>, <code>'hihat'</code>,
+                    <code>'perc'</code>, <code>'clap'</code>. You can override with
+                    <code>setSampleMappings()</code>.
+                </p>
                 <p><strong>Sample path strategy:</strong></p>
                 <ul>
-                    <li><strong>Local samples:</strong> keep packs under <code>/samples/</code> and update <code>sample-index.json</code> as needed.</li>
-                    <li><strong>Custom mappings:</strong> call <code>engine.setSampleMappings({...})</code> to map friendly names to file paths.</li>
-                    <li><strong>Missing sample fallback:</strong> engine will play a click tone if a mapping/path isn’t loaded.</li>
+                    <li>
+                        <strong>Local samples:</strong> keep packs under
+                        <code>/samples/</code> and update
+                        <code>sample-index.json</code> as needed.
+                    </li>
+                    <li>
+                        <strong>Custom mappings:</strong> call
+                        <code>engine.setSampleMappings({...})</code> to map friendly
+                        names to file paths.
+                    </li>
+                    <li>
+                        <strong>Missing sample fallback:</strong> engine will play a
+                        click tone if a mapping/path isn’t loaded.
+                    </li>
                 </ul>
-
                 <h4>Events you can rely on (core)</h4>
                 <ul>
-                    <li><strong>Clavonika</strong>: <code>ui:noteon</code>, <code>ui:noteoff</code>, <code>status</code> (factory returns an instance with <code>on/off</code>).</li>
-                    <li><strong>Jackonika</strong>: <code>midi:noteon</code>, <code>midi:noteoff</code>, <code>midi:devicechange</code>, <code>status</code> (singleton).</li>
-                    <li><strong>Soundonika</strong>: <code>status</code> (loading/progress/ready/error).</li>
+                    <li>
+                        <strong>Clavonika</strong>: <code>ui:noteon</code>,
+                        <code>ui:noteoff</code>, <code>status</code> (factory returns an
+                        instance with <code>on/off</code>).
+                    </li>
+                    <li>
+                        <strong>Jackonika</strong>: <code>midi:noteon</code>,
+                        <code>midi:noteoff</code>, <code>midi:devicechange</code>,
+                        <code>status</code> (singleton).
+                    </li>
+                    <li>
+                        <strong>Soundonika</strong>:
+                        <code>status</code> (loading/progress/ready/error).
+                    </li>
                 </ul>
-
                 <h4>Testing Checklist</h4>
                 <ul>
                     <li>✅ Test in both light and dark themes</li>
@@ -241,22 +283,19 @@ engine.init().then(() =&gt; {
             </div>
         </section>
     </div>
-
     <!-- ===================================================================
-         PIANO PLACEHOLDER (dev convenience)
-         =================================================================== -->
+       PIANO PLACEHOLDER (dev convenience)
+       =================================================================== -->
     <div class="roll88">
         <div class="piano-placeholder" id="piano"></div>
     </div>
 </main>
-
 <footer>
     <p>© 2025 Tonika Module Development Demo</p>
 </footer>
-
 <!-- ===================================================================
-     DEMO SCRIPTS (tabs & theme) — not part of your module
-     =================================================================== -->
+ DEMO SCRIPTS (tabs & theme) — not part of your module
+ =================================================================== -->
 <script>
     function openTab(index) {
         const tabs = document.querySelectorAll(".tabs button");
@@ -277,27 +316,25 @@ engine.init().then(() =&gt; {
         }
     }
 </script>
-
 <!-- ===================================================================
-     MODULE DEMO WIRED-UP
-     Replace Demo with your module. (Demo lives at ../js/core/demo.js)
-     =================================================================== -->
+ MODULE DEMO WIRED-UP
+ Replace Demo with your module. (Demo lives at ../js/core/demo.js)
+ =================================================================== -->
 <script src="../js/core/demo.js"></script>
 <script>
     // Initialize your module in the main tab demo area
     new Demo({
         mount: "#demo-mount",
         mode: "card",
-        autoRefresh: true
+        autoRefresh: true,
     });
 
     // Quick Clavonika example in the piano placeholder
-    (function(){
-        const piano = Tonika.Clavonika.init('piano');
-        piano.on('ui:noteon', e => console.log('UI note on', e.detail));
-        piano.on('ui:noteoff', e => console.log('UI note off', e.detail));
+    (function () {
+        const piano = Tonika.Clavonika.init("piano");
+        piano.on("ui:noteon", (e) => console.log("UI note on", e.detail));
+        piano.on("ui:noteoff", (e) => console.log("UI note off", e.detail));
     })();
 </script>
-
 </body>
 </html>
