@@ -1,37 +1,137 @@
-# 🧃Tonika
+# 🧃 Tonika
 
-Tonika is a modular, browser-based playground for music interaction, built on vanilla JS + Web APIs.
-It provides **core modules** (Clavonika piano, Jackonika MIDI bridge, Soundonika audio engine) and
-a unified **event system** for wiring them together.
+Tonika is a modular, browser-based playground for music interaction, built with vanilla JS + Web APIs. It offers drop-in core modules, a unified event system, global theming, and flexible UI layout.
 
 ---
 
-## Core modules
+## 📦 Core Modules
 
-All core lives in `/js/core/`:
+Located in `/js/core/`:
 
-- ⚡️`tonika-emitter.js` → base event emitter (`Tonika.TonikaEmitter`)
-- 🎹`clavonika.js` → piano UI keyboard (`Tonika.Clavonika`)
-- 🔌`jackonika.js` → MIDI input bridge (`Tonika.Jackonika`)
-- 📻`soundonika.js` → audio/sampler engine (`Tonika.SoundonikaEngine`)
-
-CSS lives in `/css/` (global tokens/components + `clavonika.css`).
-
-Samples + `sample-index.json` live under `/samples/`.
+| File                | Role                                     |
+|---------------------|------------------------------------------|
+| `tonika-emitter.js` | Base event emitter (EventTarget wrapper) |
+| `tonika-theme.js`   | Theme switching (light/dark/custom)      |
+| `tonika-ui.js`      | UI helpers (tabs, toggles, etc.)         |
+| `clavonika.js`      | Piano keyboard UI module                 |
+| `jackonika.js`      | MIDI input bridge                        |
+| `soundonika.js`     | Audio engine (sample playback)           |
 
 ---
 
-## Loading order
+## 🎨 Styling & Theming
 
-On your HTML page:
+Located in `/css/`:
+
+- `tonika-tokens.css`: Design tokens (`--color-bg`, `--spacing-md`, etc.)
+- `tonika-theme-base.css`: Base theme structure
+- `themes/*.css`: Optional full themes (e.g. `brown_01.css`)
+- `tonika-layout.css`: Layout/grid helpers
+- `tonika-components.css`: Buttons, inputs, selects
+- `clavonika.css`: Module-specific styles
+- `demo.css`: Additional styles used in demos
+
+### Theme Switching (JS)
+```js
+Tonika.Theme.set("brown_01");
+```
+
+---
+
+## 🔌 Demo Pages
+
+Demos live in `/demo/`:
+
+| File                   | Purpose                    |
+|------------------------|----------------------------|
+| `clavonika.html`       | Piano keyboard module      |
+| `jackonika.html`       | MIDI input bridge test     |
+| `soundonika.html`      | Audio sample test with UI  |
+| `chernobyl_drone.html` | Experimental music testbed |
+
+---
+
+## 🧪 Developing Your Own Module
+
+1. Add a module under `js/core/yourmodule.js`
+2. Use the following pattern:
+
+```js
+class YourModule extends TonikaEmitter {
+  init() { /* setup code */ }
+  destroy() { /* cleanup code */ }
+}
+window.TonikaModules = window.TonikaModules || {};
+window.TonikaModules.YourModule = YourModule;
+```
+
+3. Create a stylesheet using BEM-style:
+```css
+.yourmodule__button { ... }
+```
+
+4. Use global styles like:
+```html
+<button class="tonika-btn">Click me</button>
+```
+
+---
+
+## 🎧 Samples & Index
+
+Audio samples are under:
+
+```
+samples/percussion/DopeDrumsVol5/*.wav
+```
+
+The sample index is:
+
+```json
+{
+  "percussion": {
+    "DopeDrumsVol5": [
+      "DD5_Kick_01.wav",
+      "..."
+    ]
+  }
+}
+```
+
+This is loaded by `soundonika.js` at runtime.
+
+---
+
+## 🧠 Event System
+
+All modules use `TonikaEmitter` (a wrapper around `EventTarget`).
+
+| Method    | Description                      |
+|-----------|----------------------------------|
+| `.on()`   | Add listener                     |
+| `.off()`  | Remove listener                  |
+| `.emit()` | Dispatch event with `{ detail }` |
+
+```js
+engine.on("status", ({ detail }) => console.log(detail));
+engine.emit("status", { state: "ready" });
+```
+
+---
+
+## 🪄 Recommended Loading Order
 
 ```html
+<!-- CSS -->
+<link rel="stylesheet" href="css/tonika-theme-base.css" />
+<link rel="stylesheet" href="css/tonika-components.css" />
+<link rel="stylesheet" href="css/tonika-layout.css" />
+<link rel="stylesheet" href="css/themes/brown_01.css" />
 
-<link rel="stylesheet" href="css/tonika-theme-base.css"/>
-<link rel="stylesheet" href="css/tonika-components.css"/>
-<link rel="stylesheet" href="css/clavonika.css"/>
-
+<!-- JS -->
 <script src="js/core/tonika-emitter.js"></script>
+<script src="js/core/tonika-theme.js"></script>
+<script src="js/core/tonika-ui.js"></script>
 <script src="js/core/clavonika.js"></script>
 <script src="js/core/jackonika.js"></script>
 <script src="js/core/soundonika.js"></script>
@@ -39,143 +139,10 @@ On your HTML page:
 
 ---
 
-## Event system
+## 🛠️ Dev Notes
 
-All core modules extend or use `TonikaEmitter`, which is a thin wrapper around
-native `EventTarget`. Every module supports:
+- Use `developers/tonika_module_dev_updated.html` as a local dev scratchpad.
+- Tabs and themes are controlled by `tonika-ui.js` and `tonika-theme.js`.
+- Create your module in isolation first, then wire to other modules using events.
 
-- `.on(type, handler)` → add listener (returns unsubscribe fn)
-- `.off(type, handler)` → remove listener
-- `.emit(type, detail)` → dispatch a `CustomEvent`
-
-Example:
-
-```js
-const eng = new Tonika.SoundonikaEngine(audioContext);
-eng.on("status", (e) => console.log("engine status", e.detail));
-```
-
----
-
-## Clavonika 🎹
-
-Factory-style UI piano.
-
-```js
-const piano = Tonika.Clavonika.init("piano-container");
-
-// Listen for UI events
-piano.on("ui:noteon", (e) => console.log("note on", e.detail.midi));
-piano.on("ui:noteoff", (e) => console.log("note off", e.detail.midi));
-
-// Trigger programmatically
-piano.noteOn(60, 0.9); // C4, velocity 0.9
-piano.noteOff(60);
-```
-
-Emits:
-
-- `ui:noteon` `{ midi, velocity }`
-- `ui:noteoff` `{ midi }`
-- `status` `{ state, msg }`
-
----
-
-## Jackonika 🎛️
-
-Web MIDI bridge. Handles device hot-plug, remembers last input, and emits
-events for note data.
-
-```js
-Tonika.Jackonika.init({ selectorId: "midiDeviceSelector" });
-
-// Event style
-Tonika.Jackonika.on("midi:noteon", (e) =>
-  piano.noteOn(e.detail.midi, e.detail.velocity),
-);
-Tonika.Jackonika.on("midi:noteoff", (e) => piano.noteOff(e.detail.midi));
-
-// Still supports old callbacks (shimmed to events):
-Tonika.Jackonika.init({
-  onNoteOn: (m, v) => piano.noteOn(m, v),
-  onNoteOff: (m) => piano.noteOff(m),
-  onStatus: (t, m) => console.log(t, m),
-});
-```
-
-Emits:
-
-- `midi:noteon` `{ midi, velocity }`
-- `midi:noteoff` `{ midi }`
-- `midi:devicechange` `{ inputs:[{id,name}] }`
-- `status` `{ type:'info'|'warn'|'error', message }`
-
----
-
-## Soundonika 🔊
-
-Audio/sampler engine. Loads samples from `/samples/sample-index.json`.
-
-```js
-const ac = Tonika.getAudioContext
-  ? Tonika.getAudioContext()
-  : new AudioContext();
-const eng = new Tonika.SoundonikaEngine(ac, { sampleBasePath: "./samples" });
-
-eng.on("status", (e) => console.log("soundonika status", e.detail));
-
-await eng.init();
-
-piano.on("ui:noteon", (e) => {
-  const t = ac.currentTime + 0.02;
-  eng.scheduleSound(t, "kick", e.detail.velocity);
-});
-```
-
-Emits:
-
-- `status` `{ state:'loading'|'ready'|'error'|'info', message?, progress? }`
-
-API highlights:
-
-- `init()`, `scheduleSound(time, soundType, velocity)`
-- `setVolume(v)`, `getVolume()`
-- `setSoundMode('samples'|'clicks')`
-- `getSampleMappings()`, `setSampleMappings(map)`
-- `isReady()`
-
----
-
-## TonikaEmitter ⚡
-
-Base class, used by all modules.
-
-```js
-class MyThing extends Tonika.TonikaEmitter {
-  doStuff() {
-    this.emit("status", { state: "ready" });
-  }
-}
-```
-
-- `.on(type, fn)` → add listener, returns unsubscribe
-- `.off(type, fn)` → remove listener
-- `.emit(type, detail)` → send event
-
----
-
-## Demo pages
-
-See `/demo/` for working examples:
-
-- `clavonika.html`
-- `jackonika.html`
-- `soundonika.html`
-
-See `/developers/tonika_module_dev_updated.html` for the full workbench.
-
----
-
-## License
-
-MIT. Free to use, hack, and extend.
+Happy patching, you beautiful Goblin! 🧙‍♀️
