@@ -66,7 +66,9 @@ window.TonikaModules.YourModule = YourModule;
 ```
 
 3. Create a stylesheet using BEM-style:
+
 ```css
+
 .yourmodule__button { ... }
 ```
 
