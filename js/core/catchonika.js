@@ -443,6 +443,8 @@
             this._setupSortSelect();
 
             this._schedulePersist();
+            if (this._recDotEl)
+                this._recDotEl.classList.add("catchonika__rec-dot--active");
             this._status(`Take ${this._takes.length + 1} started`);
         }
 
@@ -452,6 +454,15 @@
                 clearTimeout(this._idleTimer);
                 this._idleTimer = null;
             }
+
+            if (this._idleAnimFrame) {
+                cancelAnimationFrame(this._idleAnimFrame);
+                this._idleAnimFrame = null;
+            }
+            if (this._idleBarEl) {
+                this._idleBarEl.style.display = "none";
+            }
+
             this._takes.push({
                 startMs: this._currentTake.startMs,
                 endMs: this._currentTake.lastActivityMs,
@@ -461,6 +472,8 @@
             this._setupSortSelect();
 
             this._schedulePersist();
+            if (this._recDotEl)
+                this._recDotEl.classList.remove("catchonika__rec-dot--active");
             this._status(`Take ${this._takes.length} ended`);
         }
 
@@ -473,6 +486,23 @@
 
         _resetIdleTimer() {
             if (this._idleTimer) clearTimeout(this._idleTimer);
+
+            if (this._idleBarEl && this._idleFillEl) {
+                this._idleBarEl.style.display = "block";
+                const duration = this.settings.takeIdleSeconds * 1000;
+                const start = performance.now();
+                const animate = (now) => {
+                    const elapsed = now - start;
+                    const pct = Math.max(0, 1 - elapsed / duration);
+                    this._idleFillEl.style.width = `${pct * 100}%`;
+                    if (elapsed < duration && this._idleTimer) {
+                        this._idleAnimFrame = requestAnimationFrame(animate);
+                    }
+                };
+                if (this._idleAnimFrame) cancelAnimationFrame(this._idleAnimFrame);
+                this._idleAnimFrame = requestAnimationFrame(animate);
+            }
+
             this._idleTimer = setTimeout(() => {
                 this._endTake();
             }, this.settings.takeIdleSeconds * 1000);
@@ -494,7 +524,6 @@
 
         _renderTakesList() {
             if (!this._takesListEl) return;
-
 
             const takesSorted = [...this._takes];
             if (this._sortOrder === "desc") takesSorted.reverse();
@@ -530,8 +559,11 @@
 
             // Render current take (if recording)
             if (this._currentTake) {
-                const startedClock = this._fmtClock(this._startEpoch + this._currentTake.startMs);
-                const length = this._currentTake.lastActivityMs - this._currentTake.startMs;
+                const startedClock = this._fmtClock(
+                    this._startEpoch + this._currentTake.startMs,
+                );
+                const length =
+                    this._currentTake.lastActivityMs - this._currentTake.startMs;
                 const durationSeconds = Math.max(0, Math.round(length / 1000));
 
                 rows.push(
@@ -790,6 +822,18 @@
             }
 
             this._statusEl = this._mount.querySelector(".catchonika__status");
+            this._recDotEl = this._mount.querySelector(".catchonika__rec-dot");
+
+            // Create and append idle bar
+            this._idleBarEl = document.createElement("div");
+            this._idleBarEl.className = "catchonika__idlebar";
+            this._idleFillEl = document.createElement("div");
+            this._idleFillEl.className = "catchonika__idlebar-fill";
+            this._idleBarEl.appendChild(this._idleFillEl);
+            const footer = this._mount.querySelector(".catchonika__footer");
+            footer.appendChild(this._idleBarEl);
+            this._idleBarEl.style.display = "none";
+
             this._bpmInput = this._mount.querySelector(".catchonika__bpm");
             this._bpmInput.value = String(this.settings.defaultBpm);
             this._idleInput = this._mount.querySelector(".catchonika__idle");
@@ -798,7 +842,6 @@
             this._takesListEl = this._mount.querySelector(".catchonika__takes");
             this._renderTakesList();
             this._setupSortSelect();
-
         }
 
         _teardownUI() {
@@ -878,4 +921,3 @@
 
     window.Catchonika = Catchonika;
 })();
-
