@@ -6,360 +6,226 @@
 /* eslint-env browser, node */
 /* global module */
 
-/**
- * Encode each path segment so characters like '#' don't break fetch URLs.
- * @param {string} relPath
- * @returns {string}
- */
 function encodePathSegments(relPath) {
-  return relPath.split("/").map(encodeURIComponent).join("/");
+    return relPath.split("/").map(encodeURIComponent).join("/");
 }
 
-// Choose the emitter base (TonikaEmitter if present; otherwise EventTarget)
 const _EmitterBase =
-  typeof window !== "undefined" && window.Tonika && window.Tonika.TonikaEmitter
-    ? window.Tonika.TonikaEmitter
-    : EventTarget;
+    typeof window !== "undefined" && window.Tonika && window.Tonika.TonikaEmitter
+        ? window.Tonika.TonikaEmitter
+        : EventTarget;
 
 class SoundonikaEngine extends _EmitterBase {
-  /**
-   * @param {AudioContext} audioContext
-   * @param {{
-   *   sampleBasePath?: string,
-   *   volume?: number,
-   *   mode?: 'samples'|'clicks',
-   *   sampleMappings?: Record<string,string>,
-   *   onStatus?: (state:string, messageOrProgress?: any) => void
-   * }} [options]
-   */
-  constructor(audioContext, options = {}) {
-    super();
+    constructor(audioContext, options = {}) {
+        super();
 
-    this.audioContext = audioContext;
-    this.sampleBasePath = options.sampleBasePath || "samples";
-    this.volume = options.volume ?? 0.8;
-    this.soundMode = options.mode || "samples"; // 'samples' | 'clicks'
-    this.sampleMappings = options.sampleMappings || {};
-    /** @type {Map<string, AudioBuffer>} */
-    this.sampleBuffers = new Map(); // key: relative samplePath → AudioBuffer
-    this.loadingProgress = { loaded: 0, total: 0 };
-    /** @type {Map<string,string>} */
-    this.soundTypeMap = new Map();
-    /** @type {Record<string, any>} */
-    this.sampleIndex = undefined;
+        this.audioContext = audioContext;
+        this.sampleBasePath = options.sampleBasePath || "samples";
+        this.volume = options.volume ?? 0.8;
+        this.soundMode = options.mode || "samples";
+        this.sampleMappings = options.sampleMappings || {};
+        this.sampleBuffers = new Map();
+        this.loadingProgress = { loaded: 0, total: 0 };
+        this.soundTypeMap = new Map();
+        this.sampleIndex = undefined;
 
-    // Legacy-friendly status callback shim (non-breaking)
-    if (typeof options.onStatus === "function") {
-      this.addEventListener("status", (e) => {
-        const { state, message, progress } = e.detail || {};
-        // messageOrProgress for backward compatibility (either string or number)
-        options.onStatus(state, message ?? progress);
-      });
-    }
-
-    this._initDefaultMappings();
-  }
-
-  // ===== DEFAULT MAPPINGS =====
-  _initDefaultMappings() {
-    // Safe defaults (can be replaced via setSampleMappings)
-    this.sampleMappings = {
-      kick: "percussion/DopeDrumsVol5/DD5_Kick_01.wav",
-      snare: "percussion/DopeDrumsVol5/DD5_Snare_01.wav",
-      hihat: "percussion/DopeDrumsVol5/DD5_CH_01.wav",
-      perc: "percussion/DopeDrumsVol5/DD5_Bones.wav",
-      // Aliases
-      clap: "percussion/DopeDrumsVol5/DD5_Snare_02.wav",
-    };
-    this.soundTypeMap = new Map(Object.entries(this.sampleMappings));
-  }
-
-  // ===== INTERNAL EMIT HELPERS =====
-  _emitStatus(detail) {
-    this.dispatchEvent(new CustomEvent("status", { detail }));
-  }
-  _emitLoading(message, progress) {
-    this._emitStatus({ state: "loading", message, progress });
-  }
-  _emitReady(message) {
-    this._emitStatus({ state: "ready", message });
-  }
-  _emitError(message) {
-    this._emitStatus({ state: "error", message });
-  }
-
-  // ===== INIT =====
-  async init() {
-    try {
-      this._emitLoading("Fetching sample index…", 0);
-      await this.loadSampleIndex();
-      this._emitLoading("Preloading samples…", 0);
-      await this.preloadSamples();
-      this._emitReady("All samples loaded");
-    } catch (err) {
-      this._emitError(err?.message || String(err));
-      throw err;
-    }
-  }
-
-  async loadSampleIndex() {
-    try {
-      const response = await fetch(`${this.sampleBasePath}/sample-index.json`);
-      if (!response.ok) {
-        // Keep this throw: failing the index should abort initialization
-        throw new Error(`Failed to fetch sample index: ${response.status}`);
-      }
-      this.sampleIndex = await response.json();
-    } catch (err) {
-      console.error("Error loading sample index:", err);
-      throw err;
-    }
-  }
-
-  async preloadSamples() {
-    if (!this.sampleIndex) {
-      console.warn("No sample index loaded.");
-      return;
-    }
-
-    /** @type {string[]} */
-    const allFiles = [];
-    for (const [category, packs] of Object.entries(this.sampleIndex)) {
-      for (const [pack, files] of Object.entries(packs)) {
-        for (const file of files) {
-          allFiles.push(`${category}/${pack}/${file}`);
+        if (typeof options.onStatus === "function") {
+            this.addEventListener("audio:status", (e) => {
+                const { level, msg, progress } = e.detail || {};
+                options.onStatus(level, msg ?? progress);
+            });
         }
-      }
+
+        this._initDefaultMappings();
     }
 
-    this.loadingProgress.total = allFiles.length;
-    this.loadingProgress.loaded = 0;
-
-    // Simple sequential load (robust, low memory). Can add concurrency later.
-    for (const samplePath of allFiles) {
-      // eslint-disable-next-line no-await-in-loop
-      await this.loadSampleByPath(samplePath);
-      this.loadingProgress.loaded++;
-
-      // Emit numeric progress (0..1) and a short message for UIs
-      const prog =
-        this.loadingProgress.total > 0
-          ? this.loadingProgress.loaded / this.loadingProgress.total
-          : 1;
-      this._emitLoading(
-        `Loaded ${this.loadingProgress.loaded}/${this.loadingProgress.total}`,
-        prog,
-      );
+    _initDefaultMappings() {
+        this.sampleMappings = {
+            kick: "percussion/DopeDrumsVol5/DD5_Kick_01.wav",
+            snare: "percussion/DopeDrumsVol5/DD5_Snare_01.wav",
+            hihat: "percussion/DopeDrumsVol5/DD5_CH_01.wav",
+            perc: "percussion/DopeDrumsVol5/DD5_Bones.wav",
+            clap: "percussion/DopeDrumsVol5/DD5_Snare_02.wav",
+        };
+        this.soundTypeMap = new Map(Object.entries(this.sampleMappings));
     }
-  }
 
-  /**
-   * Convenience wrapper to match old call sites.
-   */
-  async loadSample(category, pack, filename) {
-    const samplePath = `${category}/${pack}/${filename}`;
-    return this.loadSampleByPath(samplePath);
-  }
-
-  /**
-   * @param {string} samplePath relative path under samples/ (unencoded)
-   */
-  async loadSampleByPath(samplePath) {
-    const fetchUrl = `${this.sampleBasePath}/${encodePathSegments(samplePath)}`;
-
-    try {
-      const response = await fetch(fetchUrl);
-      if (!response.ok) {
-        console.error(
-          `Failed to fetch sample: ${response.status} @ ${fetchUrl}`,
+    // ===== INTERNAL EMIT HELPERS =====
+    _emitAudio(level, msg, progress) {
+        this.dispatchEvent(
+            new CustomEvent("audio:status", { detail: { level, msg, progress } })
         );
-        this._emitError(`Fetch failed for ${samplePath} (${response.status})`);
-        return;
-      }
-
-      /** @type {ArrayBuffer} */
-      const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
-
-      this.sampleBuffers.set(samplePath, audioBuffer);
-      // Verbose log helpful during dev; safe to mute later
-      console.log(`Successfully loaded: ${samplePath}`);
-    } catch (error) {
-      console.error(`Failed to load sample ${samplePath}:`, error);
-      this._emitError(`Decode/load failed: ${samplePath}`);
     }
-  }
-
-  // ===== PLAYBACK =====
-  /**
-   * @param {number} when
-   * @param {string} soundType
-   * @param {number} [velocity=1]
-   */
-  scheduleSound(when, soundType, velocity = 1.0) {
-    if (this.soundMode === "samples") {
-      this.scheduleSampleSound(when, soundType, velocity);
-    } else {
-      this.scheduleClickSound(when, soundType, velocity);
+    _emitLoading(msg, progress) {
+        this._emitAudio("loading", msg, progress);
     }
-  }
-
-  /**
-   * @param {number} when
-   * @param {string} soundType
-   * @param {number} velocity
-   */
-  scheduleSampleSound(when, soundType, velocity) {
-    const samplePath = this.soundTypeMap.get(soundType);
-    if (!samplePath) {
-      console.warn(
-        `No sample mapping for: ${soundType}. Falling back to click.`,
-      );
-      this._emitStatus({
-        state: "info",
-        message: `Missing mapping: ${soundType}`,
-      });
-      this.scheduleClickSound(when, soundType, velocity);
-      return;
+    _emitReady(msg) {
+        this._emitAudio("ready", msg);
+    }
+    _emitError(msg) {
+        this._emitAudio("error", msg);
+    }
+    _emitInfo(msg) {
+        this._emitAudio("info", msg);
     }
 
-    const audioBuffer = this.sampleBuffers.get(samplePath);
-    if (!audioBuffer) {
-      console.warn(`Sample not loaded: ${samplePath}. Falling back to click.`);
-      this._emitStatus({
-        state: "info",
-        message: `Sample not loaded: ${samplePath}`,
-      });
-      this.scheduleClickSound(when, soundType, velocity);
-      return;
+    // ===== INIT =====
+    async init() {
+        try {
+            this._emitLoading("Fetching sample index…", 0);
+            await this.loadSampleIndex();
+            this._emitLoading("Preloading samples…", 0);
+            await this.preloadSamples();
+            this._emitReady("All samples loaded");
+        } catch (err) {
+            this._emitError(err?.message || String(err));
+            throw err;
+        }
     }
 
-    const source = this.audioContext.createBufferSource();
-    source.buffer = audioBuffer;
-
-    const gainNode = this.audioContext.createGain();
-    gainNode.gain.value = this.volume * velocity;
-
-    source.connect(gainNode).connect(this.audioContext.destination);
-    source.start(when);
-  }
-
-  /**
-   * @param {number} when
-   * @param {string} soundType
-   * @param {number} velocity
-   */
-  scheduleClickSound(when, soundType, velocity) {
-    const osc = this.audioContext.createOscillator();
-    const gain = this.audioContext.createGain();
-
-    const isAccent = soundType === "kick" || soundType === "accent";
-    osc.frequency.value = isAccent ? 880.0 : 440.0;
-
-    gain.gain.setValueAtTime(this.volume * velocity, when);
-    gain.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
-
-    osc.connect(gain).connect(this.audioContext.destination);
-    osc.start(when);
-    osc.stop(when + 0.05);
-  }
-
-  // ===== HELPERS / GETTERS / SETTERS =====
-  setVolume(vol) {
-    this.volume = Math.max(0, Math.min(vol, 1));
-    this._emitStatus({ state: "info", message: `volume:${this.volume}` });
-  }
-
-  getVolume() {
-    return this.volume;
-  }
-
-  setSoundMode(mode) {
-    if (mode === "samples" || mode === "clicks") {
-      this.soundMode = mode;
-      this._emitStatus({ state: "info", message: `mode:${this.soundMode}` });
+    async loadSampleIndex() {
+        const response = await fetch(`${this.sampleBasePath}/sample-index.json`);
+        if (!response.ok) throw new Error(`Failed to fetch sample index: ${response.status}`);
+        this.sampleIndex = await response.json();
     }
-  }
 
-  getSoundMode() {
-    return this.soundMode;
-  }
+    async preloadSamples() {
+        if (!this.sampleIndex) {
+            console.warn("No sample index loaded.");
+            return;
+        }
 
-  /**
-   * Replace the current sound type → samplePath mapping at runtime.
-   * @param {{kick: string, snare: string, hihat_closed: string, hihat_open: string, perc: string, shaker: string, accent: string, normal: string}|{kick: string, snare: string, hihat_closed: string, hihat_open: string, perc: string, shaker: string, accent: string, normal: string}} mappings
-   */
-  setSampleMappings(mappings) {
-    this.sampleMappings = { ...mappings };
-    this.soundTypeMap = new Map(Object.entries(this.sampleMappings));
-    this._emitStatus({ state: "info", message: "mappings:updated" });
-  }
+        const allFiles = [];
+        for (const [category, packs] of Object.entries(this.sampleIndex)) {
+            for (const [pack, files] of Object.entries(packs)) {
+                for (const file of files) {
+                    allFiles.push(`${category}/${pack}/${file}`);
+                }
+            }
+        }
 
-  /**
-   * Return a shallow copy of the current mappings (for UIs).
-   * @returns {Record<string,string>}
-   */
-  getSampleMappings() {
-    return { ...this.sampleMappings };
-  }
+        this.loadingProgress.total = allFiles.length;
+        this.loadingProgress.loaded = 0;
 
-  /**
-   * Return current preload progress (for status displays).
-   * @returns {{loaded:number,total:number}}
-   */
-  getLoadingProgress() {
-    return { ...this.loadingProgress };
-  }
+        for (const samplePath of allFiles) {
+            await this.loadSampleByPath(samplePath);
+            this.loadingProgress.loaded++;
+            const prog =
+                this.loadingProgress.total > 0
+                    ? this.loadingProgress.loaded / this.loadingProgress.total
+                    : 1;
+            this._emitLoading(
+                `Loaded ${this.loadingProgress.loaded}/${this.loadingProgress.total}`,
+                prog
+            );
+        }
+    }
 
-  /** Number of decoded+cached samples */
-  getLoadedSampleCount() {
-    return this.sampleBuffers.size;
-  }
+    async loadSample(category, pack, filename) {
+        const samplePath = `${category}/${pack}/${filename}`;
+        return this.loadSampleByPath(samplePath);
+    }
 
-  /** Total samples expected to load (from sample-index.json) */
-  getTotalSampleCount() {
-    return this.loadingProgress.total ?? 0;
-  }
+    async loadSampleByPath(samplePath) {
+        const fetchUrl = `${this.sampleBasePath}/${encodePathSegments(samplePath)}`;
+        try {
+            const response = await fetch(fetchUrl);
+            if (!response.ok) {
+                this._emitError(`Fetch failed for ${samplePath} (${response.status})`);
+                return;
+            }
+            const arrayBuffer = await response.arrayBuffer();
+            const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
+            this.sampleBuffers.set(samplePath, audioBuffer);
+            console.log(`Loaded: ${samplePath}`);
+        } catch (error) {
+            console.error(`Failed to load sample ${samplePath}:`, error);
+            this._emitError(`Decode/load failed: ${samplePath}`);
+        }
+    }
 
-  /** Optional: list of loaded sample relative paths */
-  getLoadedSamplePaths() {
-    return Array.from(this.sampleBuffers.keys());
-  }
+    // ===== PLAYBACK =====
+    scheduleSound(when, soundType, velocity = 1.0) {
+        if (this.soundMode === "samples") {
+            this.scheduleSampleSound(when, soundType, velocity);
+        } else {
+            this.scheduleClickSound(when, soundType, velocity);
+        }
+    }
 
-  /** Optional: quick check if a given relative path is loaded */
-  hasSample(samplePath) {
-    return this.sampleBuffers.has(samplePath);
-  }
+    scheduleSampleSound(when, soundType, velocity) {
+        const samplePath = this.soundTypeMap.get(soundType);
+        if (!samplePath) {
+            this._emitInfo(`Missing mapping: ${soundType}`);
+            this.scheduleClickSound(when, soundType, velocity);
+            return;
+        }
+        const audioBuffer = this.sampleBuffers.get(samplePath);
+        if (!audioBuffer) {
+            this._emitInfo(`Sample not loaded: ${samplePath}`);
+            this.scheduleClickSound(when, soundType, velocity);
+            return;
+        }
+        const source = this.audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        const gainNode = this.audioContext.createGain();
+        gainNode.gain.value = this.volume * velocity;
+        source.connect(gainNode).connect(this.audioContext.destination);
+        source.start(when);
+    }
 
-  getSampleBasePath() {
-    return this.sampleBasePath;
-  }
+    scheduleClickSound(when, soundType, velocity) {
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+        osc.frequency.value = soundType === "kick" || soundType === "accent" ? 880.0 : 440.0;
+        gain.gain.setValueAtTime(this.volume * velocity, when);
+        gain.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
+        osc.connect(gain).connect(this.audioContext.destination);
+        osc.start(when);
+        osc.stop(when + 0.05);
+    }
 
-  /**
-   * @returns {boolean}
-   */
-  isReady() {
-    return (
-      this.loadingProgress.loaded === this.loadingProgress.total &&
-      this.loadingProgress.total > 0
-    );
-  }
+    // ===== HELPERS =====
+    setVolume(vol) {
+        this.volume = Math.max(0, Math.min(vol, 1));
+        this._emitInfo(`volume:${this.volume}`);
+    }
+
+    getVolume() { return this.volume; }
+
+    setSoundMode(mode) {
+        if (mode === "samples" || mode === "clicks") {
+            this.soundMode = mode;
+            this._emitInfo(`mode:${this.soundMode}`);
+        }
+    }
+
+    getSoundMode() { return this.soundMode; }
+
+    setSampleMappings(mappings) {
+        this.sampleMappings = { ...mappings };
+        this.soundTypeMap = new Map(Object.entries(this.sampleMappings));
+        this.dispatchEvent(
+            new CustomEvent("app:mappings_updated", { detail: { mappings: this.sampleMappings } })
+        );
+    }
+
+    getSampleMappings() { return { ...this.sampleMappings }; }
+    getLoadingProgress() { return { ...this.loadingProgress }; }
+    getLoadedSampleCount() { return this.sampleBuffers.size; }
+    getTotalSampleCount() { return this.loadingProgress.total ?? 0; }
+    getLoadedSamplePaths() { return Array.from(this.sampleBuffers.keys()); }
+    hasSample(samplePath) { return this.sampleBuffers.has(samplePath); }
+    getSampleBasePath() { return this.sampleBasePath; }
+    isReady() { return this.loadingProgress.loaded === this.loadingProgress.total && this.loadingProgress.total > 0; }
 }
 
-// ===== GLOBAL EXPOSURE =====
 if (typeof window !== "undefined") {
-  window.Tonika = window.Tonika || {};
-  window.Tonika.SoundonikaEngine = SoundonikaEngine; // preferred namespace
-  window.SoundonikaEngine = SoundonikaEngine; // back-compat alias
+    window.Tonika = window.Tonika || {};
+    window.Tonika.SoundonikaEngine = SoundonikaEngine;
+    window.SoundonikaEngine = SoundonikaEngine;
 }
 
-// ===== MODULE EXPORTS (Node/CommonJS) =====
-// noinspection JSUnresolvedVariable
-if (
-  typeof module === "object" &&
-  module &&
-  typeof module.exports === "object"
-) {
-  // noinspection JSUnresolvedVariable
-  module.exports = { SoundonikaEngine };
+if (typeof module === "object" && module && typeof module.exports === "object") {
+    module.exports = { SoundonikaEngine };
 }
