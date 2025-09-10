@@ -21,7 +21,7 @@
     /* This modifier defines a specific, fixed-size layout */
     height: 250px;
     overflow: hidden; /* Contains child elements */
-    width: 98%; /* Let the parent container (.tab-content) control the width */
+    width: 95%; /* Let the parent container (.tab-content) control the width */
 }
 
 /* Header / Title row layout */

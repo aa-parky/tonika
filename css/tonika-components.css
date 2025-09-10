@@ -186,3 +186,12 @@
     );
     color: var(--color-danger);
 }
+.tonika-code {
+    background-color: var(--color-bg-secondary, #1a1a1a);
+    padding: 1rem;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.875rem;
+    border-radius: var(--radius-md, 8px);
+    white-space: pre-wrap;
+    overflow-x: auto;
+}

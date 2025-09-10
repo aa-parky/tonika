@@ -4,13 +4,13 @@
     <meta charset="utf-8" />
     <title>Tonika - Curated</title>
     <link href="css/tonika-theme-base.css" rel="stylesheet" />
-    <link href="css/tonika-layout.css" rel="stylesheet" />
-    <link href="css/tonika-components.css" rel="stylesheet" />
-    <link href="css/tonika-tokens.css" rel="stylesheet" />
+      <link href="css/tonika-layout.css" rel="stylesheet" />
+      <link href="css/tonika-components.css" rel="stylesheet" />
+      <link href="css/tonika-tokens.css" rel="stylesheet" />
       <link href="css/catchonika.css" rel="stylesheet" />
-    <link href="css/clavonika.css" rel="stylesheet" />
-    <link href="css/chordonika.css" rel="stylesheet" />
-    <link href="css/chordify-interface.css" rel="stylesheet" />
+      <link href="css/clavonika.css" rel="stylesheet" />
+      <link href="css/chordonika.css" rel="stylesheet" />
+      <link href="css/chordify-interface.css" rel="stylesheet" />
   </head>
   <body>
     <header>
@@ -20,186 +20,224 @@
       <div class="tabs">
         <button class="active" onclick="Tonika.UI.openTab(0)">Catchonika</button>
         <button onclick="Tonika.UI.openTab(1)">Chordonika</button>
-        <button onclick="Tonika.UI.openTab(2)">3</button>
-        <button onclick="Tonika.UI.openTab(3)">Chordify</button>
+        <button onclick="Tonika.UI.openTab(2)">Chordify</button>
+        <button onclick="Tonika.UI.openTab(3)">Layout Examples</button>
         <button onclick="Tonika.UI.openTab(4)">Settings</button>
       </div>
       <div class="tab-content">
         <section class="active">
-          <div class="tonika-module">
+            <div class="tonika-grid-2">
               <!-- In-page mount -->
               <div id="catchonika-card"></div>
-          </div>
+                <div class="tonika-module">
+                    <h3>R1 C2</h3>
+                    CONTENT HERE</div>
+                <div class="tonika-module">
+                    <h3>R2 C1</h3>
+                    CONTENT HERE</div>
+                <div class="tonika-module">
+                    <h3>R2 C2</h3>
+                    CONTENT HERE</div>
+            </div>
         </section>
 
         <!-- Chordonika tab -->
         <section>
           <div class="tonika-grid-2">
             <div id="chord-selector"></div>
-            <div class="tonika-module" id="chord-events">
-              <h3>Chord Events</h3>
-              <button
-                class="tonika-btn tonika-btn--danger tonika-mb-sm"
-                id="clear-event-log"
-              >
-                Clear Log
-              </button>
-              <ul id="chord-event-log" class="tonika-list"></ul>
+            <div class="tonika-module">
+              <h3>R1 C2</h3>
+                CONTENT HERE
             </div>
+              <div class="tonika-module">
+                  <h3>R2 C3</h3>
+                  CONTENT HERE</div>
+              <div class="tonika-module tonika-module--scrollable" id="chord-events">
+                  <h3>Chord Events</h3>
+                  <button class="tonika-btn tonika-btn--danger tonika-mb-sm" id="clear-event-log">
+                      Clear Log
+                  </button>
+                  <ul id="chord-event-log" class="tonika-list"></ul>
+              </div>
           </div>
         </section>
-
-        <!-- Placeholder tab kept for layout parity -->
-        <section>
-          <div class="tonika-module">Tab 3 Content</div>
-        </section>
-
-        <!-- Chordify tab (table -> iframe flow) -->
-        <section>
-          <div class="tonika-module chordify--interface" id="chordify">
-            <!-- TABLE VIEW -->
-            <div class="chordify--table-container" id="chordify-table-view">
-              <div class="chordify--table-header">
-                <h3 class="chordify--table-header__title">Chordify Library</h3>
-                <div class="chordify--table-header__stats" id="chordify-stats">
-                  Loading…
-                </div>
-              </div>
-              <div class="chordify--controls">
-                <div class="chordify--controls__search">
-                  <label class="chordify--controls__label" for="chordify-search"
-                    >Search</label
-                  >
-                  <input
-                    id="chordify-search"
-                    class="chordify--controls__input"
-                    type="search"
-                    placeholder="Search song or artist…"
-                  />
-                </div>
-                <div class="chordify--controls__filters">
-                  <!-- Future: key / tempo filter selects -->
-                </div>
-              </div>
-              <div class="chordify--table-wrapper">
-                <table class="chordify--table">
-                  <thead class="chordify--table__head">
-                    <tr
-                      class="chordify--table__row chordify--table__row--header"
-                    >
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--song"
-                      >
-                        Song
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--artist"
-                      >
-                        Artist
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--duration"
-                      >
-                        Duration
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--key"
-                      >
-                        Key
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--tempo"
-                      >
-                        Tempo
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--pulse"
-                      >
-                        Pulse
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--progressions"
-                      >
-                        Progressions
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--actions"
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    class="chordify--table__body"
-                    id="chordify-tbody"
-                  ></tbody>
-                </table>
-              </div>
-              <div class="chordify--empty" id="chordify-empty" hidden>
-                <p class="chordify--empty__text">No songs match your search.</p>
-              </div>
-            </div>
-
-            <!-- PLAYER VIEW -->
-            <div class="chordify--player" id="chordify-player-view" hidden>
-              <div class="chordify--nav chordify--nav--inline">
-                <button class="chordify--nav__btn" id="chordify-back">
-                  ← Back to list
-                </button>
-                <div class="chordify--nav__title">
-                  <span id="chordify-title" class="chordify--nav__song"></span>
-                  <span
-                    id="chordify-artist"
-                    class="chordify--nav__artist"
-                  ></span>
-                </div>
-                <a
-                  class="chordify--nav__btn chordify--nav__btn--active"
-                  id="chordify-open"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open on chordify.net
-                </a>
-              </div>
-
-              <div class="chordify--player__info">
-                <div class="chordify--player__details">
-                  <div class="chordify--player__detail">
-                    <strong>Duration:</strong>
-                    <span id="chordify-duration"></span>
+          <!-- Chordify tab (table -> iframe flow) -->
+          <section>
+              <div class="tonika-module chordify--interface" id="chordify">
+                  <!-- TABLE VIEW -->
+                  <div class="chordify--table-container" id="chordify-table-view">
+                      <div class="chordify--table-header">
+                          <h3 class="chordify--table-header__title">Chordify Library</h3>
+                          <div class="chordify--table-header__stats" id="chordify-stats">
+                              Loading…
+                          </div>
+                      </div>
+                      <div class="chordify--controls">
+                          <div class="chordify--controls__search">
+                              <label class="chordify--controls__label" for="chordify-search"
+                              >Search</label
+                              >
+                              <input
+                                      id="chordify-search"
+                                      class="chordify--controls__input"
+                                      type="search"
+                                      placeholder="Search song or artist…"
+                              />
+                          </div>
+                          <div class="chordify--controls__filters">
+                              <!-- Future: key / tempo filter selects -->
+                          </div>
+                      </div>
+                      <div class="chordify--table-wrapper">
+                          <table class="chordify--table">
+                              <thead class="chordify--table__head">
+                              <tr
+                                      class="chordify--table__row chordify--table__row--header"
+                              >
+                                  <th
+                                          class="chordify--table__cell chordify--table__cell--header chordify--table__cell--song"
+                                  >
+                                      Song
+                                  </th>
+                                  <th
+                                          class="chordify--table__cell chordify--table__cell--header chordify--table__cell--artist"
+                                  >
+                                      Artist
+                                  </th>
+                                  <th
+                                          class="chordify--table__cell chordify--table__cell--header chordify--table__cell--duration"
+                                  >
+                                      Duration
+                                  </th>
+                                  <th
+                                          class="chordify--table__cell chordify--table__cell--header chordify--table__cell--key"
+                                  >
+                                      Key
+                                  </th>
+                                  <th
+                                          class="chordify--table__cell chordify--table__cell--header chordify--table__cell--tempo"
+                                  >
+                                      Tempo
+                                  </th>
+                                  <th
+                                          class="chordify--table__cell chordify--table__cell--header chordify--table__cell--pulse"
+                                  >
+                                      Pulse
+                                  </th>
+                                  <th
+                                          class="chordify--table__cell chordify--table__cell--header chordify--table__cell--progressions"
+                                  >
+                                      Progressions
+                                  </th>
+                                  <th
+                                          class="chordify--table__cell chordify--table__cell--header chordify--table__cell--actions"
+                                  >
+                                      Actions
+                                  </th>
+                              </tr>
+                              </thead>
+                              <tbody
+                                      class="chordify--table__body"
+                                      id="chordify-tbody"
+                              ></tbody>
+                          </table>
+                      </div>
+                      <div class="chordify--empty" id="chordify-empty" hidden>
+                          <p class="chordify--empty__text">No songs match your search.</p>
+                      </div>
                   </div>
-                  <div class="chordify--player__detail">
-                    <strong>Key:</strong> <span id="chordify-key"></span>
+
+                  <!-- PLAYER VIEW -->
+                  <div class="chordify--player" id="chordify-player-view" hidden>
+                      <div class="chordify--nav chordify--nav--inline">
+                          <button class="chordify--nav__btn" id="chordify-back">
+                              ← Back to list
+                          </button>
+                          <div class="chordify--nav__title">
+                              <span id="chordify-title" class="chordify--nav__song"></span>
+                              <span
+                                      id="chordify-artist"
+                                      class="chordify--nav__artist"
+                              ></span>
+                          </div>
+                          <a
+                                  class="chordify--nav__btn chordify--nav__btn--active"
+                                  id="chordify-open"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                          >
+                              Open on chordify.net
+                          </a>
+                      </div>
+
+                      <div class="chordify--player__info">
+                          <div class="chordify--player__details">
+                              <div class="chordify--player__detail">
+                                  <strong>Duration:</strong>
+                                  <span id="chordify-duration"></span>
+                              </div>
+                              <div class="chordify--player__detail">
+                                  <strong>Key:</strong> <span id="chordify-key"></span>
+                              </div>
+                              <div class="chordify--player__detail">
+                                  <strong>Tempo:</strong> <span id="chordify-tempo"></span>
+                              </div>
+                              <div class="chordify--player__detail">
+                                  <strong>Pulse:</strong> <span id="chordify-pulse"></span>
+                              </div>
+                              <div class="chordify--player__detail">
+                                  <strong>Progressions:</strong>
+                                  <span id="chordify-progressions"></span>
+                              </div>
+                          </div>
+                      </div>
+
+                      <div class="chordify--player__iframe-container">
+                          <iframe
+                                  class="chordify--player__iframe"
+                                  id="chordify-iframe"
+                                  width="100%"
+                                  height="320"
+                                  style="border: 0"
+                                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                                  allowfullscreen
+                          >
+                          </iframe>
+                      </div>
                   </div>
-                  <div class="chordify--player__detail">
-                    <strong>Tempo:</strong> <span id="chordify-tempo"></span>
+              </div>
+          </section>
+
+          <!-- Layout Examples tab -->
+          <section>
+              <div class="tonika-grid-2-top">
+                  <!-- Layout Selector -->
+                  <div class="tonika-module tonika-layout-control">
+                      <h3>Layout Examples</h3>
+                      <label for="layout-selector">Choose a layout:</label>
+                      <select id="layout-selector" class="tonika-select tonika-max-220">
+                          <option value="2x2">2x2 Grid</option>
+                          <option value="left-stack-right">Left + Stack Right</option>
+                          <option value="single-column">Single Column</option>
+                      </select>
                   </div>
-                  <div class="chordify--player__detail">
-                    <strong>Pulse:</strong> <span id="chordify-pulse"></span>
+
+                  <!-- Live Preview -->
+                  <div class="tonika-module tonika-layout-preview">
+                      <h4>Live Preview</h4>
+                      <div id="layout-preview"></div>
                   </div>
-                  <div class="chordify--player__detail">
-                    <strong>Progressions:</strong>
-                    <span id="chordify-progressions"></span>
-                  </div>
-                </div>
               </div>
 
-              <div class="chordify--player__iframe-container">
-                <iframe
-                  class="chordify--player__iframe"
-                  id="chordify-iframe"
-                  width="100%"
-                  height="320"
-                  style="border: 0"
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  allowfullscreen
-                >
-                </iframe>
+              <!-- Copy HTML (below) -->
+              <div class="tonika-module tonika-layout-code">
+                  <h4>Copy HTML</h4>
+                  <button class="tonika-btn tonika-btn--sm tonika-mb-sm" onclick="Tonika.UI.copyLayoutCode()">Copy All</button>
+                  <pre><code id="layout-code" class="tonika-code"></code></pre>
               </div>
-            </div>
-          </div>
-        </section>
+          </section>
+
+
 
         <!-- Settings tab -->
         <section>

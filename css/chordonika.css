@@ -340,3 +340,23 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+/* ==========================================================================
+   MODULE: CHORDONIKA
+   Scroll area styling for chord log container
+   ========================================================================== */
+
+/* chordonika.css */
+#chord-event-log {
+    max-height: 100px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+#chord-event-log::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chord-event-log::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-dark);
+    border-radius: 3px;
+}

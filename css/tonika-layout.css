@@ -190,3 +190,125 @@ footer p {
 .tonika-w-80 {
     width: 80px;
 }
+
+/* ==========================================================================
+   LAYOUT: Scrollable Modules
+   For cards/modules that may overflow vertically
+   ========================================================================== */
+
+.tonika-module--scrollable {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem; /* prevents scrollbar overlap */
+}
+
+/* ==========================================================================
+   LAYOUT: 1-column stack inside grid cell
+   Used when you want stacked modules inside a .tonika-grid-2 column
+   ========================================================================== */
+
+.tonika-grid-1-stack {
+    display: grid;
+    gap: var(--spacing-md, 16px);
+    grid-template-columns: 1fr;
+}
+
+/* ==========================================================================
+   LAYOUT: Live Layout Examples Playground
+   ========================================================================= */
+
+
+/* Visually format the preview + code area */
+#layout-preview {
+    margin-top: var(--spacing-md, 16px);
+}
+
+#layout-code {
+    display: block;
+    font-family: var(--font-mono, monospace);
+    white-space: pre;
+    overflow-x: auto;
+    padding: 1rem;
+    border-radius: var(--radius-md, 8px);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.4;
+    tab-size: 2;
+}
+
+
+
+
+
+/* Preview styles */
+.tonika-layout-preview {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 8px);
+}
+
+/* Code block styles */
+.tonika-layout-code pre {
+    display: block;
+    font-family: var(--font-mono, monospace);
+    white-space: pre;
+    overflow-x: auto;
+    padding: 1rem;
+    border-radius: var(--radius-md, 8px);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    max-width: 100%;
+    line-height: 1.4;
+    tab-size: 2;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Optional: copy-to-clipboard hover effect */
+.tonika-layout-code button {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   LAYOUT: Layout Examples tab (2 up top, 1 below)
+   ========================================================================= */
+
+.tonika-grid-2-top {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: var(--spacing-md, 16px);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Layout Preview */
+.tonika-layout-preview {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 8px);
+}
+
+/* Copy Code Block (full width) */
+.tonika-layout-code pre {
+    display: block;
+    font-family: var(--font-mono, monospace);
+    white-space: pre;
+    overflow-x: auto;
+    padding: 1rem;
+    border-radius: var(--radius-md, 8px);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    max-width: 100%;
+    line-height: 1.4;
+    tab-size: 2;
+    max-height: 300px;
+    overflow-y: auto;
+}

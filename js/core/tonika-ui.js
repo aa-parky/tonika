@@ -1,3 +1,4 @@
+
 // tonika-ui.js — tiny UI helpers (tabs and delegate to TonikaTheme)
 // Exposes API at window.Tonika.UI and auto-binds on DOM ready.
 (() => {
@@ -40,9 +41,62 @@
         });
     }
 
+    // Layout Preview Configs
+    const layoutExamples = {
+        "2x2": {
+            html: `
+<div class="tonika-grid-2">
+  <div class="tonika-module">R1 C1</div>
+  <div class="tonika-module">R1 C2</div>
+  <div class="tonika-module">R2 C1</div>
+  <div class="tonika-module">R2 C2</div>
+</div>`.trim()
+        },
+        "left-stack-right": {
+            html: `
+<div class="tonika-grid-2">
+  <div class="tonika-module">Left Column (R1 C1)</div>
+  <div class="tonika-grid-1-stack">
+    <div class="tonika-module">Right Top (R1 C2)</div>
+    <div class="tonika-module">Right Bottom (R2 C2)</div>
+  </div>
+</div>`.trim()
+        },
+        "single-column": {
+            html: `
+<div class="tonika-grid-1-stack">
+  <div class="tonika-module">Block 1</div>
+  <div class="tonika-module">Block 2</div>
+</div>`.trim()
+        }
+    };
+
+    function renderLayoutExample(value) {
+        const config = layoutExamples[value];
+        const preview = document.getElementById("layout-preview");
+        const code = document.getElementById("layout-code");
+
+        if (!config || !preview || !code) return;
+
+        preview.innerHTML = config.html;
+        preview.className = ""; // <-- Clear previous classes
+        code.textContent = config.html;
+    }
+
+    function bindLayoutDropdown() {
+        const dropdown = document.getElementById("layout-selector");
+        if (dropdown) {
+            dropdown.addEventListener("change", (e) =>
+                renderLayoutExample(e.target.value)
+            );
+            renderLayoutExample(dropdown.value); // Init on load
+        }
+    }
+
     function init() {
         bindTabs();
         bindThemeToggle();
+        bindLayoutDropdown();
     }
 
     // Expose API (backwards compat)
@@ -56,3 +110,19 @@
         init();
     }
 })();
+
+UI.copyLayoutCode = function () {
+    const codeBlock = document.getElementById("layout-code");
+    const range = document.createRange();
+    range.selectNode(codeBlock);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    try {
+        document.execCommand("copy");
+        console.log("Layout code copied to clipboard.");
+    } catch (err) {
+        console.error("Copy failed:", err);
+    }
+    selection.removeAllRanges();
+};

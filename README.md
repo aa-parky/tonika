@@ -19,7 +19,7 @@ Tonika is a modular, browser-based music rack. Each module is a self-contained U
 - Emits: `ui:chordselected`, `app:status`
 
 ### 🎛 Jackonika
-- Web MIDI input bridge (device selection + note monitoring)
+- Web MIDI input bridge (device selection and note monitoring)
 - Emits: `midi:noteon`, `midi:noteoff`, `midi:devicechange`, `app:status`
 
 ### 🔊 Soundonika
@@ -52,11 +52,6 @@ Tonika supports multiple visual themes via CSS class switching:
 - Dark/Light base themes
 - Extended palettes via `/css/themes/*.css`
 - Uses CSS variables (`tonika-tokens.css`) for consistent styling
-
-Switch theme by toggling the class on `<body>`:
-```js
-document.body.classList.toggle('tonika-theme-dark');
-```
 
 ---
 
@@ -114,7 +109,7 @@ Use `developers/tonika_module_dev_updated.html` to:
 - [ ] Extract shared logic to `tonika-utils.js`
 - [ ] Auto-generate module documentation
 - [ ] Add npm/Vite dev server and build scripts
-- [ ] Create config-driven rack loader from JSON
+- [ ] Create a config-driven rack loader from JSON
 - [ ] Improve dark/light toggle UX globally
 
 ---
@@ -123,4 +118,21 @@ Use `developers/tonika_module_dev_updated.html` to:
 
 Hand-forged by Goblin hands 🐾 in the spirit of modularity, joy, and musical experimentation.
 
-MIT Licensed — feel free to fork, extend, and remix.
+## License
+
+Tonika is licensed under the GNU General Public License v3.0 (GPL-3.0).  
+
+See the [LICENSE](./LICENSE) file for full terms.
+
+This project was originally licensed under the MIT License but has been relicensed as of September 2025.
+
+### Included Libraries and Assets
+
+| Component                | License                         | Link                                                                     |
+|--------------------------|---------------------------------|--------------------------------------------------------------------------|
+| **Tonika core code**     | GPL-3.0                         | This repository                                                          |
+| MidiWriterJS             | MIT                             | [Source](https://github.com/grimmdude/MidiWriterJS/blob/master/LICENSE)  |
+| Upright Piano KW         | Creative Commons Zero (CC0 1.0) | [License](https://creativecommons.org/publicdomain/zero/1.0/)            |
+| highlight.js *(planned)* | BSD-3-Clause (GPL-Compatible)   | [License](https://github.com/highlightjs/highlight.js/blob/main/LICENSE) |
+
+*All third-party libraries are GPL-3 compatible.*
