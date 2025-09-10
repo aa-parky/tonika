@@ -20,7 +20,7 @@
 -->
 <!--suppress ALL -->
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>Tonika - Curated</title>
     <!-- 1) Core Design System: CSS Variables and Base Styles -->
@@ -28,9 +28,9 @@
     <!-- 2) Layout System: Page structure and responsive grid -->
     <link href="css/tonika-layout.css" rel="stylesheet" />
     <!-- 3) Shared Components: Buttons, Inputs, Cards, etc. -->
-    <link href="css/tonika-components.css" rel="stylesheet"  />
+    <link href="css/tonika-components.css" rel="stylesheet" />
     <!-- 4) module overrides/sizes -->
-    <link href="css/tonika-tokens.css" rel="stylesheet"  />
+    <link href="css/tonika-tokens.css" rel="stylesheet" />
     <!-- 5) YOUR MODULE'S CSS (Local file - replace "demo.css" with your module name) -->
     <link href="css/clavonika.css" rel="stylesheet" />
     <link href="css/chordonika.css" rel="stylesheet" />
@@ -42,71 +42,65 @@
     <script src="js/core/jackonika.js"></script>
     <script src="js/core/clavonika.js"></script>
     <script src="js/core/chordonika.js"></script>
-</head>
-<body class="tonika-theme-dark">
-<header>
-    <h1>Tonika - Curated</h1>
-</header>
-<main class="tonika-container">
-    <div class="tabs">
+  </head>
+  <body class="tonika-theme-dark">
+    <header>
+      <h1>Tonika - Curated</h1>
+    </header>
+    <main class="tonika-container">
+      <div class="tabs">
         <button class="active" onclick="Tonika.UI.openTab(0)">1</button>
         <button onclick="Tonika.UI.openTab(1)">Chordonika</button>
         <button onclick="Tonika.UI.openTab(2)">3</button>
         <button onclick="Tonika.UI.openTab(3)">Chordify</button>
         <button onclick="Tonika.UI.openTab(4)">Settings</button>
-    </div>
-    <div class="tab-content">
+      </div>
+      <div class="tab-content">
         <section class="active">
-            <div class="tonika-module">Tab 1 Content</div>
+          <div class="tonika-module">Tab 1 Content</div>
         </section>
 
-
-
         <section>
-            <div id="chord-selector"></div>
-
+          <div id="chord-selector"></div>
         </section>
 
-
-
         <section>
-
-            <div class="tonika-module">Tab 3 Content</div>
+          <div class="tonika-module">Tab 3 Content</div>
         </section>
         <section>
+          <div class="tonika-module">
+            <iframe frameborder="0" height="400" src="https://chordify.net/embed/mark-knopfler-songs/once-upon-a-time-storybook-love-chords" width="100%"></iframe>
+          </div>
+        </section>
+        <section>
+          <div class="tonika-grid-2">
             <div class="tonika-module">
-                <iframe frameborder="0" height="400" src="https://chordify.net/embed/mark-knopfler-songs/once-upon-a-time-storybook-love-chords" width="100%"></iframe>
+              <h3>Settings UI</h3>
+
+              <p>Select Theme:</p>
+              <select
+                class="tonika-select tonika-max-220"
+                id="theme-selector"
+              ></select>
+
+              <p class="tonika-mt-lg">Toggle Light/Dark:</p>
+              <button
+                class="tonika-btn tonika-btn--primary"
+                onclick="TonikaTheme.toggleMode()"
+              >
+                Toggle Mode
+              </button>
             </div>
-        </section>
-        <section>
-            <div class="tonika-grid-2">
-                <div class="tonika-module">
-                    <h3>Settings UI</h3>
 
-                    <p>Select Theme:</p>
-                    <select
-                            class="tonika-select tonika-max-220"
-                            id="theme-selector"
-                    ></select>
-
-                    <p class="tonika-mt-lg">Toggle Light/Dark:</p>
-                    <button
-                            class="tonika-btn tonika-btn--primary"
-                            onclick="TonikaTheme.toggleMode()"
-                    >
-                        Toggle Mode
-                    </button>
-                </div>
-
-                <div class="tonika-module">
-                    <h4>Modules</h4>
-                    <p>Cards automatically adapt to the current theme.</p>
-                    <button class="tonika-btn">Another Action</button>
-                </div>
+            <div class="tonika-module">
+              <h4>Modules</h4>
+              <p>Cards automatically adapt to the current theme.</p>
+              <button class="tonika-btn">Another Action</button>
             </div>
+          </div>
         </section>
-    </div>
-    <!-- ===================================================================
+      </div>
+      <!-- ===================================================================
            PIANO ROLL PLACEHOLDER
 
            This represents where a global piano/keyboard component might be
@@ -114,51 +108,50 @@
            for development purposes.
 
            ================================================================== -->
-    <div class="roll88">
+      <div class="roll88">
         <div class="piano-placeholder" id="piano">
-            <script type="module">
-                const piano = Tonika.Clavonika.init("piano");
-                piano.on("ui:noteon", (e) => console.log("UI note on", e.detail));
-                piano.on("ui:noteoff", (e) => console.log("UI note off", e.detail));
-            </script>
+          <script type="module">
+            const piano = Tonika.Clavonika.init("piano");
+            piano.on("ui:noteon", (e) => console.log("UI note on", e.detail));
+            piano.on("ui:noteoff", (e) => console.log("UI note off", e.detail));
+          </script>
         </div>
-    </div>
-</main>
-<footer>
-    <p>
+      </div>
+    </main>
+    <footer>
+      <p>
         MIT License © 2025
         <a href="https://github.com/aa-parky/tonika/tree/main" title="aa-parky"
-        >aa-parky</a
+          >aa-parky</a
         >
-    </p>
-</footer>
+      </p>
+    </footer>
 
-<script>
-    // ===================================================================
-    // MODULE INITIALIZATION
-    //
-    // This is where you initialize your module. Replace "Demo" with your
-    // actual module class name and adjust the options as needed.
-    //
-    // COMMON OPTIONS:
-    // - mount: CSS selector or DOM element where module should render
-    // - mode: "card" for contained layout, "floating" for overlay
-    // - onEvent: Callback functions for module events
-    //
-    // PRODUCTION: Keep this initialization code and customize as needed.
-    // ===================================================================
+    <script>
+      // ===================================================================
+      // MODULE INITIALIZATION
+      //
+      // This is where you initialize your module. Replace "Demo" with your
+      // actual module class name and adjust the options as needed.
+      //
+      // COMMON OPTIONS:
+      // - mount: CSS selector or DOM element where module should render
+      // - mode: "card" for contained layout, "floating" for overlay
+      // - onEvent: Callback functions for module events
+      //
+      // PRODUCTION: Keep this initialization code and customize as needed.
+      // ===================================================================
 
-    // Initialize your modules in the tabs
+      // Initialize your modules in the tabs
 
-    // Chordonika (Chord selector + visualizer)
-    new Chordonika({
+      // Chordonika (Chord selector + visualizer)
+      new Chordonika({
         mount: "#chord-selector",
         mode: "card",
         onChordSelected: (chord) => {
-            console.log("Selected chord:", chord);
-        }
-    });
-
-</script>
-</body>
+          console.log("Selected chord:", chord);
+        },
+      });
+    </script>
+  </body>
 </html>
