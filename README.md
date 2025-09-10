@@ -124,7 +124,7 @@ Tonika is licensed under the GNU General Public License v3.0 (GPL-3.0).
 
 See the [LICENSE](./LICENSE) file for full terms.
 
-This project was originally licensed under the MIT License but has been relicensed as of September 2025.
+This project was originally licensed under the MIT License but has been relicensed as of September 10th, 2025.
 
 ### Included Libraries and Assets
 
