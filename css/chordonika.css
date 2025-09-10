@@ -34,6 +34,7 @@
 .chordonika--card {
     /* Fixed height with internal scrolling for consistent layout */
     height: 337px;
+    width: 536px;
     overflow: hidden;
     display: flex;
     flex-direction: column;

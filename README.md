@@ -1,150 +1,85 @@
-# 🧃 Tonika
+# Tonika
 
-Tonika is a modular, browser-based playground for music interaction, built with vanilla JS + Web APIs. It offers drop-in core modules, a unified event system, global theming, and flexible UI layout.
-
----
-
-## 📦 Core Modules
-
-Located in `/js/core/`:
-
-| File                | Role                                     |
-|---------------------|------------------------------------------|
-| `tonika-emitter.js` | Base event emitter (EventTarget wrapper) |
-| `tonika-theme.js`   | Theme switching (light/dark/custom)      |
-| `tonika-ui.js`      | UI helpers (tabs, toggles, etc.)         |
-| `clavonika.js`      | Piano keyboard UI module                 |
-| `jackonika.js`      | MIDI input bridge                        |
-| `soundonika.js`     | Audio engine (sample playback)           |
+Tonika is a modular, browser‑based rack of UI and music tools. Each module is designed as a standalone component but follows the same core patterns so they can work together in a single rack.
 
 ---
 
-## 🎨 Styling & Theming
+## ✨ Current Modules
 
-Located in `/css/`:
-
-- `tonika-tokens.css`: Design tokens (`--color-bg`, `--spacing-md`, etc.)
-- `tonika-theme-base.css`: Base theme structure
-- `themes/*.css`: Optional full themes (e.g. `brown_01.css`)
-- `tonika-layout.css`: Layout/grid helpers
-- `tonika-components.css`: Buttons, inputs, selects
-- `clavonika.css`: Module-specific styles
-- `demo.css`: Additional styles used in demos
-
-### Theme Switching (JS)
-```js
-Tonika.Theme.set("brown_01");
-```
-
----
-
-## 🔌 Demo Pages
-
-Demos live in `/demo/`:
-
-| File                   | Purpose                    |
-|------------------------|----------------------------|
-| `clavonika.html`       | Piano keyboard module      |
-| `jackonika.html`       | MIDI input bridge test     |
-| `soundonika.html`      | Audio sample test with UI  |
-| `chernobyl_drone.html` | Experimental music testbed |
+- **Clavonika** – 88‑key piano keyboard interface with MIDI input support.
+    - Emits `ui:noteon` / `ui:noteoff`
+    - Emits `app:status` (ready, info, error)
+- **Chordonika** – Chord selector and visualizer with integrated keyboard highlighting.
+    - Emits `ui:chordselected` with chord object or `null`
+- **Jackonika** – Web MIDI input bridge.
+    - Emits `midi:noteon` / `midi:noteoff` / `midi:devicechange`
+    - Emits `app:status` (ready, info, error)
+- **Soundonika** – Core audio engine for samples/click playback.
+    - Emits `audio:status` (loading, ready, error, info)
+    - Emits `app:mappings_updated` when sample mappings change
+- **Chordify Integration** – Curated list of songs rendered as a searchable table. Selecting a song opens the Chordify player in an inline view with a back button.
+    - Built using plain JSON (`song_data.json`) and iframe embeds.
 
 ---
 
-## 🧪 Developing Your Own Module
+## 🛠 Unified Event Taxonomy
 
-1. Add a module under `js/core/yourmodule.js`
-2. Use the following pattern:
+All modules now follow a consistent event naming scheme:
 
-```js
-class YourModule extends TonikaEmitter {
-  init() { /* setup code */ }
-  destroy() { /* cleanup code */ }
-}
-window.TonikaModules = window.TonikaModules || {};
-window.TonikaModules.YourModule = YourModule;
-```
+- `ui:*` → User interactions (note on/off, chord selection, knob turn)
+- `midi:*` → Raw MIDI device data
+- `audio:*` → Audio engine lifecycle and playback
+- `app:*` → General system and status messages
 
-3. Create a stylesheet using BEM-style:
-
-```css
-
-.yourmodule__button { ... }
-```
-
-4. Use global styles like:
-```html
-<button class="tonika-btn">Click me</button>
-```
+This ensures predictable logs and prevents namespace collisions across modules.
 
 ---
 
-## 🎧 Samples & Index
-
-Audio samples are under:
-
-```
-samples/percussion/DopeDrumsVol5/*.wav
-```
-
-The sample index is:
-
-```json
-{
-  "percussion": {
-    "DopeDrumsVol5": [
-      "DD5_Kick_01.wav",
-      "..."
-    ]
-  }
-}
-```
-
-This is loaded by `soundonika.js` at runtime.
-
----
-
-## 🧠 Event System
-
-All modules use `TonikaEmitter` (a wrapper around `EventTarget`).
-
-| Method    | Description                      |
-|-----------|----------------------------------|
-| `.on()`   | Add listener                     |
-| `.off()`  | Remove listener                  |
-| `.emit()` | Dispatch event with `{ detail }` |
-
-```js
-engine.on("status", ({ detail }) => console.log(detail));
-engine.emit("status", { state: "ready" });
-```
-
----
-
-## 🪄 Recommended Loading Order
+## 🚀 Usage Example
 
 ```html
-<!-- CSS -->
-<link rel="stylesheet" href="css/tonika-theme-base.css" />
-<link rel="stylesheet" href="css/tonika-components.css" />
-<link rel="stylesheet" href="css/tonika-layout.css" />
-<link rel="stylesheet" href="css/themes/brown_01.css" />
+<!-- Mount Clavonika -->
+<div id="piano"></div>
+<script type="module">
+  const piano = Tonika.Clavonika.init("piano");
 
-<!-- JS -->
-<script src="js/core/tonika-emitter.js"></script>
-<script src="js/core/tonika-theme.js"></script>
-<script src="js/core/tonika-ui.js"></script>
-<script src="js/core/clavonika.js"></script>
-<script src="js/core/jackonika.js"></script>
-<script src="js/core/soundonika.js"></script>
+  piano.on("ui:noteon", (e) => console.log("Note on", e.detail));
+  piano.on("ui:noteoff", (e) => console.log("Note off", e.detail));
+  piano.on("app:status", (e) => console.log("Status", e.detail));
+</script>
+
+<!-- Mount Chordonika -->
+<div id="chord-selector"></div>
+<script>
+  const chords = new Chordonika({ mount: "#chord-selector", mode: "card" });
+  chords.on("ui:chordselected", (e) => console.log("Chord:", e.detail));
+</script>
 ```
 
 ---
 
-## 🛠️ Dev Notes
+## 📝 Dev Notes
 
-- Use `developers/tonika_module_dev_updated.html` as a local dev scratchpad.
-- Tabs and themes are controlled by `tonika-ui.js` and `tonika-theme.js`.
-- Create your module in isolation first, then wire to other modules using events.
+- **Iframe Warnings:** Chordify integration produces console warnings (`X-Frame-Options`, preload hints). These are harmless and come from Chordify’s own frontend. Nothing to fix on our side.
+- **Blocked Trackers:** If you run Pi-hole or a blocker, you’ll see `ERR_CONNECTION_REFUSED` for Google Analytics/Tag Manager. This does not affect playback.
+- **Permissions Policy:** To reduce console noise, the Chordify iframe now uses a tuned `allow` attribute:
+  ```html
+  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+  ```
+- **Hidden Views:** Table view and player view swap cleanly with `display:none` via BEM classes, preventing scroll stacking.
 
-Happy patching, you beautiful Goblin! 🧙‍♀️
+---
+
+## 🔮 Roadmap
+
+- Add sortable/filterable columns to the Chordify table (key, tempo, etc.).
+- Sync chord progressions from JSON to highlight notes on the 88‑key keyboard in time with playback.
+- Add `destroy()` lifecycle methods to modules for clean teardown.
+- Extract boilerplate UI card helpers into a shared utility (`Tonika.UICard`).
+- Improve responsive layouts for small screens.
+
+---
+
+## 📜 License
+
+MIT License © 2025 [aa-parky](https://github.com/aa-parky)

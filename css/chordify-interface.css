@@ -7,13 +7,13 @@
 
 /* Block: chordify--interface */
 .chordify--interface {
-  width: 100%;
-  height: 100%;
+  width: 98%;
+  height: 610px;
   display: flex;
   flex-direction: column;
   background: var(--tonika-bg-primary, #1a1a1a);
   color: var(--tonika-text-primary, #ffffff);
-  font-family: var(--tonika-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+    font-family: var(--tonika-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif), serif;
 }
 
 /* Block: chordify--nav */
@@ -24,7 +24,7 @@
   padding: 1rem;
   background: var(--tonika-bg-secondary, #2a2a2a);
   border-bottom: 1px solid var(--tonika-border-color, #3a3a3a);
-  min-height: 60px;
+  min-height: 40px;
 }
 
 /* Element: chordify--nav__btn */
@@ -500,4 +500,33 @@
     text-align: left;
   }
 }
+.chordify--table-container[hidden],
+.chordify--player[hidden] {
+    display: none !important;
+}
 
+.chordify--nav--inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.chordify--nav__title {
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.chordify--nav__song {
+    font-weight: 600;
+    color: var(--tonika-text-primary, #ffffff);
+    margin-right: 0.5rem;
+}
+
+.chordify--nav__artist {
+    color: var(--tonika-text-secondary, #cccccc);
+    font-size: 0.9rem;
+}
