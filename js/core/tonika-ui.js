@@ -99,9 +99,27 @@
         bindLayoutDropdown();
     }
 
+    // Copy layout code function
+    function copyLayoutCode() {
+        const codeBlock = document.getElementById("layout-code");
+        const range = document.createRange();
+        range.selectNode(codeBlock);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        try {
+            document.execCommand("copy");
+            console.log("Layout code copied to clipboard.");
+        } catch (err) {
+            console.error("Copy failed:", err);
+        }
+        selection.removeAllRanges();
+    }
+
     // Expose API (backwards compat)
     UI.openTab = openTab;
     UI.toggleTheme = toggleTheme;
+    UI.copyLayoutCode = copyLayoutCode;
     UI.init = init;
 
     if (document.readyState === "loading") {
@@ -110,19 +128,3 @@
         init();
     }
 })();
-
-UI.copyLayoutCode = function () {
-    const codeBlock = document.getElementById("layout-code");
-    const range = document.createRange();
-    range.selectNode(codeBlock);
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
-    try {
-        document.execCommand("copy");
-        console.log("Layout code copied to clipboard.");
-    } catch (err) {
-        console.error("Copy failed:", err);
-    }
-    selection.removeAllRanges();
-};

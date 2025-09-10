@@ -151,3 +151,10 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.catchonika__takes-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+}

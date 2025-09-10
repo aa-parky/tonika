@@ -73,7 +73,8 @@
             this._pendingRelease = new Map(); // ch -> Set(keys)
 
             // Auto-take state
-            this._takes = []; // [{ startMs, endMs }]
+            this._takes = [];
+            this._sortOrder = localStorage.getItem("catchonika_sort") || "asc"; // [{ startMs, endMs }]
             this._currentTake = null; // { startMs, lastActivityMs }
             this._idleTimer = null; // inactivity timeout id
 
@@ -439,6 +440,8 @@
             this._currentTake = { startMs: t, lastActivityMs: t };
             this._resetIdleTimer();
             this._renderTakesList();
+            this._setupSortSelect();
+
             this._schedulePersist();
             this._status(`Take ${this._takes.length + 1} started`);
         }
@@ -455,6 +458,8 @@
             });
             this._currentTake = null;
             this._renderTakesList();
+            this._setupSortSelect();
+
             this._schedulePersist();
             this._status(`Take ${this._takes.length} ended`);
         }
@@ -473,16 +478,31 @@
             }, this.settings.takeIdleSeconds * 1000);
         }
 
+        _setupSortSelect() {
+            const sortSelect = this._mount.querySelector(".catchonika__sort");
+            if (sortSelect) {
+                sortSelect.value = this._sortOrder;
+                sortSelect.addEventListener("change", (e) => {
+                    this._sortOrder = e.target.value;
+                    localStorage.setItem("catchonika_sort", this._sortOrder);
+                    this._renderTakesList();
+                });
+            }
+        }
+
         // --- Takes list rendering ------------------------------------------------
 
         _renderTakesList() {
             if (!this._takesListEl) return;
 
+
+            const takesSorted = [...this._takes];
+            if (this._sortOrder === "desc") takesSorted.reverse();
             const rows = [];
 
             // Render completed takes
-            for (let i = 0; i < this._takes.length; i++) {
-                const take = this._takes[i];
+            for (let i = 0; i < takesSorted.length; i++) {
+                const take = takesSorted[i];
                 const startedClock = this._fmtClock(this._startEpoch + take.startMs);
                 const length = take.endMs - take.startMs;
                 const durationSeconds = Math.max(0, Math.round(length / 1000));
@@ -492,7 +512,7 @@
                         <div class="catchonika__take-meta">
                             <div class="catchonika__chip">
                                 <span class="dot"></span>
-                                Take ${i + 1}
+                                Take ${this._takes.indexOf(take) + 1}
                             </div>
                             <span class="catchonika__label u-ellipsis">Started: ${startedClock}</span>
                         </div>
@@ -740,7 +760,9 @@
             }
             this._currentTake = null;
             this._takes = [];
+            this._sortOrder = localStorage.getItem("catchonika_sort") || "asc";
             this._renderTakesList();
+            this._setupSortSelect();
 
             this._wipeState();
             this._status("Cleared buffer.");
@@ -775,6 +797,8 @@
                 this._idleInput.value = String(this.settings.takeIdleSeconds);
             this._takesListEl = this._mount.querySelector(".catchonika__takes");
             this._renderTakesList();
+            this._setupSortSelect();
+
         }
 
         _teardownUI() {
@@ -806,7 +830,14 @@
                     </div>
                     <button class="tonika-btn" data-action="clear" title="Clear buffer">Clear</button>
                 </div>
-                <div class="catchonika__takes"></div>
+                <div class="catchonika__takes-header">
+  <label class="tonika-text-muted" for="catchonika__sort">Sort:</label>
+  <select class="tonika-select catchonika__sort" id="catchonika__sort">
+    <option value="asc">Oldest first</option>
+    <option value="desc">Newest first</option>
+  </select>
+</div>
+<div class="catchonika__takes"></div>
                 <div class="catchonika__footer">
                     <div class="catchonika__status tonika-text-muted" aria-live="polite">Ready.</div>
                 </div>

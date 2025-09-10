@@ -9,25 +9,30 @@ Tonika is a modular, browser-based music rack. Each module is a self-contained U
 ## ✨ Current Modules
 
 ### 🎹 Clavonika
+
 - 88-key virtual piano keyboard
 - Responds to Web MIDI input
 - Emits: `ui:noteon`, `ui:noteoff`, `app:status`
 
 ### 🎼 Chordonika
+
 - Chord selector and visualizer
 - Highlights notes on Clavonika
 - Emits: `ui:chordselected`, `app:status`
 
 ### 🎛 Jackonika
+
 - Web MIDI input bridge (device selection and note monitoring)
 - Emits: `midi:noteon`, `midi:noteoff`, `midi:devicechange`, `app:status`
 
 ### 🔊 Soundonika
+
 - Core audio engine for playing mapped audio samples
 - Uses `sample-index.json` to preload sounds
 - Emits: `audio:status`, `app:mappings_updated`
 
 ### 🎧 Chordify Integration
+
 - Inline iframe-based player for curated songs
 - Built using `song_data.json` table for selection
 - Provides visual tabular access to preselected chordified YouTube tracks
@@ -37,6 +42,7 @@ Tonika is a modular, browser-based music rack. Each module is a self-contained U
 ## 🔁 Unified Event Taxonomy
 
 All modules emit events via `tonika-emitter.js`, following a shared format:
+
 - `ui:*` — user interface actions (notes, chords, tabs)
 - `midi:*` — hardware MIDI events
 - `audio:*` — audio status or sample playback
@@ -49,6 +55,7 @@ Use `TonikaEmitter.on(...)` to subscribe and coordinate between modules.
 ## 🎨 Theming
 
 Tonika supports multiple visual themes via CSS class switching:
+
 - Dark/Light base themes
 - Extended palettes via `/css/themes/*.css`
 - Uses CSS variables (`tonika-tokens.css`) for consistent styling
@@ -90,6 +97,7 @@ tonika/
 ## 👨‍💻 Developer Guide
 
 ### Creating a Module
+
 1. Use BEM naming: `.yourmodule`, `.yourmodule__element`, `.yourmodule--modifier`
 2. Wrap in: `<div class="tonika-module yourmodule yourmodule--card">`
 3. Export a JS class with `.init()` and `.destroy()` methods
@@ -97,7 +105,9 @@ tonika/
 5. Respect layout and theme tokens
 
 ### Dev Shell
+
 Use `developers/tonika_module_dev_updated.html` to:
+
 - Mount modules easily (`new YourModule({ mount: "#demo-mount" })`)
 - Test themes and tab switching
 - Auto-refresh during development
@@ -120,7 +130,7 @@ Hand-forged by Goblin hands 🐾 in the spirit of modularity, joy, and musical e
 
 ## License
 
-Tonika is licensed under the GNU General Public License v3.0 (GPL-3.0).  
+Tonika is licensed under the GNU General Public License v3.0 (GPL-3.0).
 
 See the [LICENSE](./LICENSE) file for full terms.
 
@@ -129,10 +139,10 @@ This project was originally licensed under the MIT License but has been relicens
 ### Included Libraries and Assets
 
 | Component                | License                         | Link                                                                     |
-|--------------------------|---------------------------------|--------------------------------------------------------------------------|
+| ------------------------ | ------------------------------- | ------------------------------------------------------------------------ |
 | **Tonika core code**     | GPL-3.0                         | This repository                                                          |
 | MidiWriterJS             | MIT                             | [Source](https://github.com/grimmdude/MidiWriterJS/blob/master/LICENSE)  |
 | Upright Piano KW         | Creative Commons Zero (CC0 1.0) | [License](https://creativecommons.org/publicdomain/zero/1.0/)            |
-| highlight.js *(planned)* | BSD-3-Clause (GPL-Compatible)   | [License](https://github.com/highlightjs/highlight.js/blob/main/LICENSE) |
+| highlight.js _(planned)_ | BSD-3-Clause (GPL-Compatible)   | [License](https://github.com/highlightjs/highlight.js/blob/main/LICENSE) |
 
-*All third-party libraries are GPL-3 compatible.*
+_All third-party libraries are GPL-3 compatible._
