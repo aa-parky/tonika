@@ -1,148 +1,110 @@
-# 🎛 Tonika
+# Tonika 🎛️🎹 — Modular MIDI Rack System
 
-Tonika is a modular, browser-based music rack. Each module is a self-contained UI/audio tool that plugs into a shared rack architecture — perfect for live musical experimentation, prototyping, or educational environments.
-
-> Goblin-built and beautifully themed, Tonika is designed to be developer-friendly, themable, and interoperable.
+**Tonika** is a modular, front-end rack UI for exploring MIDI interactions, audio control, and musical tooling — built with zero frameworks and pure Goblin engineering™. It’s designed for extensibility, visual clarity, and musician-first usability.
 
 ---
 
-## ✨ Current Modules
+## 🎚️ Module Overview
 
-### 🎹 Clavonika
+Each module lives in its own JS file (`js/core/*.js`) and follows a unified mounting + rendering pattern.
 
-- 88-key virtual piano keyboard
-- Responds to Web MIDI input
-- Emits: `ui:noteon`, `ui:noteoff`, `app:status`
-
-### 🎼 Chordonika
-
-- Chord selector and visualizer
-- Highlights notes on Clavonika
-- Emits: `ui:chordselected`, `app:status`
-
-### 🎛 Jackonika
-
-- Web MIDI input bridge (device selection and note monitoring)
-- Emits: `midi:noteon`, `midi:noteoff`, `midi:devicechange`, `app:status`
-
-### 🔊 Soundonika
-
-- Core audio engine for playing mapped audio samples
-- Uses `sample-index.json` to preload sounds
-- Emits: `audio:status`, `app:mappings_updated`
-
-### 🎧 Chordify Integration
-
-- Inline iframe-based player for curated songs
-- Built using `song_data.json` table for selection
-- Provides visual tabular access to preselected chordified YouTube tracks
+| Module          | Description                                                          |
+|-----------------|----------------------------------------------------------------------|
+| `Catchonika`    | Live session logger & idle-aware recorder (BPM-aware take tracker).  |
+| `Rhythonika`    | Smart metronome with polyrhythm & accented beat patterns.            |
+| `Clavonika`     | Fully interactive piano keyboard with MIDI input support.            |
+| `Chordonika`    | Chord detection and callback-based event logging.                    |
+| `Chordify`      | Embedded library browser and iframe player for Chordify integration. |
+| `Soundonika`    | Audio playback engine — sample loader with fallback click sounds.    |
+| `TonikaEmitter` | Lightweight EventTarget wrapper for intra-module events.             |
 
 ---
 
-## 🔁 Unified Event Taxonomy
+## 🧠 Core Architecture
 
-All modules emit events via `tonika-emitter.js`, following a shared format:
-
-- `ui:*` — user interface actions (notes, chords, tabs)
-- `midi:*` — hardware MIDI events
-- `audio:*` — audio status or sample playback
-- `app:*` — general status messages and logs
-
-Use `TonikaEmitter.on(...)` to subscribe and coordinate between modules.
+- **BEM-style CSS**: Every module follows the `.tonika-module yourmodule yourmodule--card` root pattern.
+- **No frameworks**: Pure vanilla JS (ES6), HTML, and CSS — fully tree-shakable.
+- **Dark/light theme toggle** via `TonikaTheme.toggleMode()`.
+- **Local sample support**: Uses `sample-index.json` to preload local assets.
+- **Fallback sounds**: Rhythonika plays clicks if samples are unavailable.
+- **Registry-safe**: Modules are also attached to `window.TonikaModules` for legacy compatibility.
 
 ---
 
-## 🎨 Theming
+## ⚙️ Module Initialization Examples
 
-Tonika supports multiple visual themes via CSS class switching:
+```js
+new Catchonika({
+  mount: "#catchonika-card",
+  bufferMinutes: 60,
+  defaultBpm: 120,
+});
 
-- Dark/Light base themes
-- Extended palettes via `/css/themes/*.css`
-- Uses CSS variables (`tonika-tokens.css`) for consistent styling
+new Rhythonika({
+  mount: "#rhythonika-mount",
+  mode: "card",
+});
+
+new Chordonika({
+  mount: "#chord-selector",
+  onChordSelected: (chord) => console.log(chord),
+});
+```
 
 ---
 
-## 📁 Project Structure
+## 🗂️ Directory Structure
 
 ```
 tonika/
 ├── css/
-│   ├── tonika-layout.css          # Core layout styles
-│   ├── tonika-components.css      # Buttons, inputs, etc.
-│   ├── tonika-tokens.css          # Design tokens (colors, spacing)
-│   ├── themes/                    # Optional alternate themes
-├── js/core/
-│   ├── clavonika.js               # Piano keyboard
-│   ├── chordonika.js              # Chord visualizer
-│   ├── jackonika.js               # MIDI device handler
-│   ├── soundonika.js              # Audio engine
-│   ├── tonika-emitter.js          # Shared event bus
-│   ├── tonika-ui.js               # Common UI helpers
-│   ├── tonika-theme.js            # Theme switching logic
-├── demo/
-│   ├── clavonika.html             # Individual module tests
-│   ├── chordify-demo.html         # Chordify integration test
-├── developers/
-│   ├── tonika_module_dev_updated.html # Dev onboarding shell
+│   ├── tonika-layout.css
+│   ├── tonika-components.css
+│   └── [module].css
+├── js/
+│   ├── core/
+│   │   ├── catchonika.js
+│   │   ├── rhythonika.js
+│   │   ├── chordonika.js
+│   │   ├── clavonika.js
+│   │   ├── chordify.js
+│   │   ├── soundonika.js
+│   │   └── tonika-[ui|theme|emitter].js
+│   └── vendor/
+│       └── midiwriter.js
 ├── samples/
-│   ├── sample-index.json          # Sample map used by Soundonika
-│   ├── percussion/...             # Audio samples
-├── song_data.json                 # Chordify song definitions
-├── tonika.html                    # Main multi-module rack view
-└── README.md                      # You're here!
+│   └── sample-index.json
+└── tonika.html
 ```
 
 ---
 
-## 👨‍💻 Developer Guide
+## 🥁 Sample Management
 
-### Creating a Module
+Rhythonika + Soundonika use `samples/sample-index.json` to locate local samples by category/pack. If missing or invalid, it falls back to built-in click sounds.
 
-1. Use BEM naming: `.yourmodule`, `.yourmodule__element`, `.yourmodule--modifier`
-2. Wrap in: `<div class="tonika-module yourmodule yourmodule--card">`
-3. Export a JS class with `.init()` and `.destroy()` methods
-4. Emit events using `TonikaEmitter.emit('ui:youraction', payload)`
-5. Respect layout and theme tokens
+You can define your own mapping via:
 
-### Dev Shell
-
-Use `developers/tonika_module_dev_updated.html` to:
-
-- Mount modules easily (`new YourModule({ mount: "#demo-mount" })`)
-- Test themes and tab switching
-- Auto-refresh during development
+```js
+audioEngine.setSampleMappings({
+  kick: "percussion/MyPack/kick1.wav",
+  snare: "percussion/MyPack/snare1.wav",
+});
+```
 
 ---
 
-## 🚧 TODO / Ideas
+## 🎨 Styling & Themes
 
-- [ ] Extract shared logic to `tonika-utils.js`
-- [ ] Auto-generate module documentation
-- [ ] Add npm/Vite dev server and build scripts
-- [ ] Create a config-driven rack loader from JSON
-- [ ] Improve dark/light toggle UX globally
+- `tonika-theme-base.css` handles light/dark token logic.
+- Module cards adapt to the current theme automatically.
+- CSS variables used throughout: `--color-bg-primary`, `--spacing-md`, etc.
+- All components use `.tonika-*` shared utility classes.
 
 ---
 
-## 🧪 Credits & Philosophy
+## 📄 License
 
-Hand-forged by Goblin hands 🐾 in the spirit of modularity, joy, and musical experimentation.
+GPL-3.0 license © 2025 [aa-parky](https://github.com/aa-parky/tonika/blob/main/LICENSE)
 
-## License
-
-Tonika is licensed under the GNU General Public License v3.0 (GPL-3.0).
-
-See the [LICENSE](./LICENSE) file for full terms.
-
-This project was originally licensed under the MIT License but has been relicensed as of September 10th, 2025.
-
-### Included Libraries and Assets
-
-| Component                | License                         | Link                                                                     |
-| ------------------------ | ------------------------------- | ------------------------------------------------------------------------ |
-| **Tonika core code**     | GPL-3.0                         | This repository                                                          |
-| MidiWriterJS             | MIT                             | [Source](https://github.com/grimmdude/MidiWriterJS/blob/master/LICENSE)  |
-| Upright Piano KW         | Creative Commons Zero (CC0 1.0) | [License](https://creativecommons.org/publicdomain/zero/1.0/)            |
-| highlight.js _(planned)_ | BSD-3-Clause (GPL-Compatible)   | [License](https://github.com/highlightjs/highlight.js/blob/main/LICENSE) |
-
-_All third-party libraries are GPL-3 compatible._
+Goblins bless the rack.
