@@ -1,11 +1,11 @@
 /**
  * Chordonika Module — Interactive Chord Selection and Keyboard Visualization
  * v1.1.0 — Added EventTarget emitter and unified event taxonomy
- * 
+ *
  * This module creates a visual chord selector with an interactive piano keyboard.
  * Users can select root notes and chord qualities from dropdowns, and the
  * corresponding chord notes are highlighted on the keyboard display.
- * 
+ *
  * Key Features:
  * - Interactive chord selection via dropdowns
  * - Visual piano keyboard with chord highlighting
@@ -18,7 +18,7 @@
 (() => {
     /**
      * Chordonika Class - Main module class for chord visualization
-     * 
+     *
      * This class handles:
      * 1. Chord data management (notes, intervals, chord types)
      * 2. UI rendering (dropdowns, keyboard, chord info)
@@ -26,7 +26,7 @@
      * 4. Visual feedback (highlighting keyboard keys)
      * 5. Event emission for external communication
      */
-    class Chordonika {
+    class Chordonika extends Tonika.TonikaEmitter {
         /**
          * Constructor - Initialize the Chordonika module
          * @param {Object} opts - Configuration options
@@ -35,6 +35,8 @@
          * @param {string|HTMLElement} opts.mount - DOM selector or element to mount to
          */
         constructor(opts = {}) {
+            super();
+
             // Store configuration settings with default fallbacks
             // The ?? operator provides null/undefined coalescing (safer than ||)
             this.settings = {
@@ -51,51 +53,14 @@
 
             // Create an internal event system using modern EventTarget API
             // This allows multiple listeners and follows web standards
-            this._emitter = new EventTarget();
+            this.emit("app:status", { state: "initializing" });
 
             // Initialize the module in a proper sequence
             this._initChordData();    // Set up musical data (notes, chords, intervals)
             this._renderUI();         // Create and insert DOM elements
-            this._attachUIHandlers(); // Bind event listeners for user interactions
+            this._attachUIHandlers();
+            this.emit("app:status", { state: "ready" });
         }
-
-        // ===== EVENT SYSTEM METHODS =====
-        // These methods provide a clean API for external code to listen to chord events
-
-        /**
-         * Add event listener - Subscribe to chord selection events
-         * @param {string} type - Event type (e.g., "ui:chordselected")
-         * @param {Function} handler - Callback function to handle the event
-         * @param {Object} options - addEventListener options (optional)
-         * @returns {Function} Unsubscribe function for cleanup
-         */
-        on(type, handler, options) {
-            this._emitter.addEventListener(type, handler, options);
-            // Return cleanup function - modern pattern for preventing memory leaks
-            return () => this.off(type, handler, options);
-        }
-
-        /**
-         * Remove event listener - Unsubscribe from events
-         * @param {string} type - Event type to remove
-         * @param {Function} handler - Specific handler to remove
-         * @param {Object} options - removeEventListener options (optional)
-         */
-        off(type, handler, options) {
-            this._emitter.removeEventListener(type, handler, options);
-        }
-
-        /**
-         * Emit custom event - Notify all listeners of chord changes
-         * @param {string} type - Event type to emit
-         * @param {*} detail - Data to send with the event
-         */
-        emit(type, detail) {
-            // CustomEvent allows passing data in the 'detail' property
-            this._emitter.dispatchEvent(new CustomEvent(type, { detail }));
-        }
-
-        // === MUSICAL DATA INITIALIZATION ==========================================
 
         /**
          * Initialize chord and musical data structures
@@ -158,7 +123,7 @@
         /**
          * Calculate chord notes from root note and quality
          * This is the core musical logic that converts music theory into actual notes
-         * 
+         *
          * @param {string} rootNote - The root note (e.g., "C", "F#")
          * @param {string} qualityName - The chord quality key (e.g., "major", "minor7")
          * @returns {Object|null} Chord object with symbol, notes, and intervals
@@ -186,12 +151,12 @@
             const symbol = rootNote + quality.symbol; // e.g., "C" + "m7" = "Cm7"
 
             // Return complete chord information
-            return { 
-                root: rootNote, 
-                quality: qualityName, 
-                symbol, 
-                notes, 
-                intervals: quality.intervals 
+            return {
+                root: rootNote,
+                quality: qualityName,
+                symbol,
+                notes,
+                intervals: quality.intervals
             };
         }
 
@@ -199,7 +164,7 @@
          * Find optimal octave placement for chord notes on the keyboard
          * This ensures chords are displayed in a comfortable range that fits
          * within the keyboard's visual boundaries
-         * 
+         *
          * @param {string[]} notes - Array of note names (e.g., ["C", "E", "G"])
          * @returns {number[]} Array of MIDI note numbers for optimal octave
          */
@@ -237,11 +202,11 @@
          */
         _createKeyboard() {
             return `
-        <div class="chordonika__keyboard">
-          <div class="chordonika__keys">
-            ${this._generateKeyHTML()} <!-- Insert dynamically generated key elements -->
-          </div>
-        </div>`;
+            <div class="chordonika__keyboard">
+              <div class="chordonika__keys">
+                ${this._generateKeyHTML()} <!-- Insert dynamically generated key elements -->
+              </div>
+            </div>`;
         }
 
         /**
@@ -294,17 +259,17 @@
                 // - data attributes for JavaScript targeting
                 // - note label for user reference
                 return `
-          <div class="chordonika__key chordonika__key--${key.type} chordonika__position--${key.position}"
-               data-note="${key.note}" data-octave="${key.octave}">
-            <div class="chordonika__note-label">${noteLabel}</div>
-          </div>`;
+              <div class="chordonika__key chordonika__key--${key.type} chordonika__position--${key.position}"
+                   data-note="${key.note}" data-octave="${key.octave}">
+                <div class="chordonika__note-label">${noteLabel}</div>
+              </div>`;
             }).join(''); // Combine all key HTML into a single string
         }
 
         /**
          * Highlight chord notes on the keyboard
          * This provides visual feedback by adding active classes to keys that are part of the current chord
-         * 
+         *
          * @param {Object} chord - Chord object with notes array
          */
         _highlightChordNotes(chord) {
@@ -379,43 +344,43 @@
          */
         _uiHTML() {
             return `
-        <div class="chordonika__header">
-          <div class="chordonika__title-section">
-            <h3 class="chordonika__title">Chord Selection</h3>
-            <div class="chordonika__subtitle">Select chords and see them visualized on the keyboard</div>
-          </div>
-        </div>
-        <div class="chordonika__content">
-          <div class="chordonika__chord-selector">
-            <div class="chordonika__controls">
-              <!-- Root note selection dropdown -->
-              <div class="chordonika__dropdown-group">
-                <label for="chordonika-root-select">Root Note:</label>
-                <select id="chordonika-root-select" class="tonika-select chordonika__dropdown">
-                  <option value="">Select root note...</option>
-                </select>
-              </div>
-              <!-- Chord quality selection dropdown -->
-              <div class="chordonika__dropdown-group">
-                <label for="chordonika-quality-select">Chord Quality:</label>
-                <select id="chordonika-quality-select" class="tonika-select chordonika__dropdown">
-                  <option value="">Select chord quality...</option>
-                </select>
+            <div class="chordonika__header">
+              <div class="chordonika__title-section">
+                <h3 class="chordonika__title">Chord Selection</h3>
+                <div class="chordonika__subtitle">Select chords and see them visualized on the keyboard</div>
               </div>
             </div>
-            <!-- Chord information display and clear button -->
-            <div class="chordonika__chord-info" aria-live="polite">
-              <div class="chordonika__chord-details">
-                <div class="chordonika__chord-symbol"></div> <!-- Shows chord symbol like "Cm7" -->
-                <div class="chordonika__chord-notes"></div>  <!-- Shows individual notes like "C - E♭ - G - B♭" -->
+            <div class="chordonika__content">
+              <div class="chordonika__chord-selector">
+                <div class="chordonika__controls">
+                  <!-- Root note selection dropdown -->
+                  <div class="chordonika__dropdown-group">
+                    <label for="chordonika-root-select">Root Note:</label>
+                    <select id="chordonika-root-select" class="tonika-select chordonika__dropdown">
+                      <option value="">Select root note...</option>
+                    </select>
+                  </div>
+                  <!-- Chord quality selection dropdown -->
+                  <div class="chordonika__dropdown-group">
+                    <label for="chordonika-quality-select">Chord Quality:</label>
+                    <select id="chordonika-quality-select" class="tonika-select chordonika__dropdown">
+                      <option value="">Select chord quality...</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Chord information display and clear button -->
+                <div class="chordonika__chord-info" aria-live="polite">
+                  <div class="chordonika__chord-details">
+                    <div class="chordonika__chord-symbol"></div> <!-- Shows chord symbol like "Cm7" -->
+                    <div class="chordonika__chord-notes"></div>  <!-- Shows individual notes like "C - E♭ - G - B♭" -->
+                  </div>
+                  <button class="tonika-btn tonika-btn--danger chordonika__clear-btn">Clear</button>
+                </div>
               </div>
-              <button class="tonika-btn tonika-btn--danger chordonika__clear-btn">Clear</button>
-            </div>
-          </div>
-          <div class="chordonika__keyboard-container">
-            ${this._createKeyboard()} <!-- Insert the keyboard HTML -->
-          </div>
-        </div>`;
+              <div class="chordonika__keyboard-container">
+                ${this._createKeyboard()} <!-- Insert the keyboard HTML -->
+              </div>
+            </div>`;
         }
 
         /**
@@ -529,7 +494,7 @@
         /**
          * Update chord information display
          * Shows the chord symbol and individual notes in the UI
-         * 
+         *
          * @param {Object|null} chord - Chord object to display, or null to clear
          */
         _updateChordDisplay(chord) {
