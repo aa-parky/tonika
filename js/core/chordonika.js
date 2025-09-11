@@ -42,6 +42,7 @@
             this.settings = {
                 mode: opts.mode ?? "card", // Visual display mode
                 onChordSelected: opts.onChordSelected ?? null, // Legacy callback support
+                deferInit: opts.deferInit ?? false, // Allow deferred initialization
             };
 
             // Handle mount target - can be CSS selector string or DOM element
@@ -51,6 +52,16 @@
                     ? document.querySelector(opts.mount) // Find element by selector
                     : opts.mount; // Use provided DOM element directly
 
+            // Initialize immediately unless deferred initialization is requested
+            if (!this.settings.deferInit) {
+                this._initialize();
+            }
+        }
+
+        /**
+         * Initialize the module - can be called manually if deferInit was true
+         */
+        _initialize() {
             // Create an internal event system using modern EventTarget API
             // This allows multiple listeners and follows web standards
             this.emit("app:status", { state: "initializing" });
@@ -508,9 +519,37 @@
             // Update individual notes display (joined with " - " separator)
             if (notesEl) notesEl.textContent = chord ? chord.notes.join(" - ") : "";
         }
+
+        /**
+         * Return status information about Chordonika for debugging or UI
+         * @returns {Array<Object>} Array of API status objects
+         */
+        getStatus() {
+            return [
+                {
+                    api: "app:status",
+                    type: "emit",
+                    active: true,
+                    description: "Lifecycle status such as 'initializing' and 'ready'."
+                },
+                {
+                    api: "ui:chordselected",
+                    type: "emit",
+                    active: true,
+                    description: "Fires when a user selects or clears a chord."
+                },
+                {
+                    api: "external:on",
+                    type: "listen",
+                    active: true,
+                    description: "External listeners may subscribe to Chordonika events via .on()."
+                }
+            ];
+        }
     }
 
     // Export to global scope for use by other scripts
     // This makes the Chordonika class available as a window.Chordonika
     window.Chordonika = Chordonika;
+
 })(); // End of IIFE - immediately executes and keeps internal variables private

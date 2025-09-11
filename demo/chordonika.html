@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chordonika Emitter Demo</title>
+    <link href="../css/tonika-theme-base.css" rel="stylesheet" />
+    <link href="../css/tonika-layout.css" rel="stylesheet" />
+    <link href="../css/tonika-components.css" rel="stylesheet" />
+    <link href="../css/tonika-tokens.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/chordonika.css">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 2rem;
+      background-color: #f9f9f9;
+    }
+    .tonika-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .tonika-module {
+      padding: 1rem;
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 6px;
+    }
+    #display {
+      font-weight: bold;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎼 Chordonika Emitter Demo</h1>
+  <p>This demo shows how <code>Chordonika</code> emits lifecycle and chord events using <code>TonikaEmitter</code>.</p>
+
+  <div class="tonika-grid-2">
+    <div id="chord" class="tonika-module">
+      <h3>Chord Selector</h3>
+      <!-- Chordonika UI will mount here -->
+    </div>
+    <div id="log" class="tonika-module">
+        <h3>Chordonika Status</h3>
+        <div id="status-log" style="font-family: monospace; font-size: 0.8em; max-height: 150px; overflow-y: auto; background: #f5f5f5; padding: 0.5rem; margin-bottom: 1rem;">Status log will appear here...</div>
+        <table class="onika-status">
+            <thead>
+            <tr><th>API</th><th>Type</th><th>Status</th><th>Description</th></tr>
+            </thead>
+            <tbody id="chordonika-status-table">
+            <!-- rows will be filled dynamically -->
+            </tbody>
+        </table>
+    </div>
+    <div id="midi" class="tonika-module">
+      <h3>Emitted Event (Debug)</h3>
+      <pre id="midi-log">No chord selected yet.</pre>
+    </div>
+    <div id="display" class="tonika-module">
+      <h3>Live Chord Display</h3>
+      <div id="chord-display">No chord selected.</div>
+    </div>
+  </div>
+
+  <script src="../js/core/tonika-emitter.js"></script>
+  <script src="../js/core/chordonika.js"></script>
+  <script>
+    // Create an instance first but don't initialize yet
+    const chordonika = new Chordonika({ mount: "#chord", deferInit: true });
+
+    // Set up event listeners before initialization
+    chordonika.on("app:status", (e) => {
+        const now = new Date().toLocaleTimeString();
+        const log = document.getElementById("status-log");
+        log.textContent += `\n[${now}] Status: ${e.detail.state}`;
+    });
+
+    chordonika.on("ui:chordselected", (e) => {
+      const log = document.getElementById("midi-log");
+      const display = document.getElementById("chord-display");
+
+      if (e.detail) {
+        const chord = e.detail;
+        log.textContent = JSON.stringify(chord, null, 2);
+        display.textContent = `🎶 You chose: ${chord.symbol} (${chord.notes.join(" - ")})`;
+      } else {
+        log.textContent = "Chord cleared.";
+        display.textContent = "No chord selected.";
+      }
+    });
+
+    // Now initialize after listeners are set up
+    chordonika._initialize();
+
+    // ⏱️ Render the Chordonika Status Panel
+    const statusRows = chordonika.getStatus();
+    const tbody = document.getElementById("chordonika-status-table");
+    tbody.innerHTML = "";
+
+    statusRows.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+    <td>${row.api}</td>
+    <td>${row.type}</td>
+    <td>${row.active ? "🟢" : "🔴"}</td>
+    <td>${row.description}</td>
+  `;
+        tbody.appendChild(tr);
+    });
+  </script>
+
+</body>
+</html>
