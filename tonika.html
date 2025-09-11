@@ -8,6 +8,7 @@
     <link href="css/tonika-components.css" rel="stylesheet" />
     <link href="css/tonika-tokens.css" rel="stylesheet" />
     <link href="css/catchonika.css" rel="stylesheet" />
+      <link href="css/rhythonika.css" rel="stylesheet" />
     <link href="css/clavonika.css" rel="stylesheet" />
     <link href="css/chordonika.css" rel="stylesheet" />
     <link href="css/chordify-interface.css" rel="stylesheet" />
@@ -32,7 +33,7 @@
                     <div id="catchonika-card"></div>
 
                 <div class="tonika-grid-1-stack">
-                    <div class="tonika-module">Right Top (R1 C2)</div>
+                        <div id="rhythonika-mount"></div>
                     <div class="tonika-module">Right Bottom (R2 C2)</div>
                 </div>
             </div>
@@ -453,6 +454,7 @@
     <script src="js/core/jackonika.js"></script>
     <script src="js/vendor/midiwriter.js"></script>
     <script src="js/core/catchonika.js"></script>
+    <script src="js/core/rhythonika.js"></script>
     <script src="js/core/clavonika.js"></script>
     <script src="js/core/chordonika.js"></script>
 
@@ -496,6 +498,12 @@
         bufferMinutes: 60,
         defaultBpm: 120,
         groupByChannel: false,
+      });
+      // initialize rhythonika
+      new Rhythonika({
+          mount: "#rhythonika-mount",
+          mode: "card",
+          autoRefresh: true
       });
     </script>
   </body>

@@ -229,3 +229,7 @@ if (typeof window !== "undefined") {
 if (typeof module === "object" && module && typeof module.exports === "object") {
     module.exports = { SoundonikaEngine };
 }
+
+window.Soundonika = {
+    Engine: SoundonikaEngine
+};
