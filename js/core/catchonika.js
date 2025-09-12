@@ -746,28 +746,71 @@
                 track.addTrackName(`Catchonika ${trackKey}`);
 
                 if (!notes.length) {
+                    // Add a rest event for empty tracks to ensure proper structure
+                    track.addEvent(new MidiWriter.NoteEvent({
+                        pitch: ['C4'],
+                        duration: 'T1',
+                        velocity: 1,
+                        channel: 1
+                    }));
                     tracks.push(track);
                     continue;
                 }
 
+                // Sort notes by start time to ensure proper ordering
+                const sortedNotes = notes.slice().sort((a, b) => a.startMs - b.startMs);
+
                 // Zero-base against the global earliest start to preserve inter-track alignment
-                for (const n of notes) {
-                    const startTick = msToTicks(n.startMs - _t0Global, bpm, PPQ);
-                    const durTick = msToTicks(n.endMs - n.startMs, bpm, PPQ);
+                for (const n of sortedNotes) {
+                    // Validate MIDI note range
+                    const midiNote = clamp(n.note, 0, 127);
+
+                    // Calculate ticks with validation
+                    const startTick = Math.max(0, Math.round(msToTicks(n.startMs - _t0Global, bpm, PPQ)));
+                    const durTick = Math.max(1, Math.round(msToTicks(n.endMs - n.startMs, bpm, PPQ)));
+
+                    // Ensure velocity is in valid range (1-100 for MidiWriter)
                     const velocity01_100 = clamp(Math.round((n.vel / 127) * 100), 1, 100);
 
-                    const evt = new MidiWriter.NoteEvent({
-                        pitch: [midiNoteToName(n.note)],
-                        duration: `T${durTick}`,
-                        velocity: velocity01_100,
-                        channel: n.ch,
-                        tick: startTick,
-                    });
-                    track.addEvent(evt, undefined);
+                    // Ensure channel is in valid range (1-16)
+                    const channel = clamp(n.ch, 1, 16);
+
+                    try {
+                        const evt = new MidiWriter.NoteEvent({
+                            pitch: [midiNoteToName(midiNote)],
+                            duration: `T${durTick}`,
+                            velocity: velocity01_100,
+                            channel: channel,
+                            tick: startTick,
+                        });
+                        // Fix: Remove the undefined parameter
+                        track.addEvent(evt);
+                    } catch (error) {
+                        console.warn(`Failed to add MIDI event for note ${midiNote}:`, error);
+                        // Continue with other notes even if one fails
+                        continue;
+                    }
                 }
                 tracks.push(track);
             }
-            return new MidiWriter.Writer(tracks, {});
+
+            // Ensure we have at least one track
+            if (tracks.length === 0) {
+                const track = new MidiWriter.Track();
+                track.setTempo(bpm, 0);
+                track.setTimeSignature(4, 4, 24, 8);
+                track.addTrackName("Catchonika Empty");
+                // Add a minimal note to create a valid MIDI file
+                track.addEvent(new MidiWriter.NoteEvent({
+                    pitch: ['C4'],
+                    duration: 'T1',
+                    velocity: 1,
+                    channel: 1
+                }));
+                tracks.push(track);
+            }
+
+            return new MidiWriter.Writer(tracks);
         }
 
         // --- Buffer hygiene ------------------------------------------------------
