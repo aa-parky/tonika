@@ -23,7 +23,7 @@
   display: inline-block;
   padding: 15px;
   border-radius: 15px;
-  background: #333333;
+  background: #000000;
   overflow-x: auto;
 }
 
@@ -258,4 +258,13 @@
 .clavonika-container .white-key:active,
 .clavonika-container .black-key:active {
   transform: none !important;
+}
+
+/* Clavonika title styling */
+.clavonika-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 24px;
+    color: #d3d2d2; /* warm accent color */
+    margin: 0 0 5px 0; /* little gap below */
+    text-align: center;
 }

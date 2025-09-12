@@ -83,6 +83,7 @@
   </div>
 
   <div class="piano-container">
+ <p class="clavonika-title">Clavonika</p>
     <div class="keyboard" id="keyboard"></div>
   </div>
 </section>
