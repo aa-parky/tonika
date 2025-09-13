@@ -1,6 +1,7 @@
 /*!
  * Tonika Bus — Event communication system and module architecture foundation
- * Location: js/core/tonika-bus.js (evolved from tonika-emitter.js)
+ * Location: js/core/tonika-bus.js
+ * Version: 1.0.0 - Clean implementation without legacy compatibility
  *
  * ARCHITECTURAL PHILOSOPHY:
  * =========================
@@ -20,34 +21,17 @@
  *
  * NAMING RATIONALE:
  * =================
- * "Bus" better reflects this module's role as the central communication highway
+ * "Bus" reflects this module's role as the central communication highway
  * for all Tonika modules. Like a computer bus or city bus system, it:
  *   - Connects different components (modules)
  *   - Provides a standardized interface for communication
  *   - Enables modules to discover and interact with each other
  *   - Remains neutral about what data flows through it
  *
- * EVOLUTION FROM tonika-emitter.js:
- * =================================
- * The original TonikaEmitter class remains unchanged - it's proven and stable.
- * New additions provide:
- *   - Module base class for consistent patterns
- *   - Registry system for module discovery
- *   - Enhanced debugging and development tools
- *   - Standardized initialization patterns
- *   - Event metadata and tracing capabilities
+ * USAGE PATTERN:
+ * ==============
+ * All modules extend TonikaModule for consistent patterns:
  *
- * USAGE PATTERNS:
- * ===============
- *
- * Basic Event Communication (unchanged):
- *   class MyModule extends Tonika.TonikaEmitter {
- *     init() {
- *       this.emit('status', { state: 'ready' });
- *     }
- *   }
- *
- * Enhanced Module Pattern (new):
  *   class MyModule extends Tonika.TonikaModule {
  *     constructor(opts = {}) {
  *       super({
@@ -61,7 +45,7 @@
  *     }
  *   }
  *
- * Module Discovery (new):
+ * Module Discovery:
  *   const modules = Tonika.TonikaModule.discoverModules();
  *   const chordonika = Tonika.TonikaModule.findModule('Chordonika');
  *
@@ -69,18 +53,9 @@
  * =======================
  * 1. Keep this module focused on communication only
  * 2. All functions should be pure or have minimal side effects
- * 3. Maintain backward compatibility with existing TonikaEmitter usage
- * 4. Add features that benefit ALL modules, not specific ones
- * 5. Document everything - this is infrastructure code
- * 6. Test thoroughly - modules depend on this working correctly
- *
- * MIGRATION PATH:
- * ===============
- * Phase 1: Rename file, keep all existing functionality
- * Phase 2: Add TonikaModule base class
- * Phase 3: Migrate modules one by one to use TonikaModule
- * Phase 4: Add advanced features (registry, debugging, etc.)
- * Phase 5: Deprecate old patterns gracefully
+ * 3. Add features that benefit ALL modules, not specific ones
+ * 4. Document everything - this is infrastructure code
+ * 5. Test thoroughly - modules depend on this working correctly
  */
 
 /* eslint-env browser, node */
@@ -108,87 +83,16 @@
         // Debug mode flag - enables detailed logging and tracing
         window.Tonika.debug = window.Tonika.debug || false;
 
-        // Version tracking for compatibility management
-        window.Tonika.version = window.Tonika.version || "2.0.0";
+        // Version tracking
+        window.Tonika.version = window.Tonika.version || "1.0.0";
     }
 
     // ==========================================================================
-    // CORE EVENT EMITTER CLASS (UNCHANGED FROM ORIGINAL)
+    // TONIKA MODULE BASE CLASS
     // ==========================================================================
-    // This is the proven, stable foundation that existing modules depend on.
-    // We keep it exactly as it is to maintain backward compatibility.
-
-    class TonikaEmitter extends EventTarget {
-        // noinspection JSUnusedGlobalSymbols
-        /**
-         * Add an event listener and return a convenient unsubscribe function.
-         *
-         * This method provides a more ergonomic API than addEventListener by
-         * returning an unsubscribe function, making cleanup easier and reducing
-         * memory leaks in dynamic applications.
-         *
-         * @param {string} type - Event type to listen for
-         * @param {(event: CustomEvent<any>) => void} handler - Event handler function
-         * @param {AddEventListenerOptions | boolean} [options] - Event listener options
-         * @returns {() => void} unsubscribe - Function to remove this listener
-         *
-         * @example
-         * const unsubscribe = emitter.on('chord:selected', (event) => {
-         *   console.log('Chord selected:', event.detail.chord);
-         * });
-         *
-         * // Later, clean up
-         * unsubscribe();
-         */
-        on(type, handler, options) {
-            this.addEventListener(type, handler, options);
-            return () => this.removeEventListener(type, handler, options);
-        }
-
-        // noinspection JSUnusedGlobalSymbols
-        /**
-         * Remove an event listener.
-         *
-         * Direct the wrapper around removeEventListener for API consistency.
-         * Most code should prefer the unsubscribe function returned by on().
-         *
-         * @param {string} type - Event type
-         * @param {(event: CustomEvent<any>) => void} handler - Handler to remove
-         * @param {EventListenerOptions | boolean} [options] - Options used when adding
-         */
-        off(type, handler, options) {
-            this.removeEventListener(type, handler, options);
-        }
-
-        // noinspection JSUnusedGlobalSymbols
-        /**
-         * Dispatch a CustomEvent with a `detail` payload.
-         *
-         * This is the heart of the Tonika communication system. All inter-module
-         * communication flows through this method. In the enhanced version, we'll
-         * add metadata and debugging capabilities while keeping the core API the same.
-         *
-         * @param {string} type - Event type (use namespaced names like 'ui:chord:selected')
-         * @param {any} [detail] - Event payload data
-         *
-         * @example
-         * this.emit('ui:chord:selected', {
-         *   chord: 'image7',
-         *   notes: ['C', 'E', 'G', 'B'],
-         *   timestamp: Date.now()
-         * });
-         */
-        emit(type, detail) {
-            this.dispatchEvent(new CustomEvent(type, { detail }));
-        }
-    }
-
-    // ==========================================================================
-    // ENHANCED MODULE BASE CLASS (NEW FUNCTIONALITY)
-    // ==========================================================================
-    // This extends TonikaEmitter with standardized patterns for module development.
-    // It provides consistent initialization, registration, and introspection
-    // capabilities while maintaining the simplicity of the original emitter.
+    // This is the foundation class that all Tonika modules extend.
+    // It provides standardized patterns for initialization, communication,
+    // registration, and debugging.
 
     /**
      * Base class for all Tonika modules providing standardized patterns.
@@ -200,15 +104,14 @@
      * - Development and debugging support
      *
      * DESIGN PRINCIPLES:
-     * - Extend, don't replace, the proven TonikaEmitter
      * - Provide sensible defaults while allowing customization
      * - Make module development easier, not more complex
      * - Enable runtime introspection and debugging
      * - Support both simple and advanced use cases
      *
-     * @extends TonikaEmitter
+     * @extends EventTarget
      */
-    class TonikaModule extends TonikaEmitter {
+    class TonikaModule extends EventTarget {
         /**
          * Create a new Tonika module with standardized initialization.
          *
@@ -292,6 +195,73 @@
         }
 
         // =========================================================================
+        // EVENT SYSTEM METHODS
+        // =========================================================================
+        // Enhanced event methods with debugging and metadata
+
+        /**
+         * Add an event listener and return a convenient unsubscribe function.
+         *
+         * @param {string} type - Event type to listen for
+         * @param {(event: CustomEvent<any>) => void} handler - Event handler function
+         * @param {AddEventListenerOptions | boolean} [options] - Event listener options
+         * @returns {() => void} unsubscribe - Function to remove this listener
+         */
+        on(type, handler, options) {
+            this.addEventListener(type, handler, options);
+            return () => this.removeEventListener(type, handler, options);
+        }
+
+        /**
+         * Remove an event listener.
+         *
+         * @param {string} type - Event type
+         * @param {(event: CustomEvent<any>) => void} handler - Handler to remove
+         * @param {EventListenerOptions | boolean} [options] - Options used when adding
+         */
+        off(type, handler, options) {
+            this.removeEventListener(type, handler, options);
+        }
+
+        /**
+         * Dispatch a CustomEvent with enhanced debugging and metadata.
+         *
+         * @param {string} type - Event type (use namespaced names like 'ui:chord:selected')
+         * @param {any} [detail] - Event payload data
+         */
+        emit(type, detail) {
+            // Enhance detail with metadata for debugging
+            const enrichedDetail = {
+                ...detail,
+                _meta: {
+                    timestamp: Date.now(),
+                    source: this.moduleInfo?.name || 'Unknown',
+                    version: this.moduleInfo?.version || '1.0.0'
+                }
+            };
+
+            // Debug logging
+            if (typeof window !== "undefined" && window.Tonika.debug) {
+                console.log(`[${enrichedDetail._meta.source}] → ${type}`, detail);
+
+                // Add to the event log (keep last 100 events)
+                window.Tonika.EventLog.push({
+                    type,
+                    detail: enrichedDetail,
+                    timestamp: enrichedDetail._meta.timestamp
+                });
+
+                // Trim log to prevent memory issues
+                if (window.Tonika.EventLog.length > 100) {
+                    window.Tonika.EventLog = window.Tonika.EventLog.slice(-100);
+                }
+            }
+
+            // Dispatch the event
+            this.dispatchEvent(new CustomEvent(type, { detail: enrichedDetail }));
+        }
+
+        // =========================================================================
         // PRIVATE HELPER METHODS
         // =========================================================================
         // Internal methods that support the public API
@@ -345,7 +315,7 @@
                     initTime: this._initEndTime - this._initStartTime
                 });
 
-                // Register with a system (after successful initialization)
+                // Register with system (after successful initialization)
                 this.emit('system:module:registered', {
                     name: this.moduleInfo.name,
                     version: this.moduleInfo.version,
@@ -378,24 +348,6 @@
          * Always call super.getStatus() to include base functionality.
          *
          * @returns {Object} Status object with API, state, and metadata
-         *
-         * @example
-         * getStatus() {
-         *   return {
-         *     ...super.getStatus(),
-         *     api: {
-         *       methods: ['selectChord', 'clearSelection'],
-         *       events: {
-         *         emits: ['ui:chord:selected', 'ui:chord:cleared'],
-         *         listens: ['midi:note:on', 'midi:note:off']
-         *       }
-         *     },
-         *     state: {
-         *       currentChord: this.currentChord,
-         *       isActive: this.isActive
-         *     }
-         *   };
-         * }
          */
         getStatus() {
             return {
@@ -414,90 +366,67 @@
                 state: {
                     isInitialized: this.isInitialized,
                     isDestroyed: this.isDestroyed,
-                    hasMountTarget: !!this.mount,
+                    hasMount: !!this.mount,
                     initTime: this._initEndTime ? (this._initEndTime - this._initStartTime) : null
                 },
-                mount: this.mount ? (this.mount.id || this.mount.className || 'mounted') : 'not-mounted'
+                mount: {
+                    element: this.mount,
+                    selector: this.mount?.id ? `#${this.mount.id}` :
+                        this.mount?.className ? `.${this.mount.className.split(' ')[0]}` :
+                            'unknown'
+                }
             };
         }
 
         /**
-         * Clean up module resources and unregister from the system.
-         *
-         * Call this method when a module is no longer needed to prevent
-         * memory leaks and clean up event listeners.
-         */
-        destroy() {
-            if (this.isDestroyed) return;
-
-            // Emit destruction event before cleanup
-            this.emit('system:module:destroyed', {
-                name: this.moduleInfo.name
-            });
-
-            // Remove from global registry
-            if (typeof window !== "undefined") {
-                delete window.Tonika.ModuleRegistry[this.moduleInfo.name];
-            }
-
-            // Update state
-            this.isDestroyed = true;
-            this.isInitialized = false;
-        }
-
-        // =========================================================================
-        // INTROSPECTION HELPER METHODS (OVERRIDE IN SUBCLASSES)
-        // =========================================================================
-        // These methods provide default introspection. Subclasses should override
-        // them to provide accurate information about their specific capabilities.
-
-        /**
-         * Get a list of public methods (override in subclasses for accuracy).
+         * Get a list of public methods (override in subclasses).
          *
          * @protected
          * @returns {string[]} Array of public method names
          */
         _getPublicMethods() {
-            const methods = [];
-            const proto = Object.getPrototypeOf(this);
-            const propNames = Object.getOwnPropertyNames(proto);
-
-            for (const name of propNames) {
-                if (typeof this[name] === 'function' &&
-                    !name.startsWith('_') &&
-                    name !== 'constructor' &&
-                    name !== 'getStatus') {
-                    methods.push(name);
-                }
-            }
-
-            return methods;
+            return ['getStatus', 'destroy'];
         }
 
         /**
          * Get the list of events this module emits (override in subclasses).
          *
          * @protected
-         * @returns {string[]} Array of event type names
+         * @returns {string[]} Array of event names this module emits
          */
         _getEmittedEvents() {
-            return ['app:status', 'system:module:registered', 'system:module:destroyed'];
+            return ['app:status', 'system:module:registered'];
         }
 
         /**
          * Get a list of events this module listens to (override in subclasses).
          *
          * @protected
-         * @returns {string[]} Array of event type names
+         * @returns {string[]} Array of event names this module listens to
          */
         _getListenedEvents() {
             return [];
         }
 
+        /**
+         * Clean up module resources and remove from registry.
+         */
+        destroy() {
+            this.isDestroyed = true;
+
+            // Remove from global registry
+            if (typeof window !== "undefined" && window.Tonika.ModuleRegistry[this.moduleInfo.name]) {
+                delete window.Tonika.ModuleRegistry[this.moduleInfo.name];
+            }
+
+            // Emit destruction event
+            this.emit('system:module:destroyed', { name: this.moduleInfo.name });
+        }
+
         // =========================================================================
         // STATIC UTILITY METHODS
         // =========================================================================
-        // Class-level methods for module discovery and system management
+        // Class-level methods for module discovery and management
 
         /**
          * Get the global module registry.
@@ -514,10 +443,6 @@
          *
          * @static
          * @returns {Object[]} Array of module information objects
-         *
-         * @example
-         * const modules = Tonika.TonikaModule.discoverModules();
-         * console.log('Available modules:', modules.map(m => m.name));
          */
         static discoverModules() {
             const registry = this.getRegistry();
@@ -533,12 +458,6 @@
          * @static
          * @param {string} name - Module name to find
          * @returns {TonikaModule|null} Module instance or null if not found
-         *
-         * @example
-         * const chordonika = Tonika.TonikaModule.findModule('Chordonika');
-         * if (chordonika) {
-         *   chordonika.selectChord('C', 'major');
-         * }
          */
         static findModule(name) {
             const registry = this.getRegistry();
@@ -550,10 +469,6 @@
          *
          * @static
          * @param {boolean} enabled - Whether to enable debug mode
-         *
-         * @example
-         * // Enable debug mode during development
-         * Tonika.TonikaModule.setDebugMode(true);
          */
         static setDebugMode(enabled) {
             if (typeof window !== "undefined") {
@@ -563,16 +478,11 @@
         }
 
         /**
-         * Get recent event log for debugging.
+         * Get the recent event log for debugging.
          *
          * @static
          * @param {number} limit - Number of recent events to return
          * @returns {Object[]} Array of recent events
-         *
-         * @example
-         * // Check recent events for debugging
-         * const events = Tonika.TonikaModule.getEventLog(10);
-         * console.table(events);
          */
         static getEventLog(limit = 50) {
             if (typeof window !== "undefined") {
@@ -583,85 +493,28 @@
     }
 
     // ==========================================================================
-    // ENHANCED EMITTER WITH DEBUGGING (FUTURE ENHANCEMENT)
-    // ==========================================================================
-    // This section outlines how the basic TonikaEmitter could be enhanced
-    // with debugging capabilities while maintaining backward compatibility.
-    //
-    // IMPLEMENTATION STRATEGY:
-    // 1. Keep the original TonikaEmitter unchanged for compatibility
-    // 2. Create TonikaEmitterEnhanced that extends TonikaEmitter
-    // 3. TonikaModule uses TonikaEmitterEnhanced internally
-    // 4. Gradually migrate modules to enhanced version
-    //
-    // ENHANCED FEATURES TO ADD:
-    // - Event metadata (timestamp, source module, version)
-    // - Event logging for debugging
-    // - Event filtering and namespacing
-    // - Performance monitoring
-    // - Event replay capabilities
-    //
-    // EXAMPLE ENHANCED EMIT METHOD:
-    // emit(type, detail) {
-    //   const enrichedDetail = {
-    //     ...detail,
-    //     _meta: {
-    //       timestamp: Date.now(),
-    //       source: this.moduleInfo?.name || 'Unknown',
-    //       version: this.moduleInfo?.version || '1.0.0'
-    //     }
-    //   };
-    //
-    //   // Debug logging
-    //   if (window.Tonika.debug) {
-    //     console.log(`[${enrichedDetail._meta.source}] → ${type}`, detail);
-    //     window.Tonika.EventLog.push({ type, detail: enrichedDetail });
-    //   }
-    //
-    //   super.emit(type, enrichedDetail);
-    // }
-
-    // ==========================================================================
     // EXPORTS AND NAMESPACE SETUP
     // ==========================================================================
     // Make classes available globally and for CommonJS environments
 
     if (typeof window !== "undefined") {
-        window.Tonika.TonikaEmitter = TonikaEmitter;
         window.Tonika.TonikaModule = TonikaModule;
     }
 
-    // Guarded CommonJS export for testing environments
-    // noinspection JSUnresolvedVariable
+    // CommonJS export for testing environments
     if (typeof module !== "undefined" && module.exports) {
-        // noinspection JSUnresolvedVariable
-        module.exports = { TonikaEmitter, TonikaModule };
+        module.exports = { TonikaModule };
     }
 
 })();
 
 /*
  * =============================================================================
- * MIGRATION GUIDE FOR EXISTING MODULES
+ * USAGE EXAMPLES AND DEVELOPMENT GUIDE
  * =============================================================================
  *
- * PHASE 1: RENAME FILE (NO CODE CHANGES)
- * - Rename tonika-emitter.js to tonika-bus.js
- * - Update HTML script tags and import statements
- * - No functional changes - everything works as before
+ * CREATING A NEW MODULE:
  *
- * PHASE 2: MIGRATE TO TonikaModule (OPTIONAL BUT RECOMMENDED)
- *
- * BEFORE (current pattern):
- * class MyModule extends Tonika.TonikaEmitter {
- *   constructor(opts = {}) {
- *     super();
- *     this.mount = document.querySelector(opts.mount);
- *     this._initialize();
- *   }
- * }
- *
- * AFTER (enhanced pattern):
  * class MyModule extends Tonika.TonikaModule {
  *   constructor(opts = {}) {
  *     super({
@@ -672,6 +525,12 @@
  *         description: 'What this module does'
  *       }
  *     });
+ *   }
+ *
+ *   _initialize() {
+ *     // Your initialization code here
+ *     this._renderUI();
+ *     this._attachEventListeners();
  *   }
  *
  *   getStatus() {
@@ -688,95 +547,33 @@
  *   }
  * }
  *
- * BENEFITS OF MIGRATION:
- * - Automatic module registration and discovery
- * - Standardized initialization patterns
- * - Built-in getStatus() for API documentation
- * - Enhanced debugging and development tools
- * - Consistent error handling and lifecycle management
+ * DEVELOPMENT AND DEBUGGING TOOLS:
  *
- * =============================================================================
- * DEVELOPMENT AND DEBUGGING TOOLS
- * =============================================================================
- *
- * ENABLE DEBUG MODE:
+ * // Enable debug mode
  * Tonika.TonikaModule.setDebugMode(true);
  *
- * DISCOVER MODULES:
+ * // Discover modules
  * const modules = Tonika.TonikaModule.discoverModules();
  * console.table(modules);
  *
- * FIND SPECIFIC MODULE:
+ * // Find specific module
  * const chordonika = Tonika.TonikaModule.findModule('Chordonika');
  * console.log(chordonika.getStatus());
  *
- * VIEW EVENT LOG:
+ * // View event log
  * const events = Tonika.TonikaModule.getEventLog(20);
  * console.table(events);
  *
- * INSPECT MODULE REGISTRY:
+ * // Inspect module registry
  * console.log(Tonika.ModuleRegistry);
  *
- * =============================================================================
- * EVENT NAMING CONVENTIONS
- * =============================================================================
+ * EVENT NAMING CONVENTIONS:
  *
- * Use namespaced event names for clarity and organization:
- *
- * LIFECYCLE EVENTS:
- * - app:status (module lifecycle: initializing, ready, error)
- * - system:module:registered (module registration)
- * - system:module:destroyed (module cleanup)
- *
- * UI EVENTS:
- * - ui:chord:selected (user selected a chord)
- * - ui:note:pressed (user pressed a key)
- * - ui:button:clicked (user clicked a button)
- *
- * MIDI EVENTS:
- * - midi:note:on (MIDI note on received)
- * - midi:note:off (MIDI note off received)
- * - midi:device:connected (MIDI device connected)
- *
- * AUDIO EVENTS:
- * - audio:sample:loaded (audio sample finished loading)
- * - audio:context:ready (audio context is ready)
- * - audio:playback:started (audio playback started)
- *
- * MUSIC EVENTS:
- * - music:chord:detected (chord detected from input)
- * - music:key:changed (musical key changed)
- * - music:tempo:changed (tempo/BPM changed)
- *
- * =============================================================================
- * TESTING GUIDELINES
- * =============================================================================
- *
- * UNIT TESTING:
- * - Test TonikaEmitter methods (on, off, emit)
- * - Test TonikaModule initialization and lifecycle
- * - Test module registration and discovery
- * - Mock DOM elements and browser APIs
- *
- * INTEGRATION TESTING:
- * - Test module-to-module communication
- * - Test event flow between multiple modules
- * - Test error handling and recovery
- *
- * EXAMPLE TEST STRUCTURE:
- * describe('TonikaModule', () => {
- *   it('should register itself on creation', () => {
- *     const module = new TestModule({ moduleInfo: { name: 'Test' } });
- *     expect(Tonika.ModuleRegistry.Test).toBe(module);
- *   });
- *
- *   it('should emit registration event', (done) => {
- *     const module = new TestModule({ moduleInfo: { name: 'Test' } });
- *     module.on('system:module:registered', (event) => {
- *       expect(event.detail.name).toBe('Test');
- *       done();
- *     });
- *   });
- * });
+ * app:*        - Lifecycle (status, ready)
+ * ui:*         - User interactions
+ * midi:*       - MIDI hardware events
+ * music:*      - Musical analysis
+ * audio:*      - Audio engine events
+ * system:*     - Internal bus operations
  */
 

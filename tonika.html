@@ -302,7 +302,7 @@
     <script src="js/core/chordify.js"></script>
     <script src="js/core/tonika-ui.js"></script>
     <script src="js/core/tonika-theme.js"></script>
-    <script src="js/core/tonika-emitter.js"></script>
+    <script src="js/core/tonika-bus.js"></script>
     <script src="js/core/soundonika.js"></script>
     <script src="js/core/jackonika.js"></script>
     <script src="js/vendor/midiwriter.js"></script>
@@ -312,36 +312,80 @@
     <script src="js/core/chordonika.js"></script>
 
     <script>
-      // ===================================================================
-      // CHORDONIKA INIT (unchanged)
-      // ===================================================================
-      const chordModule = new Chordonika({
-        mount: "#chord-selector",
-        mode: "card",
-        onChordSelected: (chord) => {
-          console.log("Selected chord (callback):", chord);
-        },
-      });
+    // ===================================================================
+    // CHORDONIKA INIT (updated for clean implementation)
+    // ===================================================================
 
-      chordModule.on("ui:chordselected", (e) => {
-        const chord = e.detail;
-        const log = document.getElementById("chord-event-log");
-        if (!log) return;
-        const li = document.createElement("li");
-        li.textContent = chord
-          ? `${chord.symbol}: ${chord.notes.join(" - ")}`
-          : "Cleared";
-        log.prepend(li);
-      });
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM ready, initializing Chordonika...');
 
-      const clearBtn = document.getElementById("clear-event-log");
-      if (clearBtn) {
-        clearBtn.addEventListener("click", () => {
-          const log = document.getElementById("chord-event-log");
-          if (log) log.innerHTML = "";
+        // ===================================================================
+        // CHORDONIKA INIT (updated for clean implementation)
+        // ===================================================================
+        const chordModule = new Chordonika({
+            mount: "#chord-selector",
+            mode: "card"
+            // Note: onChordSelected callback removed - using a pure event-driven approach
         });
-      }
+
+        // Listen for chord selection events (modern event-driven approach)
+        chordModule.on("ui:chordselected", (e) => {
+            const chord = e.detail;
+
+            // Log to console for debugging
+            console.log("Selected chord (event):", chord);
+
+            // Update the event log in the UI
+            const log = document.getElementById("chord-event-log");
+            if (!log) return;
+
+            const li = document.createElement("li");
+            li.textContent = chord
+                ? `${chord.symbol}: ${chord.notes.join(" - ")}`
+                : "Cleared";
+            log.prepend(li);
+        });
+
+        // Clear event log button handler
+        const clearBtn = document.getElementById("clear-event-log");
+        if (clearBtn) {
+            clearBtn.addEventListener("click", () => {
+                const log = document.getElementById("chord-event-log");
+                if (log) log.innerHTML = "";
+            });
+        }
+
+        // ===================================================================
+        // DEVELOPMENT TOOLS (optional - for testing the new capabilities)
+        // ===================================================================
+
+        // Enable debug mode to see all events in the console
+        Tonika.TonikaModule.setDebugMode(true);
+
+        // Test the new public API methods (uncomment to try)
+        // setTimeout(() => {
+        //   console.log('Testing programmatic chord selection...');
+        //   chordModule.selectChord('C', 'major7');
+        //
+        //   setTimeout(() => {
+        //     console.log('Testing note highlighting...');
+        //     chordModule.highlightNotes(['F#', 'A', 'C#']);
+        //   }, 2000);
+        //
+        //   setTimeout(() => {
+        //     console.log('Testing clear selection...');
+        //     chordModule.clearSelection();
+        //   }, 4000);
+        // }, 1000);
+
+        // Log module status for debugging
+        console.log('Chordonika Status:', chordModule.getStatus());
+        console.log('All Modules:', Tonika.TonikaModule.discoverModules());
+    });
+
+
     </script>
+
 
     <script>
       // initialize catchonika
