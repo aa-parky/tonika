@@ -7,16 +7,16 @@ It provides a rack-like architecture where each module is self-contained but com
 
 ## ✨ Current Status
 
-- **Version:** 0.2.1 _(pre-1.0 experimental release)_
+- **Version:** 1.1.1
 - **Core Modules:**
     - `tonika-bus.js` (Event Bus, module registry, lifecycle management)
-    - `chordonika.js` (Chord selector + keyboard visualization, Bus integrated)
+    - `chordonika.js` (Chord selector and keyboard visualization, Bus integrated)
     - `jackonika.js` (MIDI input bridge)
     - `catchonika.js` (MIDI recorder/logger)
 
 ---
 
-## 🚌 Tonika Bus (v0.2.1)
+## 🚌 Tonika Bus (v1.1.1)
 
 The **Tonika Bus** is the central communication system.
 
@@ -40,7 +40,7 @@ The **Tonika Bus** is the central communication system.
 
 ---
 
-## 🎼 Chordonika Integration (v0.2.1 Example)
+## 🎼 Chordonika Integration (v1.1.1 Example)
 
 Chordonika demonstrates full **Bus-ready behavior**:
 
@@ -80,11 +80,44 @@ Each module extends `TonikaModule`:
 - Reports capabilities via `getStatus()`.
 - Can be initialized immediately or deferred.
 
+## Clavonika Integration (v0.2.x)
+
+**Purpose**: Virtual 88-key piano interface, accepts MIDI input and user interaction.
+
+### Event API
+
+- Emits `ui:noteon`, `ui:noteoff`, `app:status`.
+- Events are also re-emitted globally on `Tonika.Bus`.
+
+### Initialization
+
+```js
+// ✅ Correct
+Tonika.Clavonika.init("piano", { octaves: 2, startOctave: 3 });
+
+// ❌ Incorrect (will fail)
+Tonika.Clavonika.init("#piano", { octaves: 2, startOctave: 3 });
+```
+
+> `init()` requires the **raw element ID string**. Passing `#id` will fail.
+
+### Capabilities
+
+- Full 88-key visual keyboard.
+- Configurable octaves, start octave, and label modes.
+- Supports both UI interactions and MIDI device input.
+- Styled with `clavonika.css`.
+
+### Bus Integration
+
+Clavonika has been patched so that its events (`ui:noteon`, `ui:noteoff`, `app:status`) are also re-emitted globally to `Tonika.Bus`.  
+This ensures that activity is visible in the **Bus Activity monitor** (Catchonika tab).
+
 ---
 
 ## 🔧 Developer Guide
 
-### Phase 0.2 Practices
+### Phase 1.1 / 1.1.1 Practices
 
 - **Emit everything through the Bus** (automatic via `emit()`).
 - **Subscribe via the Bus sugar API** (`Tonika.Bus.on`) to stay decoupled.
@@ -94,10 +127,9 @@ Each module extends `TonikaModule`:
 
 ## 📈 Roadmap
 
-- **Phase 0.3:** Directed messaging (`emitTo(targetName, type, detail)`).
-- **Phase 0.4:** Lightweight schema validation for event payloads.
-- **Phase 0.5:** Developer tooling (visual Bus inspector, rack layout).
-- **1.0.0:** Stable API freeze, with multiple modules and complete docs.
+- **Phase 1.2:** Directed messaging (`emitTo(targetName, type, detail)`).
+- **Phase 2.0:** Lightweight schema validation for event payloads.
+- **Phase 2.1:** Developer tooling (visual Bus inspector, rack layout).
 
 ---
 

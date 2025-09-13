@@ -102,7 +102,16 @@
 
     function createClavonikaInstance(container) {
         const emitter = new EmitterBase();
-        const emit = (type, detail) => emitter.dispatchEvent(new CustomEvent(type, { detail }));
+        function emit(type, detail) {
+            // local (instance) dispatch — preserve original behavior
+            try { emitter.dispatchEvent(new CustomEvent(type, { detail })); } catch {}
+            // global bus re-emit — make Clavonika visible to Tonika.Bus
+            try {
+                if (typeof window !== "undefined" && window.Tonika && window.Tonika.Bus) {
+                    window.Tonika.Bus.dispatchEvent(new CustomEvent(type, { detail }));
+                }
+            } catch {}
+        }
 
         let middleCShift = CONFIG_CONSTANTS.DEFAULT_VALUES.OCTAVE_SHIFT;
         let keyboard, toggleCOnly, toggleAllLabels, middleCSelect, midiDeviceSelector;

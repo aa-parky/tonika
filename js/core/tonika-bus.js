@@ -58,7 +58,9 @@
                 console.warn('TonikaModule: Module should provide a name in moduleInfo');
             }
 
-            this.mount = this._resolveMount(opts.mount);
+            this.mount = typeof opts.mount === "string"
+                ? document.querySelector(opts.mount)
+                : opts.mount || null;
 
             this.isInitialized = false;
             this.isDestroyed = false;
