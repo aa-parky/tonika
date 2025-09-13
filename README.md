@@ -6,28 +6,30 @@ It provides a rack-like architecture where each module is self-contained but com
 ---
 
 ## ✨ Current Status
-- **Version:** 1.1.0
+- **Version:** 1.1.1
 - **Core Modules:**
     - `tonika-bus.js` (Event Bus, module registry, lifecycle management)
-    - `chordonika.js` (Chord selector + keyboard visualization, Bus integrated)
+    - `chordonika.js` (Chord selector and keyboard visualization, Bus integrated)
     - `jackonika.js` (MIDI input bridge)
     - `catchonika.js` (MIDI recorder/logger)
 
 ---
 
-## 🚌 Tonika Bus (v1.1.0)
+## 🚌 Tonika Bus (v1.1.1)
 The **Tonika Bus** is the central communication system.
 
 - Built on `EventTarget`.
-- Every `TonikaModule.emit()` now re-dispatches events globally to `Tonika.Bus`.
-- Developers can listen to any event without needing to know which module emits it:
+- Every `TonikaModule.emit()` re-dispatches events globally to `Tonika.Bus`.
+- Provides **sugar API**:
   ```js
-  Tonika.Bus.on("ui:chordselected", e => console.log("Chord:", e.detail));
+  const stop = Tonika.Bus.on("ui:chordselected", e => console.log(e.detail));
+  stop(); // unsubscribes
   ```
-- Module registry (`Tonika.ModuleRegistry`) is still available for discovery and introspection.
+- Registry (`Tonika.ModuleRegistry`) available for discovery and introspection.
 
 ### Features
 - **Global Bus:** singleton `Tonika.Bus` that re-emits all events.
+- **Bus Sugar API:** `Tonika.Bus.on/off` mirror module API, returning unsubscribe closures.
 - **Event Log:** built-in debugging (`Tonika.TonikaModule.getEventLog()`).
 - **Lifecycle events:** `app:status` (`initializing`, `ready`, `error`).
 - **Module discovery:** `discoverModules()`, `findModule(name)`.
@@ -35,32 +37,31 @@ The **Tonika Bus** is the central communication system.
 
 ---
 
-## 🎼 Chordonika Integration (Phase 1.1 Example)
-Chordonika now demonstrates full **Bus-ready behavior**:
+## 🎼 Chordonika Integration (v1.1.1 Example)
+Chordonika demonstrates full **Bus-ready behavior**:
 
-- **Emits** `ui:chordselected` events whenever the selected chord changes.
+- **Emits** `ui:chordselected` events whenever the chord changes.
 - **Listens** on the Bus for:
     - `midi:noteon` → highlights note keys
     - `midi:noteoff` → clears highlights
     - `ui:keypress` → reserved for keyboard mapping
+- **Cleans up** using unsubscribe closures in `destroy()`.
 
 ### Example
 ```js
 // Global listener (no coupling to Chordonika)
-Tonika.Bus.on("ui:chordselected", e => {
+const stop = Tonika.Bus.on("ui:chordselected", e => {
   console.log("Chord selected:", e.detail.symbol);
 });
 
-// Simulated external MIDI note
-Tonika.Bus.dispatchEvent(new CustomEvent("midi:noteon", {
-  detail: { note: "C" }
-}));
+// Later
+stop();
 ```
 
 ### Benefits
-- **Decoupling:** Modules no longer need direct references to each other.
-- **Consistency:** `getStatus()` truthfully lists what events a module emits/listens for.
-- **Lifecycle safety:** Chordonika unsubscribes from the Bus when destroyed.
+- **Decoupling:** Modules never need direct references.
+- **Consistency:** Same `.on/.off` pattern for Bus and modules.
+- **Safety:** Subscriptions always cleaned up via closures.
 
 ---
 
@@ -71,35 +72,13 @@ Each module extends `TonikaModule`:
 - Reports capabilities via `getStatus()`.
 - Can be initialized immediately or deferred.
 
-### Example Skeleton
-```js
-class MyModule extends Tonika.TonikaModule {
-  constructor(opts = {}) {
-    super({
-      ...opts,
-      moduleInfo: { name: "MyModule", version: "1.0.0" }
-    });
-  }
-  _initialize() {
-    this.emit("app:status", { state: "ready" });
-  }
-}
-```
-
 ---
 
 ## 🔧 Developer Guide
-### Phase 1.1 Practices
-- **Emit everything through the Bus** (already automatic via `emit()`).
-- **Subscribe via the Bus** to decouple from module names.
-- **Unsubscribe in `destroy()`** to prevent memory leaks.
-
-### Debugging
-```js
-Tonika.TonikaModule.setDebugMode(true);
-console.table(Tonika.TonikaModule.discoverModules());
-console.log(Tonika.TonikaModule.getEventLog(20));
-```
+### Phase 1.1 / 1.1.1 Practices
+- **Emit everything through the Bus** (automatic via `emit()`).
+- **Subscribe via the Bus sugar API** (`Tonika.Bus.on`) to stay decoupled.
+- **Always store and call unsubscribe closures** in `destroy()`.
 
 ---
 

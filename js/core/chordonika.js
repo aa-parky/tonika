@@ -22,7 +22,7 @@
  * - CLASSES: Blueprints for creating interactive objects
  * - METHODS: Functions that do specific tasks
  *
- * v1.1.0 — Bus-ready: listens on Tonika.Bus for midi:noteon/off and ui:keypress; unsubscribes on destroy
+ * v1.1.1 — Bus sugar: subscribes via Tonika.Bus.on() and cleans up using returned unsubscribe closures
  */
 
 (() => {
@@ -39,7 +39,7 @@
                 ...opts,
                 moduleInfo: {
                     name: 'Chordonika',
-                    version: '1.1.0',
+                    version: '1.1.1',
                     description: 'Interactive chord selection and keyboard visualization'
                 }
             });
@@ -58,6 +58,11 @@
             this._boundOnMidiNoteOn = this._onMidiNoteOn.bind(this);
             this._boundOnMidiNoteOff = this._onMidiNoteOff.bind(this);
             this._boundOnKeyPress   = this._onKeyPress.bind(this);
+
+            // ✅ Unsubscribe closures (assigned in _initialize via Tonika.Bus.on)
+            this._unsubNoteOn  = null;
+            this._unsubNoteOff = null;
+            this._unsubKey     = null;
         }
 
         // ====================================================================
@@ -69,10 +74,11 @@
             this._attachUIHandlers();
             this._setDefaultChord();
 
-            // ✅ Subscribe to the central bus (decoupled listening)
-            Tonika.Bus?.addEventListener("midi:noteon", this._boundOnMidiNoteOn);
-            Tonika.Bus?.addEventListener("midi:noteoff", this._boundOnMidiNoteOff);
-            Tonika.Bus?.addEventListener("ui:keypress", this._boundOnKeyPress);
+            // ✅ Subscribe to the central bus (decoupled listening) via sugar API
+            // Store unsubscribe closures so destroy() can clean up safely.
+            this._unsubNoteOn  = Tonika.Bus?.on("midi:noteon",  this._boundOnMidiNoteOn);
+            this._unsubNoteOff = Tonika.Bus?.on("midi:noteoff", this._boundOnMidiNoteOff);
+            this._unsubKey     = Tonika.Bus?.on("ui:keypress",  this._boundOnKeyPress);
         }
 
         // ====================================================================
@@ -557,9 +563,14 @@
         // 🧼 CLEANUP
         // ====================================================================
         destroy() {
-            Tonika.Bus?.removeEventListener("midi:noteon", this._boundOnMidiNoteOn);
-            Tonika.Bus?.removeEventListener("midi:noteoff", this._boundOnMidiNoteOff);
-            Tonika.Bus?.removeEventListener("ui:keypress", this._boundOnKeyPress);
+            // Use unsubscribe closures created by Tonika.Bus.on() sugar
+            try {
+                this._unsubNoteOn?.();
+                this._unsubNoteOff?.();
+                this._unsubKey?.();
+            } catch (e) {
+                console.warn('Chordonika: error while unsubscribing from Bus', e);
+            }
             super.destroy();
         }
     }
