@@ -6,28 +6,31 @@ It provides a rack-like architecture where each module is self-contained but com
 ---
 
 ## ✨ Current Status
-- **Version:** 1.1.1
+
+- **Version:** 0.2.1 _(pre-1.0 experimental release)_
 - **Core Modules:**
     - `tonika-bus.js` (Event Bus, module registry, lifecycle management)
-    - `chordonika.js` (Chord selector and keyboard visualization, Bus integrated)
+    - `chordonika.js` (Chord selector + keyboard visualization, Bus integrated)
     - `jackonika.js` (MIDI input bridge)
     - `catchonika.js` (MIDI recorder/logger)
 
 ---
 
-## 🚌 Tonika Bus (v1.1.1)
+## 🚌 Tonika Bus (v0.2.1)
+
 The **Tonika Bus** is the central communication system.
 
 - Built on `EventTarget`.
 - Every `TonikaModule.emit()` re-dispatches events globally to `Tonika.Bus`.
 - Provides **sugar API**:
   ```js
-  const stop = Tonika.Bus.on("ui:chordselected", e => console.log(e.detail));
+  const stop = Tonika.Bus.on("ui:chordselected", (e) => console.log(e.detail));
   stop(); // unsubscribes
   ```
 - Registry (`Tonika.ModuleRegistry`) available for discovery and introspection.
 
 ### Features
+
 - **Global Bus:** singleton `Tonika.Bus` that re-emits all events.
 - **Bus Sugar API:** `Tonika.Bus.on/off` mirror module API, returning unsubscribe closures.
 - **Event Log:** built-in debugging (`Tonika.TonikaModule.getEventLog()`).
@@ -37,7 +40,8 @@ The **Tonika Bus** is the central communication system.
 
 ---
 
-## 🎼 Chordonika Integration (v1.1.1 Example)
+## 🎼 Chordonika Integration (v0.2.1 Example)
+
 Chordonika demonstrates full **Bus-ready behavior**:
 
 - **Emits** `ui:chordselected` events whenever the chord changes.
@@ -48,9 +52,10 @@ Chordonika demonstrates full **Bus-ready behavior**:
 - **Cleans up** using unsubscribe closures in `destroy()`.
 
 ### Example
+
 ```js
 // Global listener (no coupling to Chordonika)
-const stop = Tonika.Bus.on("ui:chordselected", e => {
+const stop = Tonika.Bus.on("ui:chordselected", (e) => {
   console.log("Chord selected:", e.detail.symbol);
 });
 
@@ -59,6 +64,7 @@ stop();
 ```
 
 ### Benefits
+
 - **Decoupling:** Modules never need direct references.
 - **Consistency:** Same `.on/.off` pattern for Bus and modules.
 - **Safety:** Subscriptions always cleaned up via closures.
@@ -66,7 +72,9 @@ stop();
 ---
 
 ## 🧩 Module Architecture
+
 Each module extends `TonikaModule`:
+
 - Provides `on`, `off`, `emit` for event handling.
 - Auto-registers itself in the global registry.
 - Reports capabilities via `getStatus()`.
@@ -75,7 +83,9 @@ Each module extends `TonikaModule`:
 ---
 
 ## 🔧 Developer Guide
-### Phase 1.1 / 1.1.1 Practices
+
+### Phase 0.2 Practices
+
 - **Emit everything through the Bus** (automatic via `emit()`).
 - **Subscribe via the Bus sugar API** (`Tonika.Bus.on`) to stay decoupled.
 - **Always store and call unsubscribe closures** in `destroy()`.
@@ -83,11 +93,14 @@ Each module extends `TonikaModule`:
 ---
 
 ## 📈 Roadmap
-- **Phase 1.2:** Directed messaging (`emitTo(targetName, type, detail)`).
-- **Phase 2.0:** Lightweight schema validation for event payloads.
-- **Phase 2.1:** Developer tooling (visual Bus inspector, rack layout).
+
+- **Phase 0.3:** Directed messaging (`emitTo(targetName, type, detail)`).
+- **Phase 0.4:** Lightweight schema validation for event payloads.
+- **Phase 0.5:** Developer tooling (visual Bus inspector, rack layout).
+- **1.0.0:** Stable API freeze, with multiple modules and complete docs.
 
 ---
 
 ## 📜 License
+
 GPL-3.0 © 2023–2025 Andrew Park
