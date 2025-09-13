@@ -33,6 +33,7 @@
         <button onclick="Tonika.UI.openTab(4)">Settings</button>
     </div>
 
+    <!-- Catchonika tab -->
     <div class="tab-content">
         <section class="active">
             <div class="tonika-grid-2">
@@ -40,18 +41,21 @@
 
                 <div class="tonika-grid-1-stack">
                     <div id="rhythonika-mount"></div>
-                    <div
-                            class="tonika-module tonika-module--scrollable"
-                            id="bus-monitor"
-                    >
+                    <div class="tonika-module tonika-module--scrollable" id="bus-monitor">
                         <h3>Bus Activity</h3>
-                        <button
-                                class="tonika-btn tonika-btn--danger tonika-mb-sm"
-                                id="clear-bus-log"
-                        >
+                        <button class="tonika-btn tonika-btn--danger tonika-mb-sm" id="clear-bus-log">
                             Clear Log
                         </button>
-                        <ul id="bus-event-log" class="tonika-list"></ul>
+                        <table class="tonika-table" id="bus-event-table">
+                            <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Event</th>
+                                <th>Detail</th>
+                            </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -84,6 +88,7 @@
                 </div>
             </div>
         </section>
+
         <!-- Chordify tab (table -> iframe flow) -->
         <section>
             <div class="tonika-module chordify--interface" id="chordify">
@@ -318,7 +323,7 @@
 <script src="js/vendor/midiwriter.js"></script>
 <script src="js/core/catchonika.js"></script>
 <script src="js/core/rhythonika.js"></script>
-<script src="js/core/clavonika.js"></script>
+<script src="js/core/clavonika.min.js"></script>
 <script src="js/core/chordonika.min.js"></script>
 
 <script>
@@ -413,27 +418,30 @@
 
 <script>
     (function setupBusMonitor() {
-        const log = document.getElementById("bus-event-log");
+        const table = document.getElementById("bus-event-table").querySelector("tbody");
         const clearBtn = document.getElementById("clear-bus-log");
-        if (!log) return;
+        if (!table) return;
 
-        // Helper: log an event
         function logEvent(type, detail) {
-            const li = document.createElement("li");
+            const tr = document.createElement("tr");
             const time = new Date().toLocaleTimeString();
-            li.textContent = `[${time}] ${type} → ${JSON.stringify(detail)}`;
-            log.prepend(li);
+            tr.innerHTML = `
+      <td>${time}</td>
+      <td>${type}</td>
+      <td>
+        <pre class="tonika-code"><code>${JSON.stringify(detail, null, 2)}</code></pre>
+      </td>
+    `;
+            table.prepend(tr);
         }
 
-        // Intercept Tonika.Bus.dispatchEvent
         const origDispatch = Tonika.Bus.dispatchEvent.bind(Tonika.Bus);
         Tonika.Bus.dispatchEvent = function (event) {
             logEvent(event.type, event.detail);
             return origDispatch(event);
         };
 
-        // Clear log button
-        clearBtn?.addEventListener("click", () => (log.innerHTML = ""));
+        clearBtn?.addEventListener("click", () => (table.innerHTML = ""));
     })();
 </script>
 

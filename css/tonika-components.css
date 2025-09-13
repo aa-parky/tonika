@@ -229,3 +229,60 @@ li {
     color: var(--color-text-primary);
     line-height: var(--line-height-base);
 }
+
+.tonika-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.tonika-table th,
+.tonika-table td {
+    border: 1px solid var(--color-border);
+    padding: 4px 8px;
+    text-align: left;
+    vertical-align: top;
+}
+.tonika-table th {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+.tonika-table tr:nth-child(even) td {
+    background-color: color-mix(in srgb, var(--color-bg-secondary) 80%, black);
+}
+
+.tonika-table pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.75rem;
+}
+
+/* Tonika custom scrollbars */
+.tonika-module::-webkit-scrollbar,
+.tonika-table::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.tonika-module::-webkit-scrollbar-thumb,
+.tonika-table::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 4px;
+}
+
+.tonika-module::-webkit-scrollbar-thumb:hover,
+.tonika-table::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-accent);
+}
+
+.tonika-module::-webkit-scrollbar-track,
+.tonika-table::-webkit-scrollbar-track {
+    background-color: var(--color-bg-secondary);
+}
+
+/* Firefox */
+.tonika-module,
+.tonika-table {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) var(--color-bg-secondary);
+}
