@@ -82,7 +82,7 @@
         }
 
         // ====================================================================
-        // 🎹 NEW: BUS HANDLERS
+        // 🎹 NEW: BUS HANDLERS.
         // ====================================================================
         _onMidiNoteOn(e) {
             const detail = e?.detail || e; // tolerate direct calls in tests
