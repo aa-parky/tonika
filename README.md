@@ -1,110 +1,114 @@
-# Tonika 🎛️🎹 — Modular MIDI Rack System
+# Tonika 🎹
 
-**Tonika** is a modular, front-end rack UI for exploring MIDI interactions, audio control, and musical tooling — built with zero frameworks and pure Goblin engineering™. It’s designed for extensibility, visual clarity, and musician-first usability.
-
----
-
-## 🎚️ Module Overview
-
-Each module lives in its own JS file (`js/core/*.js`) and follows a unified mounting + rendering pattern.
-
-| Module          | Description                                                          |
-|-----------------|----------------------------------------------------------------------|
-| `Catchonika`    | Live session logger & idle-aware recorder (BPM-aware take tracker).  |
-| `Rhythonika`    | Smart metronome with polyrhythm & accented beat patterns.            |
-| `Clavonika`     | Fully interactive piano keyboard with MIDI input support.            |
-| `Chordonika`    | Chord detection and callback-based event logging.                    |
-| `Chordify`      | Embedded library browser and iframe player for Chordify integration. |
-| `Soundonika`    | Audio playback engine — sample loader with fallback click sounds.    |
-| `TonikaEmitter` | Lightweight EventTarget wrapper for intra-module events.             |
+Tonika is a modular, event-driven JavaScript framework for building interactive music tools.  
+It provides a rack-like architecture where each module is self-contained but communicates through a shared **Bus**.
 
 ---
 
-## 🧠 Core Architecture
-
-- **BEM-style CSS**: Every module follows the `.tonika-module yourmodule yourmodule--card` root pattern.
-- **No frameworks**: Pure vanilla JS (ES6), HTML, and CSS — fully tree-shakable.
-- **Dark/light theme toggle** via `TonikaTheme.toggleMode()`.
-- **Local sample support**: Uses `sample-index.json` to preload local assets.
-- **Fallback sounds**: Rhythonika plays clicks if samples are unavailable.
-- **Registry-safe**: Modules are also attached to `window.TonikaModules` for legacy compatibility.
+## ✨ Current Status
+- **Version:** 1.1.0
+- **Core Modules:**
+    - `tonika-bus.js` (Event Bus, module registry, lifecycle management)
+    - `chordonika.js` (Chord selector + keyboard visualization, Bus integrated)
+    - `jackonika.js` (MIDI input bridge)
+    - `catchonika.js` (MIDI recorder/logger)
 
 ---
 
-## ⚙️ Module Initialization Examples
+## 🚌 Tonika Bus (v1.1.0)
+The **Tonika Bus** is the central communication system.
 
+- Built on `EventTarget`.
+- Every `TonikaModule.emit()` now re-dispatches events globally to `Tonika.Bus`.
+- Developers can listen to any event without needing to know which module emits it:
+  ```js
+  Tonika.Bus.on("ui:chordselected", e => console.log("Chord:", e.detail));
+  ```
+- Module registry (`Tonika.ModuleRegistry`) is still available for discovery and introspection.
+
+### Features
+- **Global Bus:** singleton `Tonika.Bus` that re-emits all events.
+- **Event Log:** built-in debugging (`Tonika.TonikaModule.getEventLog()`).
+- **Lifecycle events:** `app:status` (`initializing`, `ready`, `error`).
+- **Module discovery:** `discoverModules()`, `findModule(name)`.
+- **Debug mode:** `Tonika.TonikaModule.setDebugMode(true)`.
+
+---
+
+## 🎼 Chordonika Integration (Phase 1.1 Example)
+Chordonika now demonstrates full **Bus-ready behavior**:
+
+- **Emits** `ui:chordselected` events whenever the selected chord changes.
+- **Listens** on the Bus for:
+    - `midi:noteon` → highlights note keys
+    - `midi:noteoff` → clears highlights
+    - `ui:keypress` → reserved for keyboard mapping
+
+### Example
 ```js
-new Catchonika({
-  mount: "#catchonika-card",
-  bufferMinutes: 60,
-  defaultBpm: 120,
+// Global listener (no coupling to Chordonika)
+Tonika.Bus.on("ui:chordselected", e => {
+  console.log("Chord selected:", e.detail.symbol);
 });
 
-new Rhythonika({
-  mount: "#rhythonika-mount",
-  mode: "card",
-});
-
-new Chordonika({
-  mount: "#chord-selector",
-  onChordSelected: (chord) => console.log(chord),
-});
+// Simulated external MIDI note
+Tonika.Bus.dispatchEvent(new CustomEvent("midi:noteon", {
+  detail: { note: "C" }
+}));
 ```
+
+### Benefits
+- **Decoupling:** Modules no longer need direct references to each other.
+- **Consistency:** `getStatus()` truthfully lists what events a module emits/listens for.
+- **Lifecycle safety:** Chordonika unsubscribes from the Bus when destroyed.
 
 ---
 
-## 🗂️ Directory Structure
+## 🧩 Module Architecture
+Each module extends `TonikaModule`:
+- Provides `on`, `off`, `emit` for event handling.
+- Auto-registers itself in the global registry.
+- Reports capabilities via `getStatus()`.
+- Can be initialized immediately or deferred.
 
-```
-tonika/
-├── css/
-│   ├── tonika-layout.css
-│   ├── tonika-components.css
-│   └── [module].css
-├── js/
-│   ├── core/
-│   │   ├── catchonika.js
-│   │   ├── rhythonika.js
-│   │   ├── chordonika.js
-│   │   ├── clavonika.js
-│   │   ├── chordify.js
-│   │   ├── soundonika.js
-│   │   └── tonika-[ui|theme|emitter].js
-│   └── vendor/
-│       └── midiwriter.js
-├── samples/
-│   └── sample-index.json
-└── tonika.html
-```
-
----
-
-## 🥁 Sample Management
-
-Rhythonika + Soundonika use `samples/sample-index.json` to locate local samples by category/pack. If missing or invalid, it falls back to built-in click sounds.
-
-You can define your own mapping via:
-
+### Example Skeleton
 ```js
-audioEngine.setSampleMappings({
-  kick: "percussion/MyPack/kick1.wav",
-  snare: "percussion/MyPack/snare1.wav",
-});
+class MyModule extends Tonika.TonikaModule {
+  constructor(opts = {}) {
+    super({
+      ...opts,
+      moduleInfo: { name: "MyModule", version: "1.0.0" }
+    });
+  }
+  _initialize() {
+    this.emit("app:status", { state: "ready" });
+  }
+}
 ```
 
 ---
 
-## 🎨 Styling & Themes
+## 🔧 Developer Guide
+### Phase 1.1 Practices
+- **Emit everything through the Bus** (already automatic via `emit()`).
+- **Subscribe via the Bus** to decouple from module names.
+- **Unsubscribe in `destroy()`** to prevent memory leaks.
 
-- `tonika-theme-base.css` handles light/dark token logic.
-- Module cards adapt to the current theme automatically.
-- CSS variables used throughout: `--color-bg-primary`, `--spacing-md`, etc.
-- All components use `.tonika-*` shared utility classes.
+### Debugging
+```js
+Tonika.TonikaModule.setDebugMode(true);
+console.table(Tonika.TonikaModule.discoverModules());
+console.log(Tonika.TonikaModule.getEventLog(20));
+```
 
 ---
 
-## 📄 License
+## 📈 Roadmap
+- **Phase 1.2:** Directed messaging (`emitTo(targetName, type, detail)`).
+- **Phase 2.0:** Lightweight schema validation for event payloads.
+- **Phase 2.1:** Developer tooling (visual Bus inspector, rack layout).
 
-GPL-3.0 license © 2025 [aa-parky](https://github.com/aa-parky/tonika/blob/main/LICENSE)
+---
 
-Goblins bless the rack.
+## 📜 License
+GPL-3.0 © 2023–2025 Andrew Park
