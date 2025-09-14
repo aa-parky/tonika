@@ -60,12 +60,13 @@ module.exports = {
                     fileBlockCache.set(filePath, block);
 
                     // Build a regex that allows only:
+                    //   .block
                     //   .block__element
                     //   .block__element--modifier
-                    // (Disallows .block and .block--modifier)
+                    // (Disallows .block--modifier)
                     // Where element/modifier are lowercase letters, digits, or hyphens.
                     return new RegExp(
-                        `^\\.${block}__[a-z0-9-]+(?:--[a-z0-9-]+)?$`
+                        `^\\.${block}(?:__(?:[a-z0-9-]+)(?:--[a-z0-9-]+)?)?$`
                     );
                 },
             },
@@ -77,9 +78,13 @@ module.exports = {
          - We also provide a custom message that includes the inferred ".block" for clearer guidance.
         */
         "selector-class-pattern": [
-            // Only allow: block__element or block__element--modifier
-            // Disallow: block and block--modifier
-            "^(?:[a-z][a-z0-9-]*)__(?:[a-z0-9-]+)(?:--[a-z0-9-]+)?$",
+            // Allow exactly:
+            //  - block (no "--" anywhere)
+            //  - block__element
+            //  - block__element--modifier
+            // Disallow:
+            //  - block--modifier (must have "__" before "--")
+            "^(?:(?!.*--)[a-z][a-z0-9-]*|[a-z][a-z0-9-]*__(?:[a-z0-9-]+)(?:--[a-z0-9-]+)?)$",
             {
                 // Consider nested selectors when validating
                 resolveNestedSelectors: true,
