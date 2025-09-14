@@ -204,8 +204,8 @@
 
 .clavonika__title {
     font-family: var(--font-family-sans, "Noto Sans Mono"), monospace;
-    font-weight: 650;
-    color: darkgoldenrod;
+    font-weight: 600;
+    color: #a6a39d;
     margin: 0 0 5px 0;
     text-align: center;
 }
