@@ -1,5 +1,11 @@
 {
   "dependencies": {
     "terser": "^5.44.0"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "stylelint": "^16.24.0",
+    "stylelint-selector-bem-pattern": "^4.0.1"
   }
 }
