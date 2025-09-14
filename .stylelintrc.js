@@ -100,8 +100,6 @@ module.exports = {
                     const block =
                         (filePath && fileBlockCache.get(filePath)) || "BLOCK";
 
-                    // Example:
-                    // Class "button_primary" must follow BEM ... and start with ".clavonika".
                     return `Class "${selectorValue}" must follow BEM (block__element--modifier) and start with ".${block}".`;
                 },
             },
