@@ -115,6 +115,30 @@ This ensures that activity is visible in the **Bus Activity monitor** (Catchonik
 
 ---
 
+## Rhythonika (v0.1.1 – Pre-Release)
+
+Rhythonika is Tonika’s **smart metronome and rhythmic pattern driver**, designed to provide both simple click-track functionality and advanced rhythmic structures (accents, subdivisions, and polyrhythms).
+
+**Features**
+- Plays grid-based accents (3+3+2, 3+2+3, 2+2+3, triplet mixes).
+- Supports polyrhythms (3:2 overlay).
+- Audio engine with **click mode** or **sample mode** (via Soundonika).
+- UI for BPM, time signature, pattern, and sound selection.
+- Pattern “pills” and visual highlights for practice feedback.
+
+**Architecture**
+- Extends `Tonika.TonikaModule` for lifecycle and status reporting.
+- Fully integrated with the **Tonika Bus**:
+    - **Emits**: `app:status`, `transport:start/stop`, `rhythm:tick`, `rhythm:patternchange`, `audio:modechange`.
+    - **Listens**: `ui:keypress` (Space toggles transport).
+- Public API: `start()`, `stop()`, `setBpm()`, `setTimeSignature()`, `setPattern()`, `setSoundMode()`, `getStatus()`, `destroy()`.
+
+**Status**
+- Current version: **0.1.1**
+- Stable core; still in pre-release until wider testing across modules is completed.
+
+---
+
 ## 🔧 Developer Guide
 
 ### Phase 1.1 / 1.1.1 Practices
