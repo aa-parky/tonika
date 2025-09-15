@@ -49,6 +49,13 @@
           window.Tonika.Bus.dispatchEvent(new CustomEvent(type, { detail }));
         }
       } catch {}
+
+      // Standardized debug log
+      try {
+        if (window.Tonika?.Utils?.debugLog) {
+          Tonika.Utils.debugLog("MiniClavonika", type, detail);
+        }
+      } catch {}
     }
 
     function calculatePosition(key, idx) {
@@ -246,7 +253,7 @@
         window.Tonika.Bus.addEventListener('ui:chordselected', handleChordSelected);
       }
 
-      emit("app:status", { msg: "MiniClavonika ready" });
+      emit("app:status", { state: "ready", module: "MiniClavonika", msg: "MiniClavonika ready" });
     }
 
     return {

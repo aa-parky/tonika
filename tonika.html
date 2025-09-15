@@ -429,8 +429,8 @@
       });
     </script>
 
+    <!-- Initialize Catchonika -->
     <script>
-      // initialize catchonika
       new window.Catchonika({
         mount: "#catchonika-card", // render as a card inside this element
         mode: "card",
@@ -446,12 +446,12 @@
       });
     </script>
 
+    <!-- Initialize MiniClavonika -->
     <script>
       const mini = Tonika.MiniClavonika.init("mini-container");
-      mini.on("ui:noteon", (e) => console.log("Note On:", e.detail));
-      mini.on("ui:noteoff", (e) => console.log("Note Off:", e.detail));
     </script>
 
+    <!-- Bus Monitor -->
     <script>
       (function setupBusMonitor() {
         const table = document
@@ -483,6 +483,7 @@
       })();
     </script>
 
+    <!-- Initialize Clavonika -->
     <script>
       try {
         const clav = Tonika.Clavonika.init("piano", {
