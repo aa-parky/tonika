@@ -1,0 +1,100 @@
+/* ==========================================================================
+   Tonika Accessibility Layer – Naming Convention & Usage Guide
+   --------------------------------------------------------------------------
+   Purpose:
+     - Provide consistent, scalable accessibility variants across Tonika.
+     - Layered approach: global overrides + module-specific variants.
+     - Never hardcode colors here; always derive from tokens when possible.
+
+   --------------------------------------------------------------------------
+   1) GLOBAL MODIFIERS (apply to <body>)
+   --------------------------------------------------------------------------
+   Usage: <body class="tonika--high-contrast tonika--reduced-motion">
+   Classes:
+     tonika--high-contrast   → Global high-contrast token overrides
+     tonika--reduced-motion  → Disable all animations/transitions
+     tonika--large-text      → Increase base font size globally
+
+   --------------------------------------------------------------------------
+   2) MODULE-SPECIFIC VARIANTS (apply to module root blocks)
+   --------------------------------------------------------------------------
+   Usage: <div class="clavonika__keyboard clavonika__keyboard--high-contrast">
+   Classes:
+     block--high-contrast    → Stronger visual separation inside that module
+     block--reduced-motion   → Disable local animations/transitions
+     block--large-text       → Larger labels/UI text in that module
+
+   Examples:
+     .clavonika__keyboard--high-contrast
+     .chordonika--large-text
+     .catchonika--reduced-motion
+
+   --------------------------------------------------------------------------
+   3) FUTURE EXTENSIONS
+   --------------------------------------------------------------------------
+   Potential variants:
+     --screen-reader   → Extra ARIA roles / hidden text
+     --dyslexia-font   → Alternate, highly legible typeface
+     --focus-ring      → Stronger outlines for keyboard navigation
+
+   --------------------------------------------------------------------------
+   Conventions:
+     - Always use the form <block>--<modifier>.
+     - Keep modifier names consistent across modules.
+     - Document new variants here before implementation.
+   ==========================================================================
+*/
+/* ======================================================================
+   Tonika Accessibility Layer
+   ----------------------------------------------------------------------
+   This file defines global and module-specific accessibility variants.
+   Add classes or media queries to enable them.
+   ====================================================================== */
+
+/* ============================================================
+   Global: High Contrast Mode (applies to entire Tonika app)
+   Usage: <body class="tonika--high-contrast">
+   ============================================================ */
+
+body.tonika--high-contrast {
+    --color-bg-primary: #000 !important;
+    --color-bg-secondary: #000 !important;
+    --color-border: #fff !important;
+    --color-text-primary: #fff !important;
+    --color-text-muted: #ccc !important;
+    --color-accent: #ff0000 !important; /* ensure strong highlight */
+    --color-accent-text: #fff !important;
+}
+
+/* ============================================================
+   Clavonika: High Contrast Variant
+   Usage: <div class="clavonika__keyboard clavonika__keyboard--high-contrast">
+   ============================================================ */
+
+.clavonika__keyboard--high-contrast .clavonika__key--white rect {
+    fill: #ffffff;
+    stroke: #000000;
+}
+.clavonika__keyboard--high-contrast .clavonika__key--black rect {
+    fill: #000000;
+    stroke: #ffffff;
+}
+.clavonika__keyboard--high-contrast .clavonika__key--active rect {
+    fill: #ff0000 !important;
+}
+.clavonika__keyboard--high-contrast .clavonika__key-label {
+    fill: #000000;
+    font-weight: bold;
+}
+
+/* ============================================================
+   Global: Reduced Motion
+   Respects user OS/browser settings
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

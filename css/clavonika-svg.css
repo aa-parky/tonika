@@ -1,213 +1,243 @@
-/* ============================================================
-   Clavonika SVG Stylesheet (BEM Compliant)
-   ============================================================ */
+/* ==========================================================================
+   Clavonika SVG Stylesheet (BEM Compliant, Theme-Tokens First)
+   --------------------------------------------------------------------------
+   Purpose:
+     - Keep *key graphics* hard-coded (visual identity) ✅
+     - Move UI chrome (labels, selects, containers, title) onto Tonika tokens ✅
+   Dependencies (must be loaded before this file):
+     - tonika-theme-base.css   (semantic tokens: --color-*, --spacing-*, etc.)
+     - tonika-components.css   (base UI primitives)
+     - tonika-layout.css       (page/layout helpers)
+     - tonika-tokens.css       (module-level utilities)
+   ========================================================================== */
 
-/* === Global Reset === */
+/* ==========================================================================
+   0) Global Reset & Utilities
+   ========================================================================== */
+
 .clavonika * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* === Utility Classes === */
+/* Helps toggle visibility without altering layout logic */
 .clavonika__hidden {
-    display: none;
+  display: none;
 }
 
-/* ============================================================
-   Layout Containers
-   ============================================================ */
+/* ==========================================================================
+   1) Layout Containers
+   ========================================================================== */
 
+/* Wrapper around title + controls + keyboard */
 .clavonika__wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md); /* was 10px */
 }
 
+/* Outer module container (sits inside a Tonika card) */
 .clavonika__container {
-    position: relative;
-    flex: 1;
-    width: 100%;
-    display: block;
-    padding: 15px;
-    border-radius: 15px;
-    background: #000000;
-    overflow-x: auto;
-    text-align: center;
+  position: relative;
+  width: 100%;
+  display: block;
+  padding: var(--spacing-lg); /* was 15px */
+  border-radius: var(--border-radius-lg);
+  background: var(--color-bg-secondary); /* was #000000 */
+  overflow-x: auto;
+  text-align: center;
 }
 
-/* ============================================================
-   MIDI Device Selector
-   ============================================================ */
-
-.clavonika__midi-device-label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: bold;
-    margin-bottom: 4px;
-    color: #fff;
+/* Inner keyboard frame for subtle separation (optional) */
+.clavonika__keyboard {
+  position: relative;
+  display: block;
+  padding: var(--spacing-lg); /* was 15px */
+  border-radius: var(--border-radius-md);
+  background: var(--color-bg-secondary); /* was #000000 */
 }
 
-.clavonika__midi-device-selector {
-    border: 1px solid #444;
-    background: #222;
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
+/* ==========================================================================
+   2) Title
+   ========================================================================== */
+
+.clavonika__title {
+  font-family: "Cinzel", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  color: var(--color-text-muted); /* was #a6a39d */
+  margin: 0 0 var(--spacing-xs) 0; /* was 0 0 5px 0 */
+  text-align: center;
 }
 
-/* ============================================================
-   Piano Controls
-   ============================================================ */
+/* ==========================================================================
+   3) Controls (MIDI selector, label modes, middle C toggle, etc.)
+   --------------------------------------------------------------------------
+   NOTE: Only UI chrome is themed; the keys themselves remain hard-coded.
+   ========================================================================== */
 
+/* Horizontal control strip */
 .clavonika__controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 40px;
-    margin-bottom: 12px;
-    font-size: 0.9rem;
-    color: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing-lg) * 2 + 8px); /* visually similar to 40px */
+  margin-bottom: var(--spacing-sm); /* was 12px */
+  font-size: 0.9rem;
+  color: var(--color-text-primary); /* was #fff */
 }
 
 .clavonika__controls label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm); /* was 8px */
+  white-space: nowrap;
+  color: var(--color-text-primary);
 }
 
+/* MIDI device label (text before the select) */
+.clavonika__midi-device-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md); /* was 12px */
+  font-weight: bold;
+  margin-bottom: var(--spacing-xs); /* was 4px */
+  color: var(--color-text-primary); /* was #fff */
+}
+
+/* Selects for MIDI + other dropdown controls */
+.clavonika__midi-device-selector,
 .clavonika__controls select {
-    padding: 4px 6px;
-    height: 26px;
-    font-size: 0.9rem;
-    border: 1px solid #555;
-    border-radius: 4px;
-    line-height: 1;
-    margin-top: 1px;
-    background: #222;
-    color: #fff;
+  background: var(--color-bg-secondary); /* was #222 */
+  color: var(--color-text-primary); /* was #fff */
+  border: var(--border-width) solid var(--color-border); /* was #444/#555 */
+  border-radius: var(--border-radius-sm); /* was 4px */
+  padding: var(--spacing-xs) var(--spacing-sm); /* was 4px 8px / 4px 6px */
+  height: 26px;
+  font-size: 0.9rem;
+  line-height: 1;
+  margin-top: 1px;
 }
 
+/* Middle C label group */
 .clavonika__middle-c-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm); /* was 8px */
+  color: var(--color-text-primary);
 }
 
-/* ============================================================
-   Keyboard Base Container
-   ============================================================ */
-
-.clavonika__keyboard {
-    position: relative;
-    display: block;
-    padding: 15px;
-    border-radius: 8px;
-    background: #000000;
+/* Keyboard focus affordance for accessibility */
+.clavonika__midi-device-selector:focus-visible,
+.clavonika__controls select:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
+  outline-offset: 2px;
 }
 
-/* ============================================================
-   Key Styling
-   ============================================================ */
+/* ==========================================================================
+   4) Keybed – Visual Identity (Intentionally Hard-Coded Colors)
+   --------------------------------------------------------------------------
+   DO NOT theme these yet; they define the instrument's recognisable look.
+   ========================================================================== */
 
+/* White keys */
 .clavonika__key--white rect {
-    fill: #fff;
-    stroke: #ddd;
-    stroke-width: 1;
-    cursor: pointer;
-    transition: fill 0.1s ease;
+  fill: #fff;
+  stroke: #ddd;
+  stroke-width: 1;
+  cursor: pointer;
+  transition: fill 0.1s ease;
 }
 .clavonika__key--white:hover rect {
-    fill: #f0f0f0;
+  fill: #f0f0f0;
 }
 
+/* Black keys */
 .clavonika__key--black rect {
-    fill: #111;
-    stroke: #000;
-    stroke-width: 1;
-    cursor: pointer;
-    transition: fill 0.1s ease;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+  fill: #111;
+  stroke: #000;
+  stroke-width: 1;
+  cursor: pointer;
+  transition: fill 0.1s ease;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
 }
 .clavonika__key--black:hover rect {
-    fill: #333;
+  fill: #333;
 }
 
-/* ============================================================
-   Key Labels
-   ============================================================ */
+/* ==========================================================================
+   5) Note Labels (SVG text inside keys)
+   ========================================================================== */
 
 .clavonika__key-label {
-    font-size: 9px;
-    font-weight: 500;
-    fill: #888;
-    pointer-events: none;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+  font-size: 9px;
+  font-weight: 500;
+  fill: #888;
+  pointer-events: none;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 .clavonika__key--black .clavonika__key-label {
-    font-size: 7px;
-    fill: #bbb;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
+  font-size: 7px;
+  fill: #bbb;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
 }
 
-/* ============================================================
-   Middle C & Octave Highlighting
-   ============================================================ */
-
+/* Middle C & all C's highlight (kept hard-coded by request) */
 .clavonika__key--middle-c .clavonika__key-label,
 .clavonika__key--white[data-note^="C"] .clavonika__key-label {
-    fill: #ff6b6b;
-    font-weight: bold;
+  fill: #ff6b6b;
+  font-weight: bold;
 }
 
-/* ============================================================
-   Label Visibility Modes
-   ============================================================ */
+/* ==========================================================================
+   6) Label Visibility Modes (BEM state modifiers on the keyboard root)
+   ========================================================================== */
 
 .clavonika__keyboard--hide-all-labels .clavonika__key-label {
-    display: none;
+  display: none;
 }
 
 .clavonika__keyboard--show-c-only .clavonika__key-label {
-    display: none;
+  display: none;
 }
 
-.clavonika__keyboard--show-c-only .clavonika__key--white[data-note^="C"] .clavonika__key-label {
-    display: block;
+.clavonika__keyboard--show-c-only
+  .clavonika__key--white[data-note^="C"]
+  .clavonika__key-label {
+  display: block;
 }
 
-.clavonika__keyboard--show-c-only .clavonika__key--black[data-note^="C#"] .clavonika__key-label {
-    display: none !important;
+.clavonika__keyboard--show-c-only
+  .clavonika__key--black[data-note^="C#"]
+  .clavonika__key-label {
+  display: none !important;
 }
 
-/* ============================================================
-   Active Key State
-   ============================================================ */
+/* ==========================================================================
+   7) Active Key State (playback/press feedback)
+   ========================================================================== */
 
 .clavonika__key--active rect {
-    fill: #2b8cff !important;
+  fill: #2b8cff !important; /* kept hard-coded for now */
 }
 
 .clavonika__key--active .clavonika__key-label {
-    fill: #eaf2ff;
-    text-shadow: none;
+  fill: #eaf2ff; /* kept hard-coded for now */
+  text-shadow: none;
 }
 
-/* ============================================================
-   Title
-   ============================================================ */
+/* ==========================================================================
+   8) Reduced Motion (optional nicety)
+   ========================================================================== */
 
-.clavonika__title {
-    font-family: "Cinzel", serif;
-    font-optical-sizing: auto;
-    font-weight: 600;
-    font-style: normal;
-    color: #a6a39d;
-    margin: 0 0 5px 0;
-    text-align: center;
+@media (prefers-reduced-motion: reduce) {
+  .clavonika__key--white rect,
+  .clavonika__key--black rect {
+    transition: none;
+  }
 }
