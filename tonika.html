@@ -37,6 +37,8 @@
         <button onclick="Tonika.UI.openTab(3)">Layout Examples</button>
 
         <button onclick="Tonika.UI.openTab(4)">Settings</button>
+
+        <button onclick="Tonika.UI.openTab(6)">Activity Logs</button>
       </div>
 
       <!-- Catchonika tab -->
@@ -47,28 +49,6 @@
 
             <div class="tonika-grid-1-stack">
               <div id="rhythonika-mount"></div>
-              <div
-                class="tonika-module tonika-module--scrollable"
-                id="bus-monitor"
-              >
-                <h3>Tonika-Bus Activity</h3>
-                <button
-                  class="tonika-btn tonika-btn--danger tonika-mb-sm"
-                  id="clear-bus-log"
-                >
-                  Clear Log
-                </button>
-                <table class="tonika-table" id="bus-event-table">
-                  <thead>
-                    <tr>
-                      <th>Time</th>
-                      <th>Event</th>
-                      <th>Detail</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
             </div>
           </div>
         </section>
@@ -93,14 +73,8 @@
               class="tonika-module tonika-module--scrollable"
               id="chord-events"
             >
-              <h3>Chord Events</h3>
-              <button
-                class="tonika-btn tonika-btn--danger tonika-mb-sm"
-                id="clear-event-log"
-              >
-                Clear Log
-              </button>
-              <ul id="chord-event-log" class="tonika-list"></ul>
+              <h3>R2 C2</h3>
+              Content Here!
             </div>
           </div>
         </section>
@@ -322,6 +296,40 @@
               <h4>Modules</h4>
               <p>Cards automatically adapt to the current theme.</p>
               <button class="tonika-btn">Another Action</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Activity Logs tab -->
+        <section>
+          <div class="tonika-grid-1-stack">
+	          <h3>Tonika-Bus Activity</h3>
+            <div
+              class="tonika-module tonika-module--scrollable"
+              id="bus-monitor"
+            >
+              <table class="tonika-table" id="bus-event-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Event</th>
+                    <th>Detail</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="tonika-module">
+              <h3>Additional Logs</h3>
+              <p>Future: Other activity logs can be added here</p>
+            </div>
+            <div class="tonika-module">
+              <button
+                class="tonika-btn tonika-btn--danger"
+                id="clear-bus-log"
+              >
+                Clear Log
+              </button>
             </div>
           </div>
         </section>

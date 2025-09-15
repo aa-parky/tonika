@@ -71,7 +71,9 @@
     _setDefaultChord() {
       try {
         const rootSelect = this.mount?.querySelector("#chordonika-root-select");
-        const qualitySelect = this.mount?.querySelector("#chordonika-quality-select");
+        const qualitySelect = this.mount?.querySelector(
+          "#chordonika-quality-select",
+        );
 
         if (rootSelect) rootSelect.value = "D";
         if (qualitySelect) qualitySelect.value = "minor";
@@ -220,7 +222,6 @@
       this.mount.innerHTML = `
         <div class="chordonika__header">
           <h3 class="chordonika__title">Chord Selector</h3>
-          <button class="chordonika__clear-btn tonika-btn tonika-btn--secondary" title="Clear selection">Clear</button>
         </div>
 
         <div class="chordonika__controls">
@@ -283,13 +284,11 @@
       const qualitySelect = this.mount.querySelector(
         "#chordonika-quality-select",
       );
-      const clearBtn = this.mount.querySelector(".chordonika__clear-btn");
 
       rootSelect?.addEventListener("change", () => this._handleChordChange());
       qualitySelect?.addEventListener("change", () =>
         this._handleChordChange(),
       );
-      clearBtn?.addEventListener("click", () => this._clearSelection());
     }
 
     _updateChordDisplay(chord) {
@@ -323,7 +322,9 @@
             this.emit("ui:chordselected", chord);
             // Also emit directly to Tonika.Bus to ensure the event reaches listeners
             if (window.Tonika?.Bus) {
-              window.Tonika.Bus.dispatchEvent(new CustomEvent("ui:chordselected", { detail: chord }));
+              window.Tonika.Bus.dispatchEvent(
+                new CustomEvent("ui:chordselected", { detail: chord }),
+              );
             }
             return;
           }
@@ -334,7 +335,9 @@
         this.emit("ui:chordselected", null);
         // Also emit directly to Tonika.Bus to ensure the event reaches listeners
         if (window.Tonika?.Bus) {
-          window.Tonika.Bus.dispatchEvent(new CustomEvent("ui:chordselected", { detail: null }));
+          window.Tonika.Bus.dispatchEvent(
+            new CustomEvent("ui:chordselected", { detail: null }),
+          );
         }
       } catch (err) {
         console.error("Chordonika: error handling chord change", err);
@@ -344,25 +347,6 @@
       }
     }
 
-    _clearSelection() {
-      try {
-        const rootSelect = this.mount?.querySelector("#chordonika-root-select");
-        const qualitySelect = this.mount?.querySelector(
-          "#chordonika-quality-select",
-        );
-        if (rootSelect) rootSelect.value = "";
-        if (qualitySelect) qualitySelect.value = "";
-        this.currentChord = null;
-        this._updateChordDisplay(null);
-        this.emit("ui:chordselected", null);
-        // Also emit directly to Tonika.Bus to ensure the event reaches listeners
-        if (window.Tonika?.Bus) {
-          window.Tonika.Bus.dispatchEvent(new CustomEvent("ui:chordselected", { detail: null }));
-        }
-      } catch (e) {
-        console.error("Chordonika: error clearing selection", e);
-      }
-    }
 
     // -----------------------------------------------------------------------
     // Public API
@@ -381,9 +365,6 @@
       }
     }
 
-    clearSelection() {
-      this._clearSelection();
-    }
 
     getChordData() {
       return {
@@ -399,7 +380,6 @@
         api: {
           methods: [
             "selectChord",
-            "clearSelection",
             "getChordData",
             "getStatus",
           ],
@@ -425,7 +405,6 @@
     _getPublicMethods() {
       return [
         "selectChord",
-        "clearSelection",
         "getChordData",
         "getStatus",
         "destroy",
