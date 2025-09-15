@@ -45,7 +45,7 @@
                 ...opts,
                 moduleInfo: {
                     name: "Rhythonika",
-                    version: "1.2.0",
+                    version: "0.1.1",
                     description:
                         "Smart metronome with accents, polyrhythms, and sample/click output",
                 },

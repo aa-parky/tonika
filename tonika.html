@@ -317,6 +317,7 @@
 <script src="js/core/chordify.js"></script>
 <script src="js/core/tonika-ui.js"></script>
 <script src="js/core/tonika-theme.js"></script>
+<script src="js/core/tonika-utils.js"></script>
 <script src="js/core/tonika-bus.js"></script>
 <script src="js/core/soundonika.js"></script>
 <script src="js/core/jackonika.js"></script>
@@ -452,10 +453,6 @@
             startOctave: 3,
             mode: "card",
         });
-        if (clav && clav.on) {
-            clav.on("ui:noteon", (e) => console.log("UI note on", e.detail));
-            clav.on("ui:noteoff", (e) => console.log("UI note off", e.detail));
-        }
         console.log(
             "Clavonika Status:",
             clav && clav.getStatus ? clav.getStatus() : clav,

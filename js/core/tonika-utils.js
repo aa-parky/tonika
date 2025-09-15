@@ -232,6 +232,23 @@
     // --- Logging Utilities ---
     // Consistent logging across modules
 
+    /**
+     * Standardized debug logger for Tonika modules.
+     *
+     * @param {string} moduleName - The module name (from moduleInfo.name).
+     * @param {string} eventName  - The event being logged.
+     * @param {object} [detail={}] - Optional detail object.
+     */
+    function debugLog(moduleName, eventName, detail = {}) {
+        if (!window.Tonika?.debug) return;
+        try {
+            console.log(`[${moduleName}] → ${eventName}`, detail);
+        } catch (e) {
+            // Fallback (in case console.log is unavailable or detail has circular refs)
+            console.log(`[${moduleName}] → ${eventName}`);
+        }
+    }
+
     // ==========================================================================
     // PERFORMANCE UTILITIES
     // ==========================================================================
@@ -297,6 +314,7 @@
         // Error Handling
         // logError: logError,
         // createError: createError,
+        debugLog: debugLog,
         // ... other error functions
 
         // Performance

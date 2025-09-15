@@ -108,6 +108,13 @@
                     window.Tonika.Bus.dispatchEvent(new CustomEvent(type, { detail }));
                 }
             } catch {}
+
+// --- Standardized debug log via Tonika.Utils
+            try {
+                if (window.Tonika?.Utils?.debugLog) {
+                    Tonika.Utils.debugLog("Clavonika", type, detail);
+                }
+            } catch {}
         }
 
         let middleCShift = CONFIG_CONSTANTS.DEFAULT_VALUES.OCTAVE_SHIFT;
