@@ -7,3 +7,4 @@ demo-dist/
 .vite/
 # OS
 .DS_Store
+/purge-report.cjs
