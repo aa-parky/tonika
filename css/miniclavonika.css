@@ -1,0 +1,23 @@
+.miniclavonika__key rect {
+  cursor: pointer;
+}
+.miniclavonika__key--white rect {
+  fill: #fff;
+  stroke: #aaa;
+}
+.miniclavonika__key--black rect {
+  fill: #111;
+  stroke: #000;
+}
+.miniclavonika__active rect {
+    fill: #2b8cff !important;
+}
+.miniclavonika__label {
+  font-size: 8px;
+  pointer-events: none;
+  user-select: none;
+}
+.miniclavonika__container {
+  width: 600px;
+  height: 150px;
+}

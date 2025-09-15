@@ -40,6 +40,7 @@
   function createMiniInstance(container) {
     const emitter = new EmitterBase();
     let svgEl = null;
+    let activeNotes = new Set(); // Track currently active notes
 
     function emit(type, detail) {
       try {
@@ -137,11 +138,114 @@
 
     function setActive(midi, state) {
       const el = container.querySelector(`[data-midi="${midi}"]`);
-      if (el) el.classList.toggle("miniclavonika__active", state);
+      if (el) {
+        el.classList.toggle("miniclavonika__active", state);
+        if (state) {
+          activeNotes.add(midi);
+        } else {
+          activeNotes.delete(midi);
+        }
+      }
+    }
+
+    function clearAllActive() {
+      activeNotes.forEach(midi => setActive(midi, false));
+      activeNotes.clear();
+    }
+
+    function findOptimalChordPosition(chordNotes) {
+      if (!Array.isArray(chordNotes) || chordNotes.length === 0) return [];
+
+      // Convert note names to note indices (0-11)
+      const noteIndices = chordNotes.map(noteName => {
+        const noteIndex = NOTE_NAMES.indexOf(noteName);
+        return noteIndex;
+      }).filter(idx => idx !== -1);
+
+      if (noteIndices.length === 0) return [];
+
+      // Try different starting octaves to find the best fit
+      const possibleOctaves = [2, 3, 4, 5]; // MIDI octaves
+
+      for (const baseOctave of possibleOctaves) {
+        const chordMidis = [];
+        let baseNote = noteIndices[0]; // Start with root note
+        let currentOctave = baseOctave;
+
+        // Build chord in close position
+        for (let i = 0; i < noteIndices.length; i++) {
+          let noteIndex = noteIndices[i];
+
+          // If this note is lower than our base, put it in the next octave
+          if (i > 0 && noteIndex < baseNote) {
+            currentOctave = baseOctave + 1;
+          } else if (i === 0) {
+            currentOctave = baseOctave;
+          }
+
+          const midi = (currentOctave + 1) * 12 + noteIndex;
+
+          // Check if this MIDI note is within our keyboard range
+          if (midi >= MIDI_RANGE.LOWEST && midi <= MIDI_RANGE.HIGHEST) {
+            chordMidis.push(midi);
+            baseNote = noteIndex; // Update base for next iteration
+          }
+        }
+
+        // If we got all the notes within range, this octave works
+        if (chordMidis.length === noteIndices.length) {
+          return chordMidis;
+        }
+      }
+
+      // Fallback: try to fit as many notes as possible starting from lowest octave
+      const fallbackMidis = [];
+      const startOctave = 3; // C3 = MIDI 48
+
+      noteIndices.forEach(noteIndex => {
+        const midi3 = (startOctave + 1) * 12 + noteIndex; // Octave 3
+        const midi4 = (startOctave + 2) * 12 + noteIndex; // Octave 4
+
+        if (midi3 >= MIDI_RANGE.LOWEST && midi3 <= MIDI_RANGE.HIGHEST) {
+          fallbackMidis.push(midi3);
+        } else if (midi4 >= MIDI_RANGE.LOWEST && midi4 <= MIDI_RANGE.HIGHEST) {
+          fallbackMidis.push(midi4);
+        }
+      });
+
+      return fallbackMidis;
+    }
+
+    function highlightChordNotes(notes) {
+      // Clear previous highlights
+      clearAllActive();
+
+      if (!Array.isArray(notes)) return;
+
+      // Find optimal positioning for the chord
+      const chordMidis = findOptimalChordPosition(notes);
+
+      // Highlight the chord notes
+      chordMidis.forEach(midi => setActive(midi, true));
+    }
+
+    function handleChordSelected(event) {
+      const chord = event.detail;
+      if (chord && chord.notes) {
+        highlightChordNotes(chord.notes);
+      } else {
+        clearAllActive();
+      }
     }
 
     function init() {
       renderKeyboard();
+
+      // Subscribe to chord selection events
+      if (window.Tonika?.Bus) {
+        window.Tonika.Bus.addEventListener('ui:chordselected', handleChordSelected);
+      }
+
       emit("app:status", { msg: "MiniClavonika ready" });
     }
 
@@ -149,9 +253,17 @@
       initialize: init,
       noteOn: (m, v = 100) => setActive(m, true),
       noteOff: (m) => setActive(m, false),
+      highlightChord: (notes) => highlightChordNotes(notes),
+      clearHighlights: () => clearAllActive(),
       on: (t, h, o) => emitter.addEventListener(t, h, o),
       off: (t, h, o) => emitter.removeEventListener(t, h, o),
-      emit
+      emit,
+      destroy: () => {
+        if (window.Tonika?.Bus) {
+          window.Tonika.Bus.removeEventListener('ui:chordselected', handleChordSelected);
+        }
+        clearAllActive();
+      }
     };
   }
 
