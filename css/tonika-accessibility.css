@@ -87,6 +87,23 @@ body.tonika--high-contrast {
     font-weight: bold;
 }
 
+/* Settings Controls */
+.tonika-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm, 8px);
+    margin-top: var(--spacing-md, 12px);
+}
+
+.tonika-control .tonika-label {
+    flex: 0 0 auto;
+}
+
+.tonika-control .tonika-checkbox {
+    flex: 0 0 auto;
+    transform: scale(1.2); /* optional: larger hit target */
+}
+
 /* ============================================================
    Global: Reduced Motion
    Respects user OS/browser settings
