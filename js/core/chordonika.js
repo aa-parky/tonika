@@ -30,7 +30,6 @@
     // 🎵 THE MAIN CHORDONIKA CLASS
     // ========================================================================
     class Chordonika extends Tonika.TonikaModule {
-
         // ====================================================================
         // 🏗️ CONSTRUCTOR - Setting Up Our Chord Selector
         // ====================================================================
@@ -38,10 +37,10 @@
             super({
                 ...opts,
                 moduleInfo: {
-                    name: 'Chordonika',
-                    version: '1.1.1',
-                    description: 'Interactive chord selection and keyboard visualization'
-                }
+                    name: "Chordonika",
+                    version: "1.1.1",
+                    description: "Interactive chord selection and keyboard visualization",
+                },
             });
 
             // 🎛️ SETTINGS
@@ -57,12 +56,12 @@
             // ✅ Bus handler bindings (so we can remove them in destroy)
             this._boundOnMidiNoteOn = this._onMidiNoteOn.bind(this);
             this._boundOnMidiNoteOff = this._onMidiNoteOff.bind(this);
-            this._boundOnKeyPress   = this._onKeyPress.bind(this);
+            this._boundOnKeyPress = this._onKeyPress.bind(this);
 
             // ✅ Unsubscribe closures (assigned in _initialize via Tonika.Bus.on)
-            this._unsubNoteOn  = null;
+            this._unsubNoteOn = null;
             this._unsubNoteOff = null;
-            this._unsubKey     = null;
+            this._unsubKey = null;
         }
 
         // ====================================================================
@@ -76,9 +75,15 @@
 
             // ✅ Subscribe to the central bus (decoupled listening) via sugar API
             // Store unsubscribe closures so destroy() can clean up safely.
-            this._unsubNoteOn  = Tonika.Bus?.on("midi:noteon",  this._boundOnMidiNoteOn);
-            this._unsubNoteOff = Tonika.Bus?.on("midi:noteoff", this._boundOnMidiNoteOff);
-            this._unsubKey     = Tonika.Bus?.on("ui:keypress",  this._boundOnKeyPress);
+            this._unsubNoteOn = Tonika.Bus?.on(
+                "midi:noteon",
+                this._boundOnMidiNoteOn,
+            );
+            this._unsubNoteOff = Tonika.Bus?.on(
+                "midi:noteoff",
+                this._boundOnMidiNoteOff,
+            );
+            this._unsubKey = Tonika.Bus?.on("ui:keypress", this._boundOnKeyPress);
         }
 
         // ====================================================================
@@ -94,7 +99,15 @@
         }
         _onKeyPress(e) {
             // Reserved for future keyboard mappings
-            if (Tonika.debug) console.log("Chordonika received ui:keypress:", e?.detail ?? e);
+            try {
+                if (window.Tonika?.Utils?.debugLog) {
+                    Tonika.Utils.debugLog(
+                        this.moduleInfo.name,
+                        "ui:keypress",
+                        e?.detail ?? e,
+                    );
+                }
+            } catch {}
         }
 
         // ====================================================================
@@ -102,7 +115,9 @@
         // ====================================================================
         _setDefaultChord() {
             const rootSelect = this.mount?.querySelector("#chordonika-root-select");
-            const qualitySelect = this.mount?.querySelector("#chordonika-quality-select");
+            const qualitySelect = this.mount?.querySelector(
+                "#chordonika-quality-select",
+            );
 
             if (rootSelect) rootSelect.value = "D";
             if (qualitySelect) qualitySelect.value = "minor";
@@ -115,30 +130,78 @@
         // ====================================================================
         _initChordData() {
             this.chordData = {
-                noteNames: ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],
+                noteNames: [
+                    "C",
+                    "C#",
+                    "D",
+                    "D#",
+                    "E",
+                    "F",
+                    "F#",
+                    "G",
+                    "G#",
+                    "A",
+                    "A#",
+                    "B",
+                ],
                 rootNotes: [
-                    { value: "C",  label: "C"      },
-                    { value: "C#", label: "C#/Db"  },
-                    { value: "D",  label: "D"      },
-                    { value: "D#", label: "D#/Eb"  },
-                    { value: "E",  label: "E"      },
-                    { value: "F",  label: "F"      },
-                    { value: "F#", label: "F#/Gb"  },
-                    { value: "G",  label: "G"      },
-                    { value: "G#", label: "G#/Ab"  },
-                    { value: "A",  label: "A"      },
-                    { value: "A#", label: "A#/Bb"  },
-                    { value: "B",  label: "B"      }
+                    { value: "C", label: "C" },
+                    { value: "C#", label: "C#/Db" },
+                    { value: "D", label: "D" },
+                    { value: "D#", label: "D#/Eb" },
+                    { value: "E", label: "E" },
+                    { value: "F", label: "F" },
+                    { value: "F#", label: "F#/Gb" },
+                    { value: "G", label: "G" },
+                    { value: "G#", label: "G#/Ab" },
+                    { value: "A", label: "A" },
+                    { value: "A#", label: "A#/Bb" },
+                    { value: "B", label: "B" },
                 ],
                 chordQualities: {
-                    "major":      { intervals: [0, 4, 7],    label: "Major",       symbol: "",     priority: 1 },
-                    "minor":      { intervals: [0, 3, 7],    label: "Minor",       symbol: "m",    priority: 2 },
-                    "diminished": { intervals: [0, 3, 6],    label: "Diminished",  symbol: "°",    priority: 3 },
-                    "augmented":  { intervals: [0, 4, 8],    label: "Augmented",   symbol: "+",    priority: 4 },
-                    "major7":     { intervals: [0, 4, 7,11], label: "Major 7th",   symbol: "maj7", priority: 5 },
-                    "minor7":     { intervals: [0, 3, 7,10], label: "Minor 7th",   symbol: "m7",   priority: 6 },
-                    "dominant7":  { intervals: [0, 4, 7,10], label: "Dominant 7th",symbol: "7",    priority: 7 }
-                }
+                    major: {
+                        intervals: [0, 4, 7],
+                        label: "Major",
+                        symbol: "",
+                        priority: 1,
+                    },
+                    minor: {
+                        intervals: [0, 3, 7],
+                        label: "Minor",
+                        symbol: "m",
+                        priority: 2,
+                    },
+                    diminished: {
+                        intervals: [0, 3, 6],
+                        label: "Diminished",
+                        symbol: "°",
+                        priority: 3,
+                    },
+                    augmented: {
+                        intervals: [0, 4, 8],
+                        label: "Augmented",
+                        symbol: "+",
+                        priority: 4,
+                    },
+                    major7: {
+                        intervals: [0, 4, 7, 11],
+                        label: "Major 7th",
+                        symbol: "maj7",
+                        priority: 5,
+                    },
+                    minor7: {
+                        intervals: [0, 3, 7, 10],
+                        label: "Minor 7th",
+                        symbol: "m7",
+                        priority: 6,
+                    },
+                    dominant7: {
+                        intervals: [0, 4, 7, 10],
+                        label: "Dominant 7th",
+                        symbol: "7",
+                        priority: 7,
+                    },
+                },
             };
         }
 
@@ -153,7 +216,7 @@
                 const rootIndex = this.chordData.noteNames.indexOf(rootNote);
                 if (rootIndex === -1) return null;
 
-                const notes = chordQuality.intervals.map(interval => {
+                const notes = chordQuality.intervals.map((interval) => {
                     const noteIndex = (rootIndex + interval) % 12;
                     return this.chordData.noteNames[noteIndex];
                 });
@@ -165,13 +228,12 @@
                     quality,
                     symbol,
                     notes,
-                    intervals: chordQuality.intervals
+                    intervals: chordQuality.intervals,
                 };
 
                 return this.currentChord;
-
             } catch (error) {
-                console.error('Error calculating chord:', error);
+                console.error("Error calculating chord:", error);
                 return null;
             }
         }
@@ -182,7 +244,9 @@
         _handleChordChange() {
             try {
                 const rootSelect = this.mount?.querySelector("#chordonika-root-select");
-                const qualitySelect = this.mount?.querySelector("#chordonika-quality-select");
+                const qualitySelect = this.mount?.querySelector(
+                    "#chordonika-quality-select",
+                );
                 const rootNote = rootSelect?.value;
                 const quality = qualitySelect?.value;
 
@@ -200,9 +264,8 @@
                 this._updateChordDisplay(null);
                 this._clearHighlights();
                 this.emit("ui:chordselected", null);
-
             } catch (error) {
-                console.error('Error handling chord change:', error);
+                console.error("Error handling chord change:", error);
                 this.currentChord = null;
                 this._updateChordDisplay(null);
                 this._clearHighlights();
@@ -216,7 +279,9 @@
         _clearSelection() {
             try {
                 const rootSelect = this.mount?.querySelector("#chordonika-root-select");
-                const qualitySelect = this.mount?.querySelector("#chordonika-quality-select");
+                const qualitySelect = this.mount?.querySelector(
+                    "#chordonika-quality-select",
+                );
                 if (rootSelect) rootSelect.value = "";
                 if (qualitySelect) qualitySelect.value = "";
 
@@ -224,9 +289,8 @@
                 this._updateChordDisplay(null);
                 this._clearHighlights();
                 this.emit("ui:chordselected", null);
-
             } catch (error) {
-                console.error('Error clearing selection:', error);
+                console.error("Error clearing selection:", error);
             }
         }
 
@@ -239,7 +303,11 @@
                 this.mount.className = `tonika-module chordonika chordonika--${this.settings.mode}`;
                 document.body.appendChild(this.mount);
             } else {
-                this.mount.classList.add("tonika-module", "chordonika", `chordonika--${this.settings.mode}`);
+                this.mount.classList.add(
+                    "tonika-module",
+                    "chordonika",
+                    `chordonika--${this.settings.mode}`,
+                );
             }
 
             this.mount.innerHTML = this._generateHTML();
@@ -311,7 +379,7 @@
                 { note: "F", octave: 4, position: "f4" },
                 { note: "G", octave: 4, position: "g4" },
                 { note: "A", octave: 4, position: "a4" },
-                { note: "B", octave: 4, position: "b4" }
+                { note: "B", octave: 4, position: "b4" },
             ];
 
             const blackKeys = [
@@ -324,10 +392,10 @@
                 { note: "D#", octave: 4, position: "ds4" },
                 { note: "F#", octave: 4, position: "fs4" },
                 { note: "G#", octave: 4, position: "gs4" },
-                { note: "A#", octave: 4, position: "as4" }
+                { note: "A#", octave: 4, position: "as4" },
             ];
 
-            whiteKeys.forEach(key => {
+            whiteKeys.forEach((key) => {
                 keys.push(`
                     <div class="chordonika__key chordonika__key--white chordonika__position--${key.position}"
                          data-note="${key.note}" data-octave="${key.octave}">
@@ -336,7 +404,7 @@
                 `);
             });
 
-            blackKeys.forEach(key => {
+            blackKeys.forEach((key) => {
                 keys.push(`
                     <div class="chordonika__key chordonika__key--black chordonika__position--${key.position}"
                          data-note="${key.note}" data-octave="${key.octave}">
@@ -353,10 +421,12 @@
         // ====================================================================
         _populateDropdowns() {
             const rootSelect = this.mount?.querySelector("#chordonika-root-select");
-            const qualitySelect = this.mount?.querySelector("#chordonika-quality-select");
+            const qualitySelect = this.mount?.querySelector(
+                "#chordonika-quality-select",
+            );
 
             if (rootSelect) {
-                this.chordData.rootNotes.forEach(root => {
+                this.chordData.rootNotes.forEach((root) => {
                     const option = document.createElement("option");
                     option.value = root.value;
                     option.textContent = root.label;
@@ -365,8 +435,9 @@
             }
 
             if (qualitySelect) {
-                const sorted = Object.entries(this.chordData.chordQualities)
-                    .sort(([,a],[,b]) => a.priority - b.priority);
+                const sorted = Object.entries(this.chordData.chordQualities).sort(
+                    ([, a], [, b]) => a.priority - b.priority,
+                );
 
                 sorted.forEach(([key, quality]) => {
                     const option = document.createElement("option");
@@ -384,11 +455,15 @@
             if (!this.mount) return;
 
             const rootSelect = this.mount.querySelector("#chordonika-root-select");
-            const qualitySelect = this.mount.querySelector("#chordonika-quality-select");
+            const qualitySelect = this.mount.querySelector(
+                "#chordonika-quality-select",
+            );
             const clearBtn = this.mount.querySelector(".chordonika__clear-btn");
 
             rootSelect?.addEventListener("change", () => this._handleChordChange());
-            qualitySelect?.addEventListener("change", () => this._handleChordChange());
+            qualitySelect?.addEventListener("change", () =>
+                this._handleChordChange(),
+            );
             clearBtn?.addEventListener("click", () => this._clearSelection());
         }
 
@@ -398,21 +473,26 @@
         _updateChordDisplay(chord) {
             try {
                 const symbolEl = this.mount?.querySelector(".chordonika__chord-symbol");
-                const notesEl  = this.mount?.querySelector(".chordonika__chord-notes");
+                const notesEl = this.mount?.querySelector(".chordonika__chord-notes");
 
                 if (symbolEl) {
                     symbolEl.textContent = chord ? chord.symbol : "— No chord selected.";
                 }
 
                 if (notesEl) {
-                    if (chord && chord.notes && Array.isArray(chord.notes) && chord.notes.length > 0) {
+                    if (
+                        chord &&
+                        chord.notes &&
+                        Array.isArray(chord.notes) &&
+                        chord.notes.length > 0
+                    ) {
                         notesEl.textContent = chord.notes.join(" - ");
                     } else {
                         notesEl.textContent = "";
                     }
                 }
             } catch (error) {
-                console.error('Error updating chord display:', error);
+                console.error("Error updating chord display:", error);
             }
         }
 
@@ -426,28 +506,40 @@
                 this._clearHighlights();
 
                 const availableKeys = [];
-                const allKeys = this.mount?.querySelectorAll('[data-note]');
-                allKeys?.forEach(key => {
-                    const note   = key.getAttribute('data-note');
-                    const octave = parseInt(key.getAttribute('data-octave'));
+                const allKeys = this.mount?.querySelectorAll("[data-note]");
+                allKeys?.forEach((key) => {
+                    const note = key.getAttribute("data-note");
+                    const octave = parseInt(key.getAttribute("data-octave"));
                     availableKeys.push({ note, octave, element: key });
                 });
 
                 availableKeys.sort((a, b) => {
                     if (a.octave !== b.octave) return a.octave - b.octave;
-                    const noteOrder = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+                    const noteOrder = [
+                        "C",
+                        "C#",
+                        "D",
+                        "D#",
+                        "E",
+                        "F",
+                        "F#",
+                        "G",
+                        "G#",
+                        "A",
+                        "A#",
+                        "B",
+                    ];
                     return noteOrder.indexOf(a.note) - noteOrder.indexOf(b.note);
                 });
 
-                chord.notes.forEach(chordNote => {
-                    const firstKey = availableKeys.find(key => key.note === chordNote);
+                chord.notes.forEach((chordNote) => {
+                    const firstKey = availableKeys.find((key) => key.note === chordNote);
                     if (firstKey) {
                         firstKey.element.classList.add("chordonika__key--active");
                     }
                 });
-
             } catch (error) {
-                console.error('Error highlighting chord notes:', error);
+                console.error("Error highlighting chord notes:", error);
             }
         }
 
@@ -456,10 +548,14 @@
         // ====================================================================
         _clearHighlights() {
             try {
-                const highlightedKeys = this.mount?.querySelectorAll(".chordonika__key--active");
-                highlightedKeys?.forEach(key => key.classList.remove("chordonika__key--active"));
+                const highlightedKeys = this.mount?.querySelectorAll(
+                    ".chordonika__key--active",
+                );
+                highlightedKeys?.forEach((key) =>
+                    key.classList.remove("chordonika__key--active"),
+                );
             } catch (error) {
-                console.error('Error clearing highlights:', error);
+                console.error("Error clearing highlights:", error);
             }
         }
 
@@ -469,12 +565,14 @@
         selectChord(rootNote, quality) {
             try {
                 const rootSelect = this.mount?.querySelector("#chordonika-root-select");
-                const qualitySelect = this.mount?.querySelector("#chordonika-quality-select");
+                const qualitySelect = this.mount?.querySelector(
+                    "#chordonika-quality-select",
+                );
                 if (rootSelect) rootSelect.value = rootNote;
                 if (qualitySelect) qualitySelect.value = quality;
                 this._handleChordChange();
             } catch (error) {
-                console.error('Error in selectChord:', error);
+                console.error("Error in selectChord:", error);
             }
         }
 
@@ -484,8 +582,8 @@
 
         getChordData() {
             return {
-                rootNotes: this.chordData.rootNotes.map(r => r.value),
-                chordQualities: Object.keys(this.chordData.chordQualities)
+                rootNotes: this.chordData.rootNotes.map((r) => r.value),
+                chordQualities: Object.keys(this.chordData.chordQualities),
             };
         }
 
@@ -495,27 +593,40 @@
 
                 if (Array.isArray(notes)) {
                     const availableKeys = [];
-                    const allKeys = this.mount?.querySelectorAll('[data-note]');
-                    allKeys?.forEach(key => {
-                        const note   = key.getAttribute('data-note');
-                        const octave = parseInt(key.getAttribute('data-octave'));
+                    const allKeys = this.mount?.querySelectorAll("[data-note]");
+                    allKeys?.forEach((key) => {
+                        const note = key.getAttribute("data-note");
+                        const octave = parseInt(key.getAttribute("data-octave"));
                         availableKeys.push({ note, octave, element: key });
                     });
 
                     availableKeys.sort((a, b) => {
                         if (a.octave !== b.octave) return a.octave - b.octave;
-                        const noteOrder = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+                        const noteOrder = [
+                            "C",
+                            "C#",
+                            "D",
+                            "D#",
+                            "E",
+                            "F",
+                            "F#",
+                            "G",
+                            "G#",
+                            "A",
+                            "A#",
+                            "B",
+                        ];
                         return noteOrder.indexOf(a.note) - noteOrder.indexOf(b.note);
                     });
 
-                    notes.forEach(note => {
-                        const firstKey = availableKeys.find(key => key.note === note);
-                        if (firstKey) firstKey.element.classList.add("chordonika__key--active");
+                    notes.forEach((note) => {
+                        const firstKey = availableKeys.find((key) => key.note === note);
+                        if (firstKey)
+                            firstKey.element.classList.add("chordonika__key--active");
                     });
                 }
-
             } catch (error) {
-                console.error('Error in highlightNotes:', error);
+                console.error("Error in highlightNotes:", error);
             }
         }
 
@@ -526,23 +637,28 @@
             return {
                 ...super.getStatus(),
                 api: {
-                    methods: ['selectChord', 'clearSelection', 'getChordData', 'highlightNotes'],
+                    methods: [
+                        "selectChord",
+                        "clearSelection",
+                        "getChordData",
+                        "highlightNotes",
+                    ],
                     events: {
-                        emits: ['ui:chordselected', 'app:status'],
-                        listens: ['midi:noteon', 'midi:noteoff', 'ui:keypress']
-                    }
+                        emits: ["ui:chordselected", "app:status"],
+                        listens: ["midi:noteon", "midi:noteoff", "ui:keypress"],
+                    },
                 },
                 state: {
                     ...super.getStatus().state,
                     currentChord: this.currentChord,
-                    isActive: this.isActive
+                    isActive: this.isActive,
                 },
                 capabilities: {
                     chordTypes: Object.keys(this.chordData?.chordQualities || {}),
-                    rootNotes:  this.chordData?.rootNotes?.map(n => n.value) || [],
+                    rootNotes: this.chordData?.rootNotes?.map((n) => n.value) || [],
                     supportsKeyboardHighlighting: true,
-                    supportsProgrammaticSelection: true
-                }
+                    supportsProgrammaticSelection: true,
+                },
             };
         }
 
@@ -550,13 +666,20 @@
         // 🔧 INTERNAL HELPER METHODS (Module System)
         // ====================================================================
         _getPublicMethods() {
-            return ['selectChord', 'clearSelection', 'getChordData', 'highlightNotes', 'getStatus', 'destroy'];
+            return [
+                "selectChord",
+                "clearSelection",
+                "getChordData",
+                "highlightNotes",
+                "getStatus",
+                "destroy",
+            ];
         }
         _getEmittedEvents() {
-            return ['ui:chordselected', 'app:status', 'system:module:registered'];
+            return ["ui:chordselected", "app:status", "system:module:registered"];
         }
         _getListenedEvents() {
-            return ['midi:noteon', 'midi:noteoff', 'ui:keypress'];
+            return ["midi:noteon", "midi:noteoff", "ui:keypress"];
         }
 
         // ====================================================================
@@ -569,7 +692,7 @@
                 this._unsubNoteOff?.();
                 this._unsubKey?.();
             } catch (e) {
-                console.warn('Chordonika: error while unsubscribing from Bus', e);
+                console.warn("Chordonika: error while unsubscribing from Bus", e);
             }
             super.destroy();
         }
@@ -579,7 +702,6 @@
     // 🌍 GLOBAL REGISTRATION
     // ========================================================================
     window.Chordonika = Chordonika;
-
 })();
 
 /* ============================================================================

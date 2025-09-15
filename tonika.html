@@ -13,10 +13,9 @@
     <link href="css/chordonika.css" rel="stylesheet" />
     <link href="css/chordify-interface.css" rel="stylesheet" />
     <!-- Google Fonts link  -->
-    <link
-            href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
-            rel="stylesheet"
-    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Great+Vibes&family=Noto+Sans+Mono:wght@100..900&family=Sacramento&display=swap" rel="stylesheet">
 </head>
 <body>
 <header>
@@ -347,9 +346,6 @@
         // Listen for chord selection events (modern event-driven approach)
         chordModule.on("ui:chordselected", (e) => {
             const chord = e.detail;
-
-            // Log to console for debugging
-            console.log("Selected chord (event):", chord);
 
             // Update the event log in the UI
             const log = document.getElementById("chord-event-log");

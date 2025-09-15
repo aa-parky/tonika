@@ -203,8 +203,10 @@
    ============================================================ */
 
 .clavonika__title {
-    font-family: var(--font-family-sans, "Noto Sans Mono"), monospace;
+    font-family: "Cinzel", serif;
+    font-optical-sizing: auto;
     font-weight: 600;
+    font-style: normal;
     color: #a6a39d;
     margin: 0 0 5px 0;
     text-align: center;
