@@ -8,3 +8,4 @@ demo-dist/
 # OS
 .DS_Store
 /purge-report.cjs
+/purge-report.txt
