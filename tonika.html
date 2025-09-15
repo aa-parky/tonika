@@ -318,6 +318,10 @@
 <script src="js/core/tonika-theme.js"></script>
 <script src="js/core/tonika-utils.js"></script>
 <script src="js/core/tonika-bus.js"></script>
+
+<!-- New global input handler -->
+<script src="js/core/tonika-input.js"></script>
+
 <script src="js/core/soundonika.js"></script>
 <script src="js/core/jackonika.js"></script>
 <script src="js/vendor/midiwriter.js"></script>
@@ -455,6 +459,14 @@
         );
     } catch (err) {
         console.error("Failed to initialize Clavonika:", err);
+    }
+
+    // Initialize TonikaInput for global keyboard event handling
+    try {
+        const tonikaInput = new Tonika.TonikaInput();
+        console.log("TonikaInput Status:", tonikaInput.getStatus());
+    } catch (err) {
+        console.error("Failed to initialize TonikaInput:", err);
     }
 </script>
 </body>

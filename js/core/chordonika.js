@@ -56,12 +56,10 @@
             // ✅ Bus handler bindings (so we can remove them in destroy)
             this._boundOnMidiNoteOn = this._onMidiNoteOn.bind(this);
             this._boundOnMidiNoteOff = this._onMidiNoteOff.bind(this);
-            this._boundOnKeyPress = this._onKeyPress.bind(this);
 
             // ✅ Unsubscribe closures (assigned in _initialize via Tonika.Bus.on)
             this._unsubNoteOn = null;
             this._unsubNoteOff = null;
-            this._unsubKey = null;
         }
 
         // ====================================================================
@@ -83,7 +81,6 @@
                 "midi:noteoff",
                 this._boundOnMidiNoteOff,
             );
-            this._unsubKey = Tonika.Bus?.on("ui:keypress", this._boundOnKeyPress);
         }
 
         // ====================================================================
@@ -96,18 +93,6 @@
         }
         _onMidiNoteOff(e) {
             this._clearHighlights();
-        }
-        _onKeyPress(e) {
-            // Reserved for future keyboard mappings
-            try {
-                if (window.Tonika?.Utils?.debugLog) {
-                    Tonika.Utils.debugLog(
-                        this.moduleInfo.name,
-                        "ui:keypress",
-                        e?.detail ?? e,
-                    );
-                }
-            } catch {}
         }
 
         // ====================================================================
@@ -645,7 +630,7 @@
                     ],
                     events: {
                         emits: ["ui:chordselected", "app:status"],
-                        listens: ["midi:noteon", "midi:noteoff", "ui:keypress"],
+                        listens: ["midi:noteon", "midi:noteoff"],
                     },
                 },
                 state: {
@@ -679,7 +664,7 @@
             return ["ui:chordselected", "app:status", "system:module:registered"];
         }
         _getListenedEvents() {
-            return ["midi:noteon", "midi:noteoff", "ui:keypress"];
+            return ["midi:noteon", "midi:noteoff"];
         }
 
         // ====================================================================
@@ -690,7 +675,6 @@
             try {
                 this._unsubNoteOn?.();
                 this._unsubNoteOff?.();
-                this._unsubKey?.();
             } catch (e) {
                 console.warn("Chordonika: error while unsubscribing from Bus", e);
             }
