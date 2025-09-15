@@ -23,7 +23,20 @@
 
   const MUSIC_CONSTANTS = Object.freeze({
     SEMITONES_PER_OCTAVE: 12,
-    NOTE_NAMES: ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"],
+    NOTE_NAMES: [
+      "C",
+      "C#",
+      "D",
+      "D#",
+      "E",
+      "F",
+      "F#",
+      "G",
+      "G#",
+      "A",
+      "A#",
+      "B",
+    ],
     OCTAVE_ADJUSTMENTS: { C3_MODE: -1, C4_MODE: 0, C5_MODE: 1 },
     BASE_OCTAVE_OFFSET: -1,
   });
@@ -58,7 +71,10 @@
 
   const CONFIG_CONSTANTS = Object.freeze({
     STORAGE_KEYS: { LAST_MIDI_INPUT: "clavonika:lastInputId" },
-    DEFAULT_VALUES: { MIDDLE_C_MODE: "C3", OCTAVE_SHIFT: MUSIC_CONSTANTS.OCTAVE_ADJUSTMENTS.C3_MODE },
+    DEFAULT_VALUES: {
+      MIDDLE_C_MODE: "C3",
+      OCTAVE_SHIFT: MUSIC_CONSTANTS.OCTAVE_ADJUSTMENTS.C3_MODE,
+    },
   });
 
   const HTML_TEMPLATE = `
@@ -96,7 +112,8 @@
       midi <= MIDI_CONSTANTS.PIANO_RANGE.HIGHEST_NOTE;
       midi++
     ) {
-      const name = MUSIC_CONSTANTS.NOTE_NAMES[midi % MUSIC_CONSTANTS.SEMITONES_PER_OCTAVE];
+      const name =
+        MUSIC_CONSTANTS.NOTE_NAMES[midi % MUSIC_CONSTANTS.SEMITONES_PER_OCTAVE];
       const octave =
         Math.floor(midi / MUSIC_CONSTANTS.SEMITONES_PER_OCTAVE) +
         MUSIC_CONSTANTS.BASE_OCTAVE_OFFSET;
@@ -114,9 +131,15 @@
   function createClavonikaInstance(container) {
     const emitter = new EmitterBase();
     function emit(type, detail) {
-      try { emitter.dispatchEvent(new CustomEvent(type, { detail })); } catch {}
       try {
-        if (typeof window !== "undefined" && window.Tonika && window.Tonika.Bus) {
+        emitter.dispatchEvent(new CustomEvent(type, { detail }));
+      } catch {}
+      try {
+        if (
+          typeof window !== "undefined" &&
+          window.Tonika &&
+          window.Tonika.Bus
+        ) {
           window.Tonika.Bus.dispatchEvent(new CustomEvent(type, { detail }));
         }
       } catch {}
@@ -137,14 +160,17 @@
       midiDeviceSelector;
 
     // MIDI state
-    let midiAccess = null, currentInput = null;
+    let midiAccess = null,
+      currentInput = null;
 
     // SVG ref
     let svgElement = null;
 
     function calculateKeyPosition(key, keyIndex) {
       if (key.type === "white") {
-        const whiteKeyIndex = KEYS.slice(0, keyIndex).filter((k) => k.type === "white").length;
+        const whiteKeyIndex = KEYS.slice(0, keyIndex).filter(
+          (k) => k.type === "white",
+        ).length;
         return {
           x: whiteKeyIndex * SVG_LAYOUT_CONSTANTS.WHITE_KEY.SPACING,
           y: 0,
@@ -152,9 +178,13 @@
           height: SVG_LAYOUT_CONSTANTS.WHITE_KEY.HEIGHT,
         };
       } else {
-        const whiteKeysBefore = KEYS.slice(0, keyIndex).filter((k) => k.type === "white").length;
+        const whiteKeysBefore = KEYS.slice(0, keyIndex).filter(
+          (k) => k.type === "white",
+        ).length;
         return {
-          x: whiteKeysBefore * SVG_LAYOUT_CONSTANTS.WHITE_KEY.SPACING + SVG_LAYOUT_CONSTANTS.BLACK_KEY.OFFSET,
+          x:
+            whiteKeysBefore * SVG_LAYOUT_CONSTANTS.WHITE_KEY.SPACING +
+            SVG_LAYOUT_CONSTANTS.BLACK_KEY.OFFSET,
           y: 0,
           width: SVG_LAYOUT_CONSTANTS.BLACK_KEY.WIDTH,
           height: SVG_LAYOUT_CONSTANTS.BLACK_KEY.HEIGHT,
@@ -170,12 +200,18 @@
     function createSVGKey(key, keyIndex) {
       const position = calculateKeyPosition(key, keyIndex);
 
-      const keyGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const keyGroup = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "g",
+      );
       const modifier =
         key.type === "black"
           ? UI_CONSTANTS.CSS_CLASSES.BLACK_KEY
           : UI_CONSTANTS.CSS_CLASSES.WHITE_KEY;
-      keyGroup.setAttribute("class", `${UI_CONSTANTS.CSS_CLASSES.KEY_BASE} ${modifier}`);
+      keyGroup.setAttribute(
+        "class",
+        `${UI_CONSTANTS.CSS_CLASSES.KEY_BASE} ${modifier}`,
+      );
       keyGroup.setAttribute("data-note", key.note);
       keyGroup.setAttribute("data-octave", String(key.octave));
       keyGroup.setAttribute("data-midi", String(key.midi));
@@ -183,7 +219,10 @@
         keyGroup.classList.add(UI_CONSTANTS.CSS_CLASSES.MIDDLE_C);
       }
 
-      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      const rect = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect",
+      );
       rect.setAttribute("x", position.x);
       rect.setAttribute("y", position.y);
       rect.setAttribute("width", position.width);
@@ -193,13 +232,22 @@
       rect.setAttribute("fill", key.type === "black" ? "#111" : "#fff");
       rect.setAttribute("stroke", key.type === "black" ? "#000" : "#ddd");
 
-      const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      const label = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "text",
+      );
       label.setAttribute("class", UI_CONSTANTS.CSS_CLASSES.KEY_LABEL);
       label.setAttribute("x", position.x + position.width / 2);
-      label.setAttribute("y", position.y + position.height - (key.type === "black" ? 8 : 12));
+      label.setAttribute(
+        "y",
+        position.y + position.height - (key.type === "black" ? 8 : 12),
+      );
       label.setAttribute("text-anchor", "middle");
       label.setAttribute("dominant-baseline", "middle");
-      label.textContent = key.note.replace(/\d+$/, String(key.octave + middleCShift));
+      label.textContent = key.note.replace(
+        /\d+$/,
+        String(key.octave + middleCShift),
+      );
 
       keyGroup.appendChild(rect);
       keyGroup.appendChild(label);
@@ -210,10 +258,16 @@
     function generateKeyboard() {
       keyboard.innerHTML = "";
 
-      svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgElement = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "svg",
+      );
       const keyboardWidth = calculateKeyboardWidth();
 
-      svgElement.setAttribute("viewBox", `0 0 ${keyboardWidth} ${SVG_LAYOUT_CONSTANTS.KEYBOARD.HEIGHT}`);
+      svgElement.setAttribute(
+        "viewBox",
+        `0 0 ${keyboardWidth} ${SVG_LAYOUT_CONSTANTS.KEYBOARD.HEIGHT}`,
+      );
       svgElement.setAttribute("preserveAspectRatio", "none");
       svgElement.setAttribute("width", "100%");
       svgElement.setAttribute("height", "100%");
@@ -222,19 +276,27 @@
 
       // Draw white keys
       KEYS.forEach((key, index) => {
-        if (key.type === "white") svgElement.appendChild(createSVGKey(key, index));
+        if (key.type === "white")
+          svgElement.appendChild(createSVGKey(key, index));
       });
       // Draw black keys
       KEYS.forEach((key, index) => {
-        if (key.type === "black") svgElement.appendChild(createSVGKey(key, index));
+        if (key.type === "black")
+          svgElement.appendChild(createSVGKey(key, index));
       });
 
       // Felt strip overlay
-      const feltStrip = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      const feltStrip = document.createElementNS(
+        "http://www.w3.org/2000/svg",
+        "rect",
+      );
       feltStrip.setAttribute("x", 0);
       feltStrip.setAttribute("y", 0);
       feltStrip.setAttribute("width", keyboardWidth);
-      feltStrip.setAttribute("height", SVG_LAYOUT_CONSTANTS.KEYBOARD.FELT_HEIGHT);
+      feltStrip.setAttribute(
+        "height",
+        SVG_LAYOUT_CONSTANTS.KEYBOARD.FELT_HEIGHT,
+      );
       feltStrip.setAttribute("fill", "#aa0000");
       svgElement.appendChild(feltStrip);
 
@@ -252,7 +314,7 @@
       } else {
         keyboard.classList.remove(
           UI_CONSTANTS.CSS_CLASSES.SHOW_C_ONLY,
-          UI_CONSTANTS.CSS_CLASSES.HIDE_ALL_LABELS
+          UI_CONSTANTS.CSS_CLASSES.HIDE_ALL_LABELS,
         );
       }
     }
@@ -277,8 +339,12 @@
       });
 
       // Label toggles
-      toggleCOnly.addEventListener("change", () => setLabelMode(getCurrentLabelMode()));
-      toggleAllLabels.addEventListener("change", () => setLabelMode(getCurrentLabelMode()));
+      toggleCOnly.addEventListener("change", () =>
+        setLabelMode(getCurrentLabelMode()),
+      );
+      toggleAllLabels.addEventListener("change", () =>
+        setLabelMode(getCurrentLabelMode()),
+      );
       setLabelMode(getCurrentLabelMode());
     }
 
@@ -307,7 +373,10 @@
     }
 
     function detachCurrentInput() {
-      if (currentInput) try { currentInput.onmidimessage = null; } catch {}
+      if (currentInput)
+        try {
+          currentInput.onmidimessage = null;
+        } catch {}
       currentInput = null;
     }
 
@@ -327,7 +396,7 @@
       try {
         localStorage.setItem(
           CONFIG_CONSTANTS.STORAGE_KEYS.LAST_MIDI_INPUT,
-          currentInput.id
+          currentInput.id,
         );
       } catch {}
     }
@@ -354,7 +423,9 @@
       if (inputs.length === 0) return null;
       let saved = null;
       try {
-        saved = localStorage.getItem(CONFIG_CONSTANTS.STORAGE_KEYS.LAST_MIDI_INPUT);
+        saved = localStorage.getItem(
+          CONFIG_CONSTANTS.STORAGE_KEYS.LAST_MIDI_INPUT,
+        );
       } catch {}
       return inputs.find((i) => i.id === saved) ? saved : inputs[0].id;
     }
@@ -366,7 +437,9 @@
         midiDeviceSelector.appendChild(createNoInputsOption());
         return;
       }
-      inputs.forEach((inp) => midiDeviceSelector.appendChild(createDeviceOption(inp)));
+      inputs.forEach((inp) =>
+        midiDeviceSelector.appendChild(createDeviceOption(inp)),
+      );
       const candidate = getPreferredInputId(inputs);
       midiDeviceSelector.value = candidate;
       attachInputById(candidate);
@@ -396,7 +469,7 @@
           populateDeviceSelector();
           midiAccess.onstatechange = () => refreshDeviceSelection();
           midiDeviceSelector.addEventListener("change", (e) =>
-            attachInputById(e.target.value)
+            attachInputById(e.target.value),
           );
           emit("app:status", { level: "ready", msg: "MIDI ready" });
         })
@@ -409,11 +482,17 @@
 
     function initialize() {
       keyboard = container.querySelector(UI_CONSTANTS.ELEMENT_IDS.KEYBOARD);
-      toggleCOnly = container.querySelector(UI_CONSTANTS.ELEMENT_IDS.TOGGLE_C_ONLY);
-      toggleAllLabels = container.querySelector(UI_CONSTANTS.ELEMENT_IDS.TOGGLE_ALL_LABELS);
-      middleCSelect = container.querySelector(UI_CONSTANTS.ELEMENT_IDS.MIDDLE_C_SELECT);
+      toggleCOnly = container.querySelector(
+        UI_CONSTANTS.ELEMENT_IDS.TOGGLE_C_ONLY,
+      );
+      toggleAllLabels = container.querySelector(
+        UI_CONSTANTS.ELEMENT_IDS.TOGGLE_ALL_LABELS,
+      );
+      middleCSelect = container.querySelector(
+        UI_CONSTANTS.ELEMENT_IDS.MIDDLE_C_SELECT,
+      );
       midiDeviceSelector = container.querySelector(
-        UI_CONSTANTS.ELEMENT_IDS.MIDI_DEVICE_SELECTOR
+        UI_CONSTANTS.ELEMENT_IDS.MIDI_DEVICE_SELECTOR,
       );
 
       generateKeyboard();
@@ -448,11 +527,14 @@
       let container;
       if (typeof containerIdOrEl === "string") {
         container = document.getElementById(containerIdOrEl);
-        if (!container) throw new Error(`Container with id '${containerIdOrEl}' not found`);
+        if (!container)
+          throw new Error(`Container with id '${containerIdOrEl}' not found`);
       } else if (containerIdOrEl && containerIdOrEl.nodeType === 1) {
         container = containerIdOrEl;
       } else {
-        throw new Error("Invalid container: must be an element ID string or DOM element");
+        throw new Error(
+          "Invalid container: must be an element ID string or DOM element",
+        );
       }
 
       container.classList.add("clavonika");
