@@ -16,14 +16,14 @@
    ========================================================================== */
 
 .clavonika * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* Helps toggle visibility without altering layout logic */
 .clavonika__hidden {
-  display: none;
+    display: none;
 }
 
 /* ==========================================================================
@@ -32,31 +32,31 @@
 
 /* Wrapper around title + controls + keyboard */
 .clavonika__wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-md); /* was 10px */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md); /* was 10px */
 }
 
 /* Outer module container (sits inside a Tonika card) */
 .clavonika__container {
-  position: relative;
-  width: 100%;
-  display: block;
-  padding: var(--spacing-lg); /* was 15px */
-  border-radius: var(--border-radius-lg);
-  background: var(--color-bg-secondary); /* was #000000 */
-  overflow-x: auto;
-  text-align: center;
+    position: relative;
+    width: 100%;
+    display: block;
+    padding: var(--spacing-lg); /* was 15px */
+    border-radius: var(--border-radius-lg);
+    background: var(--color-bg-secondary); /* was #000000 */
+    overflow-x: auto;
+    text-align: center;
 }
 
 /* Inner keyboard frame for subtle separation (optional) */
 .clavonika__keyboard {
-  position: relative;
-  display: block;
-  padding: var(--spacing-lg); /* was 15px */
-  border-radius: var(--border-radius-md);
-  background: var(--color-bg-secondary); /* was #000000 */
+    position: relative;
+    display: block;
+    padding: var(--spacing-lg); /* was 15px */
+    border-radius: var(--border-radius-md);
+    background: var(--color-bg-secondary); /* was #000000 */
 }
 
 /* ==========================================================================
@@ -64,13 +64,13 @@
    ========================================================================== */
 
 .clavonika__title {
-  font-family: "Cinzel", serif;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: normal;
-  color: var(--color-text-muted); /* was #a6a39d */
-  margin: 0 0 var(--spacing-xs) 0; /* was 0 0 5px 0 */
-  text-align: center;
+    font-family: "Cinzel", serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    color: var(--color-text-muted); /* was #a6a39d */
+    margin: 0 0 var(--spacing-xs) 0; /* was 0 0 5px 0 */
+    text-align: center;
 }
 
 /* ==========================================================================
@@ -81,61 +81,69 @@
 
 /* Horizontal control strip */
 .clavonika__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: calc(var(--spacing-lg) * 2 + 8px); /* visually similar to 40px */
-  margin-bottom: var(--spacing-sm); /* was 12px */
-  font-size: 0.9rem;
-  color: var(--color-text-primary); /* was #fff */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: calc(var(--spacing-lg) * 2 + 8px); /* visually similar to 40px */
+    margin-bottom: var(--spacing-sm); /* was 12px */
+    font-size: 0.9rem;
+    color: var(--color-text-primary); /* was #fff */
 }
 
 .clavonika__controls label {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm); /* was 8px */
-  white-space: nowrap;
-  color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm); /* was 8px */
+    white-space: nowrap;
+    color: var(--color-text-primary);
 }
 
 /* MIDI device label (text before the select) */
 .clavonika__midi-device-label {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-md); /* was 12px */
-  font-weight: bold;
-  margin-bottom: var(--spacing-xs); /* was 4px */
-  color: var(--color-text-primary); /* was #fff */
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: nowrap; /* keep text + select on one line */
+}
+
+.clavonika__midi-device-label label {
+    white-space: nowrap; /* prevent "MIDI Input" breaking */
+    flex: 0 0 auto; /* don’t let label shrink */
+}
+
+.clavonika__midi-device-selector {
+    flex: 1 1 auto; /* allow select to shrink/grow */
+    min-width: 120px; /* safeguard */
 }
 
 /* Selects for MIDI + other dropdown controls */
 .clavonika__midi-device-selector,
 .clavonika__controls select {
-  background: var(--color-bg-secondary); /* was #222 */
-  color: var(--color-text-primary); /* was #fff */
-  border: var(--border-width) solid var(--color-border); /* was #444/#555 */
-  border-radius: var(--border-radius-sm); /* was 4px */
-  padding: var(--spacing-xs) var(--spacing-sm); /* was 4px 8px / 4px 6px */
-  height: 26px;
-  font-size: 0.9rem;
-  line-height: 1;
-  margin-top: 1px;
+    background: var(--color-bg-secondary); /* was #222 */
+    color: var(--color-text-primary); /* was #fff */
+    border: var(--border-width) solid var(--color-border); /* was #444/#555 */
+    border-radius: var(--border-radius-sm); /* was 4px */
+    padding: var(--spacing-xs) var(--spacing-sm); /* was 4px 8px / 4px 6px */
+    height: 26px;
+    font-size: 0.9rem;
+    line-height: 1;
+    margin-top: 1px;
 }
 
 /* Middle C label group */
 .clavonika__middle-c-label {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm); /* was 8px */
-  color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm); /* was 8px */
+    color: var(--color-text-primary);
 }
 
 /* Keyboard focus affordance for accessibility */
 .clavonika__midi-device-selector:focus-visible,
 .clavonika__controls select:focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-  outline-offset: 2px;
+    outline: 2px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
+    outline-offset: 2px;
 }
 
 /* ==========================================================================
@@ -146,27 +154,29 @@
 
 /* White keys */
 .clavonika__key--white rect {
-  fill: #fff;
-  stroke: #ddd;
-  stroke-width: 1;
-  cursor: pointer;
-  transition: fill 0.1s ease;
+    fill: #fff;
+    stroke: #ddd;
+    stroke-width: 1;
+    cursor: pointer;
+    transition: fill 0.1s ease;
 }
+
 .clavonika__key--white:hover rect {
-  fill: #f0f0f0;
+    fill: #f0f0f0;
 }
 
 /* Black keys */
 .clavonika__key--black rect {
-  fill: #111;
-  stroke: #000;
-  stroke-width: 1;
-  cursor: pointer;
-  transition: fill 0.1s ease;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    fill: #111;
+    stroke: #000;
+    stroke-width: 1;
+    cursor: pointer;
+    transition: fill 0.1s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
 }
+
 .clavonika__key--black:hover rect {
-  fill: #333;
+    fill: #333;
 }
 
 /* ==========================================================================
@@ -174,24 +184,24 @@
    ========================================================================== */
 
 .clavonika__key-label {
-  font-size: 9px;
-  font-weight: 500;
-  fill: #888;
-  pointer-events: none;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+    font-size: 9px;
+    font-weight: 500;
+    fill: #888;
+    pointer-events: none;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 .clavonika__key--black .clavonika__key-label {
-  font-size: 7px;
-  fill: #bbb;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
+    font-size: 7px;
+    fill: #bbb;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
 }
 
 /* Middle C & all C's highlight (kept hard-coded by request) */
 .clavonika__key--middle-c .clavonika__key-label,
 .clavonika__key--white[data-note^="C"] .clavonika__key-label {
-  fill: #ff6b6b;
-  font-weight: bold;
+    fill: #ff6b6b;
+    font-weight: bold;
 }
 
 /* ==========================================================================
@@ -199,23 +209,25 @@
    ========================================================================== */
 
 .clavonika__keyboard--hide-all-labels .clavonika__key-label {
-  display: none;
+    display: none;
 }
 
 .clavonika__keyboard--show-c-only .clavonika__key-label {
-  display: none;
+    display: none;
 }
 
+/*noinspection CssMissingComma*/
 .clavonika__keyboard--show-c-only
-  .clavonika__key--white[data-note^="C"]
-  .clavonika__key-label {
-  display: block;
+.clavonika__key--white[data-note^="C"]
+.clavonika__key-label {
+    display: block;
 }
 
+/*noinspection CssMissingComma*/
 .clavonika__keyboard--show-c-only
-  .clavonika__key--black[data-note^="C#"]
-  .clavonika__key-label {
-  display: none !important;
+.clavonika__key--black[data-note^="C#"]
+.clavonika__key-label {
+    display: none !important;
 }
 
 /* ==========================================================================
@@ -223,12 +235,12 @@
    ========================================================================== */
 
 .clavonika__key--active rect {
-  fill: #2b8cff !important; /* kept hard-coded for now */
+    fill: #2b8cff !important; /* kept hard-coded for now */
 }
 
 .clavonika__key--active .clavonika__key-label {
-  fill: #eaf2ff; /* kept hard-coded for now */
-  text-shadow: none;
+    fill: #eaf2ff; /* kept hard-coded for now */
+    text-shadow: none;
 }
 
 /* ==========================================================================
@@ -236,8 +248,8 @@
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  .clavonika__key--white rect,
-  .clavonika__key--black rect {
-    transition: none;
-  }
+    .clavonika__key--white rect,
+    .clavonika__key--black rect {
+        transition: none;
+    }
 }
