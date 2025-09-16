@@ -1,0 +1,527 @@
+<!doctype html>
+<!--
+  developers/dev.html
+  =====================================================================
+  Purpose
+    - Annotated developer-facing version of the curated Tonika rack page.
+    - Shows how core modules are mounted, how Tonika.Bus is tapped,
+      and how Jackonika (MIDI bridge) is configured in "All" vs. "Select" modes.
+
+  Reading guide
+    - Major sections are clearly delimited with ==== banners.
+    - Inline notes explain module options, event flows, and gotchas.
+
+  Paths
+    - This file lives in /developers/, so CSS/JS paths use .../
+      to reach /css and /js.
+
+  Related:
+    - See production page: /tonika.html (unannotated).
+    - Jackonika in 'All' vs. 'Select' wiring mirrors the curated page.
+-->
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Tonika – Dev Annotated</title>
+
+	<!-- ===================================================================
+		 Core CSS bundles for layout, tokens, and module skins.
+		 These are the same styles your production page uses.
+		 =================================================================== -->
+	<link href="../css/tonika-theme-base.css" rel="stylesheet" />
+	<link href="../css/tonika-layout.css" rel="stylesheet" />
+	<link href="../css/tonika-components.css" rel="stylesheet" />
+	<link href="../css/tonika-tokens.css" rel="stylesheet" />
+	<link href="../css/catchonika.css" rel="stylesheet" />
+	<link href="../css/rhythonika.css" rel="stylesheet" />
+	<link href="../css/clavonika-svg.css" rel="stylesheet" />
+	<link href="../css/chordonika.css" rel="stylesheet" />
+	<link href="../css/chordify-interface.css" rel="stylesheet" />
+	<link href="../css/miniclavonika.css" rel="stylesheet" />
+	<link href="../css/tonika-accessibility.css" rel="stylesheet" />
+
+	<!-- Google Fonts. Purely aesthetic; remove if you want a zero-external build. -->
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link
+			href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Great+Vibes&family=Noto+Sans+Mono:wght@100..900&family=Sacramento&display=swap"
+			rel="stylesheet"
+	/>
+</head>
+
+<body>
+<header>
+	<h1>Tonika – Dev Annotated</h1>
+	<!-- The tab bar below switches visible sections.
+		 Tonika.UI.openTab(index) toggles .active on the <section> blocks. -->
+</header>
+
+<main class="tonika-container">
+	<!-- ===================================================================
+		 Tab controls (left-to-right order must match section order below)
+		 =================================================================== -->
+	<div class="tabs">
+		<button class="active" onclick="Tonika.UI.openTab(0)">Catchonika</button>
+		<button onclick="Tonika.UI.openTab(1)">Chordonika</button>
+		<button onclick="Tonika.UI.openTab(5)">Synthonika</button>
+		<button onclick="Tonika.UI.openTab(2)">Chordify</button>
+		<button onclick="Tonika.UI.openTab(3)">Layout Examples</button>
+		<button onclick="Tonika.UI.openTab(4)">Settings</button>
+		<button onclick="Tonika.UI.openTab(6)">Activity Logs</button>
+	</div>
+
+	<!-- ===================================================================
+		 TAB CONTENT WRAPPER
+		 Each child <section> corresponds to a tab above.
+		 The first section has class="active" to show it on load.
+		 =================================================================== -->
+	<div class="tab-content">
+		<!-- ===============================================================
+			 TAB 0: Catchonika + Rhythonika + Jackonika Input Controls (Dev)
+			 - Catchonika: performance capture (timeline/clip logic).
+			 - Rhythonika: rhythm view / stats (read-only in this build).
+			 - Jackonika controls: "All devices" vs "Select device(s)".
+			   These controls exercise Jackonika v2.2+ multi-device feature.
+			 =============================================================== -->
+		<section class="active">
+			<div class="tonika-grid-2">
+				<!-- Catchonika mounts here -->
+				<div id="catchonika-card"></div>
+
+				<div class="tonika-grid-1-stack">
+					<!-- Rhythonika mounts here -->
+					<div id="rhythonika-mount"></div>
+
+					<!-- DEV-ONLY: Jackonika control card.
+						 This card isn’t required in production; it just exposes
+						 Jackonika’s multi-device behavior for testing.
+						 The selector is disabled in "All" mode and enabled in "Select". -->
+					<div class="tonika-module">
+						<h3>Jackonika Input (Dev Controls)</h3>
+						<div style="display:flex; flex-direction:column; gap:12px">
+							<div>
+								<label style="font-weight:600; display:block; margin-bottom:6px">
+									Input Mode
+								</label>
+								<div style="display:flex; gap:16px; align-items:center">
+									<label style="display:flex; gap:6px; align-items:center; cursor:pointer">
+										<input type="radio" name="jackonika-mode" value="all" checked />
+										Listen to <strong>All</strong>
+									</label>
+									<label style="display:flex; gap:6px; align-items:center; cursor:pointer">
+										<input type="radio" name="jackonika-mode" value="select" />
+										Listen to <strong>Selected</strong>
+									</label>
+								</div>
+							</div>
+
+							<!-- Multi-select list of inputs, only useful in "select" mode.
+								 Jackonika manages the <select>’s options dynamically on
+								 device connect/disconnect (Web MIDI statechange). -->
+							<div style="display:flex; gap:10px; align-items:center">
+								<label for="jackonika-selector" id="jackonika-selector-label" style="opacity:.5">
+									Select MIDI Device(s):
+								</label>
+								<select id="jackonika-selector" multiple disabled style="opacity:.5; min-width:320px; min-height:86px"></select>
+							</div>
+
+							<!-- Small tip for developers reading this page. -->
+							<div class="tonika-hint">
+								<p>
+									<strong>Notes:</strong> In <em>All</em> mode Jackonika attaches a handler to
+									                        every available MIDI input and enriches each emitted event with
+									<code>{ deviceId, deviceName, channel }</code>.
+									                        In <em>Select</em> mode it only attaches to the chosen device(s).
+									                        Hot-plugging devices trigger a refresh and rewire.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div> <!-- /right column stack -->
+			</div>
+		</section>
+
+		<!-- ===============================================================
+			 TAB 1: Chordonika + MiniClavonika + (spare cells)
+			 - Chordonika UI drives chord selection.
+			 - MiniClavonika is a compact keyboard UI (mount only).
+			 =============================================================== -->
+		<section>
+			<div class="tonika-grid-2">
+				<div class="tonika-module">
+					<!-- Chordonika mounts here (see init script) -->
+					<div id="chord-selector"></div>
+				</div>
+
+				<div class="tonika-module">
+					<h3>R1 C2</h3>
+					<p>Placeholder content for add-on modules.</p>
+				</div>
+
+				<div class="tonika-module">
+					<!-- Compact piano UI -->
+					<div id="mini-container" class="miniclavonika__container"></div>
+				</div>
+
+				<div class="tonika-module tonika-module--scrollable" id="chord-events">
+					<h3>R2 C2</h3>
+					<p>Scroll area for chord-related logs.</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- ===============================================================
+			 TAB 5: Synthonika (placeholder layout only)
+			 - Left/right grid demonstrating stacking patterns.
+			 =============================================================== -->
+		<section>
+			<div class="tonika-grid-2">
+				<div class="tonika-module">Left Column (R1 C1)</div>
+				<div class="tonika-grid-1-stack">
+					<div class="tonika-module">Right Top (R1 C2)</div>
+					<div class="tonika-module">Right Bottom (R2 C2)</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- ===============================================================
+			 TAB 2: Chordify – table -> player flow
+			 - Plain HTML UI that your chordify.js script hydrates.
+			 - Click "Open on chordify.net" passes through to an external site.
+			 =============================================================== -->
+		<section>
+			<div class="tonika-module chordify--interface" id="chordify">
+				<!-- TABLE VIEW -->
+				<div class="chordify--table-container" id="chordify-table-view">
+					<div class="chordify--table-header">
+						<h3 class="chordify--table-header__title">Chordify Library</h3>
+						<div class="chordify--table-header__stats" id="chordify-stats">Loading…</div>
+					</div>
+
+					<div class="chordify--controls">
+						<div class="chordify--controls__search">
+							<label class="chordify--controls__label" for="chordify-search">Search</label>
+							<input id="chordify-search" class="chordify--controls__input" type="search" placeholder="Search song or artist…" />
+						</div>
+						<div class="chordify--controls__filters">
+							<!-- future: key / tempo filters -->
+						</div>
+					</div>
+
+					<div class="chordify--table-wrapper">
+						<table class="chordify--table">
+							<thead class="chordify--table__head">
+							<tr class="chordify--table__row chordify--table__row--header">
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--song">Song</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--artist">Artist</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--duration">Duration</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--key">Key</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--tempo">Tempo</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--pulse">Pulse</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--progressions">Progressions</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--actions">Actions</th>
+							</tr>
+							</thead>
+							<tbody class="chordify--table__body" id="chordify-tbody"></tbody>
+						</table>
+					</div>
+
+					<div class="chordify--empty" id="chordify-empty" hidden>
+						<p class="chordify--empty__text">No songs match your search.</p>
+					</div>
+				</div>
+
+				<!-- PLAYER VIEW -->
+				<div class="chordify--player" id="chordify-player-view" hidden>
+					<div class="chordify--nav chordify--nav--inline">
+						<button class="chordify--nav__btn" id="chordify-back">← Back to list</button>
+						<div class="chordify--nav__title">
+							<span id="chordify-title" class="chordify--nav__song"></span>
+							<span id="chordify-artist" class="chordify--nav__artist"></span>
+						</div>
+						<a class="chordify--nav__btn chordify--nav__btn--active" id="chordify-open" target="_blank" rel="noopener noreferrer">
+							Open on chordify.net
+						</a>
+					</div>
+
+					<div class="chordify--player__info">
+						<div class="chordify--player__details">
+							<div class="chordify--player__detail"><strong>Duration:</strong> <span id="chordify-duration"></span></div>
+							<div class="chordify--player__detail"><strong>Key:</strong> <span id="chordify-key"></span></div>
+							<div class="chordify--player__detail"><strong>Tempo:</strong> <span id="chordify-tempo"></span></div>
+							<div class="chordify--player__detail"><strong>Pulse:</strong> <span id="chordify-pulse"></span></div>
+							<div class="chordify--player__detail"><strong>Progressions:</strong> <span id="chordify-progressions"></span></div>
+						</div>
+					</div>
+
+					<!-- Chordify embeds a playable iframe here -->
+					<div class="chordify--player__iframe-container">
+						<iframe
+								class="chordify--player__iframe"
+								id="chordify-iframe"
+								width="100%"
+								height="320"
+								style="border:0"
+								allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+								allowfullscreen>
+						</iframe>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- ===============================================================
+			 TAB 3: Layout Examples (dev helper)
+			 - Dev tool for generating grid structures.
+			 - In future this can evolve into a "Rack Builder" that
+			   saves/loads JSON configs and instantiates modules dynamically.
+			 =============================================================== -->
+		<section>
+			<div class="tonika-grid-2-top">
+				<!-- Layout selector -->
+				<div class="tonika-module tonika-layout-control">
+					<h3>Layout Examples</h3>
+					<label for="layout-selector">Choose a layout:</label>
+					<select id="layout-selector" class="tonika-select tonika-max-220">
+						<option value="2x2">2x2 Grid</option>
+						<option value="left-stack-right">Left + Stack Right</option>
+						<option value="single-column">Single Column</option>
+					</select>
+				</div>
+
+				<!-- Live preview -->
+				<div class="tonika-module tonika-layout-preview">
+					<h4>Live Preview</h4>
+					<div id="layout-preview"></div>
+				</div>
+			</div>
+
+			<!-- Copyable code output -->
+			<div class="tonika-module tonika-layout-code">
+				<h4>Copy HTML</h4>
+				<button class="tonika-btn tonika-btn--sm tonika-mb-sm" onclick="Tonika.UI.copyLayoutCode()">Copy All</button>
+				<pre><code id="layout-code" class="tonika-code"></code></pre>
+			</div>
+		</section>
+
+		<!-- ===============================================================
+			 TAB 4: Settings (theme + A11y toggles)
+			 - Theme selector and high-contrast toggle.
+			 - TonikaTheme handles applying classes/vars under the hood.
+			 =============================================================== -->
+		<section>
+			<div class="tonika-grid-2">
+				<div class="tonika-module">
+					<h3>Settings UI</h3>
+
+					<label for="theme-selector">Select Theme:</label>
+					<select id="theme-selector" class="tonika-select tonika-max-220"></select>
+
+					<div class="tonika-control">
+						<label for="high-contrast-toggle" class="tonika-label">High Contrast Mode:</label>
+						<input type="checkbox" id="high-contrast-toggle" class="tonika-checkbox" />
+					</div>
+
+					<p class="tonika-mt-lg">Toggle Light/Dark:</p>
+					<button class="tonika-btn tonika-btn--primary" onclick="TonikaTheme.toggleMode()">Toggle Mode</button>
+				</div>
+
+				<div class="tonika-module">
+					<h4>Modules</h4>
+					<p>Cards automatically adapt to the current theme.</p>
+					<button class="tonika-btn">Another Action</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- ===============================================================
+			 TAB 6: Activity Logs
+			 - Bus Monitor wraps Tonika.Bus.dispatchEvent to mirror all events
+			   into a simple table for debugging (first row = latest).
+			 =============================================================== -->
+		<section>
+			<div class="tonika-grid-1-stack">
+				<h3>Tonika-Bus Activity</h3>
+				<div class="tonika-module tonika-module--scrollable" id="bus-monitor">
+					<table class="tonika-table" id="bus-event-table">
+						<thead>
+						<tr><th>Time</th><th>Event</th><th>Detail</th></tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+
+				<div class="tonika-module">
+					<h3>Additional Logs</h3>
+					<p>Reserve area for other module-specific logs.</p>
+				</div>
+
+				<div class="tonika-module">
+					<button class="tonika-btn tonika-btn--danger" id="clear-bus-log">Clear Log</button>
+				</div>
+			</div>
+		</section>
+	</div> <!-- /tab-content -->
+
+	<!-- Full-width piano (Clavonika SVG) lives outside tabs to stay global -->
+	<div class="roll88">
+		<div class="piano-placeholder" id="piano"></div>
+	</div>
+</main>
+
+<footer>
+	<p>
+		MIT License © 2025
+		<a href="https://github.com/aa-parky/tonika/tree/main" title="aa-parky">aa-parky</a>
+	</p>
+</footer>
+
+<!-- ===================================================================
+	 Script loading order matters:
+	 - Base utils/UI/theme before modules that use them
+	 - Tonika.Bus before any module that emits on it
+	 =================================================================== -->
+<script src="../js/core/chordify.js"></script>
+<script src="../js/core/tonika-ui.js"></script>
+<script src="../js/core/tonika-theme.js"></script>
+<script src="../js/core/tonika-utils.js"></script>
+<script src="../js/core/tonika-bus.js"></script>
+
+<!-- Global input handler: emits keyboard/mouse-style UI events onto the Bus -->
+<script src="../js/core/tonika-input.js"></script>
+
+<!-- Sound/MIDI and core modules -->
+<script src="../js/core/soundonika.js"></script>
+<script src="../js/core/jackonika.js"></script>
+<script src="../js/vendor/midiwriter.js"></script>
+<script src="../js/core/catchonika.js"></script>
+<script src="../js/core/rhythonika.js"></script>
+<script src="../js/core/clavonika-svg.js"></script>
+<script src="../js/core/chordonika.js"></script>
+<script src="../js/core/miniclavonika.js"></script>
+
+<!-- ===================================================================
+	 DEV INIT SCRIPT
+	 - Initializes Chordonika, Jackonika (with All/Select controls),
+	   Catchonika, Rhythonika, MiniClavonika, ClavonikaSVG, TonikaInput.
+	 - Sets up Bus Monitor by wrapping Tonika.Bus.dispatchEvent.
+	 =================================================================== -->
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		// --- Chordonika ----------------------------------------------------
+		// Mounts the chord UI and enables debug mode for TonikaModule base.
+		console.log("[Dev] Initializing Chordonika…");
+		const chordModule = new Chordonika({ mount: "#chord-selector", mode: "card" });
+		Tonika.TonikaModule.setDebugMode(true);
+		console.log("[Dev] Chordonika Status:", chordModule.getStatus());
+		console.log("[Dev] All Modules:", Tonika.TonikaModule.discoverModules());
+
+		// --- Jackonika (MIDI Bridge) -------------------------------------
+		// In dev controls, we surface All vs. Select modes:
+		//  - All: attach to every available input; events include deviceId/deviceName/channel.
+		//  - Select: attach only to chosen device(s) from the multi-select box.
+		try {
+			const selector = document.getElementById("jackonika-selector");
+			const selectorLabel = document.getElementById("jackonika-selector-label");
+			const modeRadios = document.querySelectorAll('input[name="jackonika-mode"]');
+
+			const jack = new Tonika.Jackonika({
+				moduleInfo: { name: "Jackonika", version: "2.2.x (dev)" },
+				selectorId: "jackonika-selector",
+				mode: "all" // default boot in All mode for zero-friction
+			});
+
+			// Toggle mode via radio buttons
+			modeRadios.forEach(r => {
+				r.addEventListener("change", e => {
+					if (!e.target.checked) return;
+					const mode = e.target.value; // "all" or "select"
+					jack.setMode(mode);
+
+					// Show/hide and enable/disable the multi-select accordingly
+					const isSelect = mode === "select";
+					selector.disabled = !isSelect;
+					selector.style.opacity = isSelect ? "1" : "0.5";
+					selectorLabel.style.opacity = isSelect ? "1" : "0.5";
+
+					console.log(`[Dev] Jackonika mode changed to: ${mode}`);
+				});
+			});
+
+			console.log("[Dev] Jackonika Status:", jack.getStatus());
+		} catch (err) {
+			console.error("[Dev] Failed to initialize Jackonika:", err);
+		}
+
+		// --- ClavonikaSVG -------------------------------------------------
+		// Full-width piano that listens to Bus note events and also emits UI note events.
+		try {
+			const clav = new Tonika.ClavonikaSVG({
+				mount: "#piano",
+				moduleInfo: { name: "ClavonikaSVG", version: "2.0.0" },
+				mode: "card",
+				octaves: 2,
+				startOctave: 3
+			});
+			console.log("[Dev] Clavonika Status:", clav.getStatus());
+		} catch (err) {
+			console.error("[Dev] Failed to initialize Clavonika:", err);
+		}
+
+		// --- TonikaInput ---------------------------------------------------
+		// Emits generic keyboard/mouse-like events to the Bus (useful for testing input).
+		try {
+			const tonikaInput = new Tonika.TonikaInput();
+			console.log("[Dev] TonikaInput Status:", tonikaInput.getStatus());
+		} catch (err) {
+			console.error("[Dev] Failed to initialize TonikaInput:", err);
+		}
+	});
+</script>
+
+<!-- Catchonika + Rhythonika init (simple, non-blocking) -->
+<script>
+	// Catchonika: capture performance; Rhythonika: visualize rhythm stats.
+	new window.Catchonika({ mount: "#catchonika-card", mode: "card", bufferMinutes: 60, defaultBpm: 120, groupByChannel: false });
+	new Rhythonika({ mount: "#rhythonika-mount", mode: "card", autoRefresh: true });
+</script>
+
+<!-- MiniClavonika (compact keyboard UI) -->
+<script>
+	const mini = Tonika.MiniClavonika.init("mini-container");
+</script>
+
+<!-- ===================================================================
+	 Bus Monitor (DEV)
+	 - Wrap Tonika.Bus.dispatchEvent so every event is mirrored into a table.
+	 - First row = most recent. Click "Clear Log" to reset.
+	 =================================================================== -->
+<script>
+	(function setupBusMonitor() {
+		const table = document.getElementById("bus-event-table")?.querySelector("tbody");
+		const clearBtn = document.getElementById("clear-bus-log");
+		if (!table) return;
+
+		function logEvent(type, detail) {
+			const tr = document.createElement("tr");
+			const time = new Date().toLocaleTimeString();
+			tr.innerHTML = `
+            <td>${time}</td>
+            <td>${type}</td>
+            <td><pre class="tonika-code"><code>${JSON.stringify(detail, null, 2)}</code></pre></td>`;
+			table.prepend(tr);
+		}
+
+		// Wrap the dispatcher to observe every event passing through the Bus.
+		const origDispatch = Tonika.Bus.dispatchEvent.bind(Tonika.Bus);
+		Tonika.Bus.dispatchEvent = function (event) {
+			try { logEvent(event.type, event.detail); }
+			catch (e) { console.warn("[BusMonitor] Log failed:", e); }
+			return origDispatch(event);
+		};
+
+		clearBtn?.addEventListener("click", () => (table.innerHTML = ""));
+	})();
+</script>
+</body>
+</html>

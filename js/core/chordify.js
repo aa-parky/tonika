@@ -5,7 +5,7 @@
 */
 // ===================================================================
 (() => {
-const chordify = {
+  const chordify = {
     tableView: document.getElementById("chordify-table-view"),
     playerView: document.getElementById("chordify-player-view"),
     tbody: document.getElementById("chordify-tbody"),
@@ -24,18 +24,18 @@ const chordify = {
     progressions: document.getElementById("chordify-progressions"),
     rows: [],
     data: [],
-};
+  };
 
-function toggleViews(showPlayer) {
+  function toggleViews(showPlayer) {
     chordify.tableView.hidden = !!showPlayer;
     chordify.playerView.hidden = !showPlayer;
-}
+  }
 
-function renderStats(filteredCount, totalCount) {
+  function renderStats(filteredCount, totalCount) {
     chordify.stats.textContent = `${filteredCount} / ${totalCount} songs`;
-}
+  }
 
-function createRow(item, idx) {
+  function createRow(item, idx) {
     const tr = document.createElement("tr");
     tr.className = "chordify--table__row chordify--table__row--clickable";
     tr.dataset.index = String(idx);
@@ -67,31 +67,31 @@ function createRow(item, idx) {
       <button class="chordify--btn chordify--btn--small" data-action="open">Open</button>
     </td>`;
     return tr;
-}
+  }
 
-function renderTable(data) {
+  function renderTable(data) {
     chordify.tbody.innerHTML = "";
     chordify.rows = data.map((item, idx) => {
-        const row = createRow(item, idx);
-        chordify.tbody.appendChild(row);
-        return row;
+      const row = createRow(item, idx);
+      chordify.tbody.appendChild(row);
+      return row;
     });
     chordify.empty.hidden = data.length !== 0;
     renderStats(data.length, chordify.data.length);
-}
+  }
 
-function filterTable(query) {
+  function filterTable(query) {
     const q = (query || "").toLowerCase();
     const filtered = chordify.data.filter((item) => {
-        return (
-            (item.song || "").toLowerCase().includes(q) ||
-            (item.artist || "").toLowerCase().includes(q)
-        );
+      return (
+        (item.song || "").toLowerCase().includes(q) ||
+        (item.artist || "").toLowerCase().includes(q)
+      );
     });
     renderTable(filtered);
-}
+  }
 
-function openItem(item) {
+  function openItem(item) {
     if (!item) return;
     chordify.title.textContent = item.song || "—";
     chordify.artist.textContent = item.artist || "";
@@ -103,46 +103,51 @@ function openItem(item) {
     chordify.iframe.src = item.iframe_url || "";
     chordify.openBtn.href = item.iframe_url || "#";
     toggleViews(true);
-}
+  }
 
-function attachChordifyHandlers() {
+  function attachChordifyHandlers() {
     // Back to list
     chordify.backBtn.addEventListener("click", () => {
-        chordify.iframe.src = "about:blank";
-        toggleViews(false);
+      chordify.iframe.src = "about:blank";
+      toggleViews(false);
     });
 
     // Row click / Open button
     chordify.tbody.addEventListener("click", (e) => {
-        const openBtn = e.target.closest("[data-action='open']");
-        const tr = e.target.closest("tr[data-index]");
-        if (!tr) return;
-        const idx = Number(tr.dataset.index);
-        const item = chordify.data[idx];
-        if (openBtn || tr) openItem(item);
+      const openBtn = e.target.closest("[data-action='open']");
+      const tr = e.target.closest("tr[data-index]");
+      if (!tr) return;
+      const idx = Number(tr.dataset.index);
+      const item = chordify.data[idx];
+      if (openBtn || tr) openItem(item);
     });
 
     // Search
     chordify.search.addEventListener("input", (e) => {
-        filterTable(e.target.value);
+      filterTable(e.target.value);
     });
-}
+  }
 
-async function loadChordifyData() {
+  async function loadChordifyData() {
     try {
-        const res = await fetch("song_data.json", { cache: "no-store" });
-        if (!res.ok) throw new Error("Failed to fetch song_data.json");
-        const data = await res.json();
-        chordify.data = Array.isArray(data) ? data : [];
-        renderTable(chordify.data);
-    } catch (err) {
-        console.warn("[Chordify] Could not load song_data.json:", err);
-        chordify.stats.textContent = "0 / 0 songs";
-        chordify.empty.hidden = false;
-    }
-}
+      // Detect if we're inside /developers/
+      const inDevelopers = location.pathname.includes("/developers/");
+      const url = inDevelopers ? "../song_data.json" : "song_data.json";
 
-attachChordifyHandlers();
-loadChordifyData();
-toggleViews(false);
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to fetch " + url);
+
+      const data = await res.json();
+      chordify.data = Array.isArray(data) ? data : [];
+      renderTable(chordify.data);
+    } catch (err) {
+      console.warn("[Chordify] Could not load song_data.json:", err);
+      chordify.stats.textContent = "0 / 0 songs";
+      chordify.empty.hidden = false;
+    }
+  }
+
+  attachChordifyHandlers();
+  loadChordifyData();
+  toggleViews(false);
 })();

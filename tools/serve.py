@@ -1,60 +1,43 @@
 #!/usr/bin/env python3
-"""
-Simple HTTP server for serving Tonika locally.
-Automatically opens tonika.html in the default browser.
-"""
-
 import http.server
 import socketserver
 import webbrowser
+import random
 import os
 import sys
-from pathlib import Path
-
-# Default port
-PORT = 8000
-
-def find_available_port(start_port=8000, max_attempts=10):
-    """Find an available port starting from start_port."""
-    for port in range(start_port, start_port + max_attempts):
-        try:
-            with socketserver.TCPServer(("", port), None) as temp_server:
-                return port
-        except OSError:
-            continue
-    return None
 
 def main():
-    # Change to project root directory (parent of tools)
-    project_root = Path(__file__).parent.parent
-    os.chdir(project_root)
+    # Pick a random high port (between 40000–60000)
+    port = random.randint(40000, 60000)
 
-    # Find available port
-    port = find_available_port(PORT)
-    if port is None:
-        print(f"Error: Could not find available port starting from {PORT}")
-        sys.exit(1)
+    # Ask which page to serve
+    print("Which Tonika page do you want to serve?")
+    print("1) tonika.html (production root)")
+    print("2) developers/dev.html (annotated developer version)")
+    choice = input("Enter 1 or 2: ").strip()
 
-    # Create server
+    if choice == "1":
+        file_to_open = "tonika.html"
+    elif choice == "2":
+        file_to_open = "developers/dev.html"
+    else:
+        print("Invalid choice. Defaulting to tonika.html.")
+        file_to_open = "tonika.html"
+
+    # Absolute path to file (so open works)
+    file_path = os.path.abspath(file_to_open)
+
+    # Start server in project root
+    os.chdir(os.path.dirname(os.path.abspath(__file__)) + "/..")
     handler = http.server.SimpleHTTPRequestHandler
-
-    try:
-        with socketserver.TCPServer(("", port), handler) as httpd:
-            print(f"Serving Tonika at http://localhost:{port}/")
-            print(f"Opening tonika.html in browser...")
-            print("Press Ctrl+C to stop the server")
-
-            # Open browser automatically
-            webbrowser.open(f"http://localhost:{port}/tonika.html")
-
-            # Start server
+    with socketserver.TCPServer(("", port), handler) as httpd:
+        url = f"http://localhost:{port}/{file_to_open}"
+        print(f"Serving {file_to_open} at {url}")
+        webbrowser.open(url)
+        try:
             httpd.serve_forever()
-
-    except KeyboardInterrupt:
-        print("\nServer stopped.")
-    except Exception as e:
-        print(f"Error starting server: {e}")
-        sys.exit(1)
+        except KeyboardInterrupt:
+            print("\nShutting down server.")
 
 if __name__ == "__main__":
     main()

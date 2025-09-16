@@ -11,15 +11,15 @@ const root = document.documentElement;
 
 // 1. List of available themes (can be auto-generated later)
 const availableThemes = [
-    { name: "Brown 01", value: "brown-01", href: "css/themes/brown_01.css" },
-    { name: "Brown 02", value: "brown-02", href: "css/themes/brown_02.css" },
-    { name: "Aubade", value: "aubade", href: "css/themes/aubade.css" },
-    { name: "Nocturne", value: "nocturne", href: "css/themes/nocturne.css" },
-    { name: "Ember Forge", value: "emberforge", href: "css/themes/ember-forge.css" },
-    { name: "Crimson Veil", value: "crimsonveil", href: "css/themes/crimson-veil.css" },
-    { name: "Glacier Pulse", value: "glacierpulse", href: "css/themes/glacier-pulse.css" },
-    { name: "Crimson Noir", value: "crimson-noir", href: "css/themes/crimson-noir.css" },
-    { name: "Aurora Clash", value: "aurora-clash", href: "css/themes/aurora-clash.css" },
+  { name: "Brown 01", value: "brown-01", href: "/css/themes/brown_01.css" },
+  { name: "Brown 02", value: "brown-02", href: "/css/themes/brown_02.css" },
+  { name: "Aubade", value: "aubade", href: "/css/themes/aubade.css" },
+  { name: "Nocturne", value: "nocturne", href: "/css/themes/nocturne.css" },
+  { name: "Ember Forge", value: "emberforge", href: "/css/themes/ember-forge.css" },
+  { name: "Crimson Veil", value: "crimsonveil", href: "/css/themes/crimson-veil.css" },
+  { name: "Glacier Pulse", value: "glacierpulse", href: "/css/themes/glacier-pulse.css" },
+  { name: "Crimson Noir", value: "crimson-noir", href: "/css/themes/crimson-noir.css" },
+  { name: "Aurora Clash", value: "aurora-clash", href: "/css/themes/aurora-clash.css" },
 ];
 
 // 2. Load saved theme/mode or sensible defaults
