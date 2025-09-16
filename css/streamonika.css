@@ -1,0 +1,144 @@
+/* ================================================
+   Streamonika – Scalable CSS (Refined Radii & Borders)
+   ================================================ */
+
+/* Container & wrapper */
+.streamonika-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background: #111; /* frame */
+}
+
+.scale-wrapper {
+    position: relative;
+    width: 80vmin;
+    aspect-ratio: 659 / 578; /* original Penpot canvas ratio */
+    background: #2c2c2c;
+    border-radius: 2%;   /* softer corner curve */
+    overflow: hidden;
+}
+
+/* Background */
+.background-d037dbafc8c7 {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    background: #2c2c2c;
+    border-radius: 2%;
+}
+
+/* Touch Bar */
+.tchbar-d03993af3dea {
+    position: absolute;
+    left: 6.2%;
+    top: 50.5%;
+    width: 87.6%;
+    height: 21.8%;
+    background: #000;
+    border: 0.3vmin solid #4d4d4d; /* thinner stroke */
+    border-radius: 0.4vmin;        /* gentler curve */
+}
+
+/* Rotary Background */
+.rotbg-d03bd9b07d3e {
+    position: absolute;
+    left: 6.2%;
+    top: 75.8%;
+    width: 87.6%;
+    height: 21.8%;
+    background: #000;
+    border: 0.4vmin solid #4d4d4d;
+    border-radius: 15%;            /* reduced curve */
+}
+
+/* =========================
+   Buttons (2x4 grid)
+   ========================= */
+[class*="btn"] {
+    background: #000;
+    border: 0.3vmin solid #4d4d4d;
+    border-radius: 6%; /* subtler rounding */
+    width: 12.7%;
+    height: 14.8%;
+}
+
+.btn01-d0396f3d6bbc { left: 11%; top: 13%; position: absolute; }
+.btn02-d0396f3d6bbd { left: 36%; top: 13%; position: absolute; }
+.btn03-d0396f3d6bbe { left: 59%; top: 13%; position: absolute; }
+.btn04-d0396f3d6bbf { left: 83%; top: 13%; position: absolute; }
+
+.btn01-d03849bc3931 { left: 11%; top: 32%; position: absolute; }
+.btn02-d038b7239d22 { left: 36%; top: 32%; position: absolute; }
+.btn03-d038cae3b8d4 { left: 59%; top: 32%; position: absolute; }
+.btn04-d038cae3b8d3 { left: 83%; top: 32%; position: absolute; }
+
+/* =========================
+   Rotary Knobs
+   ========================= */
+[class*="rot0"] {
+    width: 10.6%;
+    height: 12.1%;
+    background: #000;
+    border: 0.3vmin solid #4d4d4d;
+    border-radius: 50%;
+    position: absolute;
+    top: 80%;
+}
+
+.rot01-d03ac3eae7c5 { left: 12%; }
+.rot02-d03ae5e85a3c { left: 37%; }
+.rot03-d03aec381285 { left: 61%; }
+.rot04-d03aeea8cd9b { left: 85%; }
+
+/* =========================
+   Typography
+   ========================= */
+div {
+    color: #fff;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: clamp(0.5rem, 1vmin, 1rem);
+}
+
+[class*="btn"] {
+    color: #e0e0e0;
+    font-size: 0.8vmin;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+[class*="rot"] {
+    color: #ccc;
+    font-size: 0.7vmin;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+[class*="tchbar"] {
+    color: #f0f0f0;
+    font-size: 1.2vmin;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+}
+
+[class*="background"] {
+    color: #888;
+    font-size: 0.6vmin;
+    opacity: 0.7;
+}
+
+[class*="rotbg"] {
+    color: #999;
+    font-size: 0.8vmin;
+    opacity: 0.8;
+}
