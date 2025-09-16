@@ -1,479 +1,304 @@
 <!doctype html>
 <!--suppress JSUnusedGlobalSymbols -->
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Tonika - Curated</title>
-    <link href="css/tonika-theme-base.css" rel="stylesheet" />
-    <link href="css/tonika-layout.css" rel="stylesheet" />
-    <link href="css/tonika-components.css" rel="stylesheet" />
-    <link href="css/tonika-tokens.css" rel="stylesheet" />
-    <link href="css/catchonika.css" rel="stylesheet" />
-    <link href="css/rhythonika.css" rel="stylesheet" />
-    <link href="css/clavonika-svg.css" rel="stylesheet" />
-    <link href="css/chordonika.css" rel="stylesheet" />
-    <link href="css/chordify-interface.css" rel="stylesheet" />
-    <link href="css/miniclavonika.css" rel="stylesheet" />
-    <link href="css/tonika-accessibility.css" rel="stylesheet" />
-    <!-- Google Fonts link  -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Great+Vibes&family=Noto+Sans+Mono:wght@100..900&family=Sacramento&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <header>
-      <h1>Tonika - Curated</h1>
-    </header>
-    <main class="tonika-container">
-      <div class="tabs">
-        <button class="active" onclick="Tonika.UI.openTab(0)">
-          Catchonika
-        </button>
-        <button onclick="Tonika.UI.openTab(1)">Chordonika</button>
-        <button onclick="Tonika.UI.openTab(5)">Synthonika</button>
-        <button onclick="Tonika.UI.openTab(2)">Chordify</button>
-        <button onclick="Tonika.UI.openTab(3)">Layout Examples</button>
-        <button onclick="Tonika.UI.openTab(4)">Settings</button>
-        <button onclick="Tonika.UI.openTab(6)">Activity Logs</button>
-      </div>
+<head>
+	<meta charset="utf-8" />
+	<title>Tonika - Curated</title>
+	<link href="css/tonika-theme-base.css" rel="stylesheet" />
+	<link href="css/tonika-layout.css" rel="stylesheet" />
+	<link href="css/tonika-components.css" rel="stylesheet" />
+	<link href="css/tonika-tokens.css" rel="stylesheet" />
+	<link href="css/catchonika.css" rel="stylesheet" />
+	<link href="css/rhythonika.css" rel="stylesheet" />
+	<link href="css/clavonika-svg.css" rel="stylesheet" />
+	<link href="css/chordonika.css" rel="stylesheet" />
+	<link href="css/chordify-interface.css" rel="stylesheet" />
+	<link href="css/miniclavonika.css" rel="stylesheet" />
+	<link href="css/tonika-accessibility.css" rel="stylesheet" />
+	<!-- Google Fonts link  -->
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link
+			href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Great+Vibes&family=Noto+Sans+Mono:wght@100..900&family=Sacramento&display=swap"
+			rel="stylesheet"
+	/>
+</head>
+<body>
+<header>
+	<h1>Tonika - Curated</h1>
+</header>
+<main class="tonika-container">
+	<div class="tabs">
+		<button class="active" onclick="Tonika.UI.openTab(0)">Catchonika</button>
+		<button onclick="Tonika.UI.openTab(1)">Chordonika</button>
+		<button onclick="Tonika.UI.openTab(5)">Synthonika</button>
+		<button onclick="Tonika.UI.openTab(2)">Chordify</button>
+		<button onclick="Tonika.UI.openTab(3)">Layout Examples</button>
+		<button onclick="Tonika.UI.openTab(4)">Settings</button>
+		<button onclick="Tonika.UI.openTab(6)">Activity Logs</button>
+	</div>
 
-      <!-- Catchonika tab -->
-      <div class="tab-content">
-        <section class="active">
-          <div class="tonika-grid-2">
-            <div id="catchonika-card"></div>
+	<!-- Catchonika tab -->
+	<div class="tab-content">
+		<section class="active">
+			<div class="tonika-grid-2">
+				<div id="catchonika-card"></div>
+				<div class="tonika-grid-1-stack">
+					<div id="rhythonika-mount"></div>
+					<div class="tonika-module"> R2 C2</div>
+				</div>
+			</div>
+		</section>
 
-            <div class="tonika-grid-1-stack">
-              <div id="rhythonika-mount"></div>
-            </div>
-          </div>
-        </section>
+		<!-- Chordonika tab -->
+		<section>
+			<div class="tonika-grid-2">
+				<div class="tonika-module">
+					<div id="chord-selector"></div>
+				</div>
+				<div class="tonika-module">
+					<h3>R1 C2</h3>
+					CONTENT HERE
+				</div>
+				<div class="tonika-module">
+					<div id="mini-container" class="miniclavonika__container"></div>
+				</div>
+				<div class="tonika-module tonika-module--scrollable" id="chord-events">
+					<h3>R2 C2</h3>
+					Content Here!
+				</div>
+			</div>
+		</section>
 
-        <!-- Chordonika tab -->
-        <section>
-          <div class="tonika-grid-2">
-            <div class="tonika-module">
-              <div id="chord-selector"></div>
-            </div>
+		<!-- Synthonika tab -->
+		<section>
+			<div class="tonika-grid-2">
+				<div class="tonika-module">Left Column (R1 C1)</div>
+				<div class="tonika-grid-1-stack">
+					<div class="tonika-module">Right Top (R1 C2)</div>
+					<div class="tonika-module">Right Bottom (R2 C2)</div>
+				</div>
+			</div>
+		</section>
 
-            <div class="tonika-module">
-              <h3>R1 C2</h3>
-              CONTENT HERE
-            </div>
+		<!-- Chordify tab -->
+		<section>
+			<div class="tonika-module chordify--interface" id="chordify">
+				<!-- TABLE VIEW -->
+				<div class="chordify--table-container" id="chordify-table-view">
+					<div class="chordify--table-header">
+						<h3 class="chordify--table-header__title">Chordify Library</h3>
+						<div class="chordify--table-header__stats" id="chordify-stats">Loading…</div>
+					</div>
+					<div class="chordify--controls">
+						<div class="chordify--controls__search">
+							<label class="chordify--controls__label" for="chordify-search">Search</label>
+							<input id="chordify-search" class="chordify--controls__input" type="search" placeholder="Search song or artist…" />
+						</div>
+						<div class="chordify--controls__filters"></div>
+					</div>
+					<div class="chordify--table-wrapper">
+						<table class="chordify--table">
+							<thead class="chordify--table__head">
+							<tr class="chordify--table__row chordify--table__row--header">
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--song">Song</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--artist">Artist</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--duration">Duration</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--key">Key</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--tempo">Tempo</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--pulse">Pulse</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--progressions">Progressions</th>
+								<th class="chordify--table__cell chordify--table__cell--header chordify--table__cell--actions">Actions</th>
+							</tr>
+							</thead>
+							<tbody class="chordify--table__body" id="chordify-tbody"></tbody>
+						</table>
+					</div>
+					<div class="chordify--empty" id="chordify-empty" hidden>
+						<p class="chordify--empty__text">No songs match your search.</p>
+					</div>
+				</div>
+				<!-- PLAYER VIEW -->
+				<div class="chordify--player" id="chordify-player-view" hidden>
+					<div class="chordify--nav chordify--nav--inline">
+						<button class="chordify--nav__btn" id="chordify-back">← Back to list</button>
+						<div class="chordify--nav__title">
+							<span id="chordify-title" class="chordify--nav__song"></span>
+							<span id="chordify-artist" class="chordify--nav__artist"></span>
+						</div>
+						<a class="chordify--nav__btn chordify--nav__btn--active" id="chordify-open" target="_blank" rel="noopener noreferrer">Open on chordify.net</a>
+					</div>
+					<div class="chordify--player__info">
+						<div class="chordify--player__details">
+							<div class="chordify--player__detail"><strong>Duration:</strong> <span id="chordify-duration"></span></div>
+							<div class="chordify--player__detail"><strong>Key:</strong> <span id="chordify-key"></span></div>
+							<div class="chordify--player__detail"><strong>Tempo:</strong> <span id="chordify-tempo"></span></div>
+							<div class="chordify--player__detail"><strong>Pulse:</strong> <span id="chordify-pulse"></span></div>
+							<div class="chordify--player__detail"><strong>Progressions:</strong> <span id="chordify-progressions"></span></div>
+						</div>
+					</div>
+					<div class="chordify--player__iframe-container">
+						<iframe class="chordify--player__iframe" id="chordify-iframe" width="100%" height="320" style="border: 0" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+					</div>
+				</div>
+			</div>
+		</section>
 
-            <div class="tonika-module">
-              <div id="mini-container" class="miniclavonika__container"></div>
-            </div>
+		<!-- Layout Examples tab -->
+		<section>
+			<div class="tonika-grid-2-top">
+				<div class="tonika-module tonika-layout-control">
+					<h3>Layout Examples</h3>
+					<label for="layout-selector">Choose a layout:</label>
+					<select id="layout-selector" class="tonika-select tonika-max-220">
+						<option value="2x2">2x2 Grid</option>
+						<option value="left-stack-right">Left + Stack Right</option>
+						<option value="single-column">Single Column</option>
+					</select>
+				</div>
+				<div class="tonika-module tonika-layout-preview">
+					<h4>Live Preview</h4>
+					<div id="layout-preview"></div>
+				</div>
+			</div>
+			<div class="tonika-module tonika-layout-code">
+				<h4>Copy HTML</h4>
+				<button class="tonika-btn tonika-btn--sm tonika-mb-sm" onclick="Tonika.UI.copyLayoutCode()">Copy All</button>
+				<pre><code id="layout-code" class="tonika-code"></code></pre>
+			</div>
+		</section>
 
-            <div
-              class="tonika-module tonika-module--scrollable"
-              id="chord-events"
-            >
-              <h3>R2 C2</h3>
-              Content Here!
-            </div>
-          </div>
-        </section>
+		<!-- Settings tab -->
+		<section>
+			<div class="tonika-grid-2">
+				<div class="tonika-module">
+					<h3>Settings UI</h3>
+					<label for="theme-selector">Select Theme:</label>
+					<select class="tonika-select tonika-max-220" id="theme-selector"></select>
+					<div class="tonika-control">
+						<label for="high-contrast-toggle" class="tonika-label">High Contrast Mode:</label>
+						<input type="checkbox" id="high-contrast-toggle" class="tonika-checkbox" />
+					</div>
+					<p class="tonika-mt-lg">Toggle Light/Dark:</p>
+					<button class="tonika-btn tonika-btn--primary" onclick="TonikaTheme.toggleMode()">Toggle Mode</button>
+				</div>
+				<div class="tonika-module">
+					<h4>Modules</h4>
+					<p>Cards automatically adapt to the current theme.</p>
+					<button class="tonika-btn">Another Action</button>
+				</div>
+			</div>
+		</section>
 
-        <!-- Synthonika tab -->
-        <section>
-          <div class="tonika-grid-2">
-            <div class="tonika-module">Left Column (R1 C1)</div>
-            <div class="tonika-grid-1-stack">
-              <div class="tonika-module">Right Top (R1 C2)</div>
-              <div class="tonika-module">Right Bottom (R2 C2)</div>
-            </div>
-          </div>
-        </section>
+		<!-- Activity Logs tab -->
+		<section>
+			<div class="tonika-grid-1-stack">
+				<h3>Tonika-Bus Activity</h3>
+				<div class="tonika-module tonika-module--scrollable" id="bus-monitor">
+					<table class="tonika-table" id="bus-event-table">
+						<thead>
+						<tr><th>Time</th><th>Event</th><th>Detail</th></tr>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+				<div class="tonika-module"><h3>Additional Logs</h3><p>Future: Other activity logs can be added here</p></div>
+				<div class="tonika-module"><button class="tonika-btn tonika-btn--danger" id="clear-bus-log">Clear Log</button></div>
+			</div>
+		</section>
+	</div>
 
-        <!-- Chordify tab (table -> iframe flow) -->
-        <section>
-          <div class="tonika-module chordify--interface" id="chordify">
-            <!-- TABLE VIEW -->
-            <div class="chordify--table-container" id="chordify-table-view">
-              <div class="chordify--table-header">
-                <h3 class="chordify--table-header__title">Chordify Library</h3>
-                <div class="chordify--table-header__stats" id="chordify-stats">
-                  Loading…
-                </div>
-              </div>
-              <div class="chordify--controls">
-                <div class="chordify--controls__search">
-                  <label class="chordify--controls__label" for="chordify-search"
-                    >Search</label
-                  >
-                  <input
-                    id="chordify-search"
-                    class="chordify--controls__input"
-                    type="search"
-                    placeholder="Search song or artist…"
-                  />
-                </div>
-                <div class="chordify--controls__filters">
-                  <!-- Future: key / tempo filter selects -->
-                </div>
-              </div>
-              <div class="chordify--table-wrapper">
-                <table class="chordify--table">
-                  <thead class="chordify--table__head">
-                    <tr
-                      class="chordify--table__row chordify--table__row--header"
-                    >
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--song"
-                      >
-                        Song
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--artist"
-                      >
-                        Artist
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--duration"
-                      >
-                        Duration
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--key"
-                      >
-                        Key
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--tempo"
-                      >
-                        Tempo
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--pulse"
-                      >
-                        Pulse
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--progressions"
-                      >
-                        Progressions
-                      </th>
-                      <th
-                        class="chordify--table__cell chordify--table__cell--header chordify--table__cell--actions"
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    class="chordify--table__body"
-                    id="chordify-tbody"
-                  ></tbody>
-                </table>
-              </div>
-              <div class="chordify--empty" id="chordify-empty" hidden>
-                <p class="chordify--empty__text">No songs match your search.</p>
-              </div>
-            </div>
+	<div class="roll88"><div class="piano-placeholder" id="piano"></div></div>
+</main>
+<footer>
+	<p>
+		MIT License © 2025
+		<a href="https://github.com/aa-parky/tonika/tree/main" title="aa-parky">aa-parky</a>
+	</p>
+</footer>
 
-            <!-- PLAYER VIEW -->
-            <div class="chordify--player" id="chordify-player-view" hidden>
-              <div class="chordify--nav chordify--nav--inline">
-                <button class="chordify--nav__btn" id="chordify-back">
-                  ← Back to list
-                </button>
-                <div class="chordify--nav__title">
-                  <span id="chordify-title" class="chordify--nav__song"></span>
-                  <span
-                    id="chordify-artist"
-                    class="chordify--nav__artist"
-                  ></span>
-                </div>
-                <a
-                  class="chordify--nav__btn chordify--nav__btn--active"
-                  id="chordify-open"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open on chordify.net
-                </a>
-              </div>
+<!-- Load core scripts -->
+<script src="js/core/chordify.js"></script>
+<script src="js/core/tonika-ui.js"></script>
+<script src="js/core/tonika-theme.js"></script>
+<script src="js/core/tonika-utils.js"></script>
+<script src="js/core/tonika-bus.js"></script>
+<script src="js/core/tonika-input.js"></script>
+<script src="js/core/soundonika.js"></script>
+<script src="js/core/jackonika.js"></script>
+<script src="js/vendor/midiwriter.js"></script>
+<script src="js/core/catchonika.js"></script>
+<script src="js/core/rhythonika.js"></script>
+<script src="js/core/clavonika-svg.js"></script>
+<script src="js/core/chordonika.js"></script>
+<script src="js/core/miniclavonika.js"></script>
 
-              <div class="chordify--player__info">
-                <div class="chordify--player__details">
-                  <div class="chordify--player__detail">
-                    <strong>Duration:</strong>
-                    <span id="chordify-duration"></span>
-                  </div>
-                  <div class="chordify--player__detail">
-                    <strong>Key:</strong> <span id="chordify-key"></span>
-                  </div>
-                  <div class="chordify--player__detail">
-                    <strong>Tempo:</strong> <span id="chordify-tempo"></span>
-                  </div>
-                  <div class="chordify--player__detail">
-                    <strong>Pulse:</strong> <span id="chordify-pulse"></span>
-                  </div>
-                  <div class="chordify--player__detail">
-                    <strong>Progressions:</strong>
-                    <span id="chordify-progressions"></span>
-                  </div>
-                </div>
-              </div>
+<!-- Init scripts -->
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		// Chordonika
+		console.log("DOM ready, initializing Chordonika...");
+		const chordModule = new Chordonika({ mount: "#chord-selector", mode: "card" });
+		Tonika.TonikaModule.setDebugMode(true);
+		console.log("Chordonika Status:", chordModule.getStatus());
 
-              <div class="chordify--player__iframe-container">
-                <iframe
-                  class="chordify--player__iframe"
-                  id="chordify-iframe"
-                  width="100%"
-                  height="320"
-                  style="border: 0"
-                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                  allowfullscreen
-                >
-                </iframe>
-              </div>
-            </div>
-          </div>
-        </section>
+		// Jackonika
+		try {
+			const jack = new Tonika.Jackonika({
+				moduleInfo: { name: "Jackonika", version: "2.0.0" },
+				selectorId: "midiDeviceSelector"
+			});
+			console.log("Jackonika Status:", jack.getStatus());
+		} catch (err) { console.error("Failed to initialize Jackonika:", err); }
 
-        <!-- Layout Examples tab -->
-        <section>
-          <div class="tonika-grid-2-top">
-            <!-- Layout Selector -->
-            <div class="tonika-module tonika-layout-control">
-              <h3>Layout Examples</h3>
-              <label for="layout-selector">Choose a layout:</label>
-              <select id="layout-selector" class="tonika-select tonika-max-220">
-                <option value="2x2">2x2 Grid</option>
-                <option value="left-stack-right">Left + Stack Right</option>
-                <option value="single-column">Single Column</option>
-              </select>
-            </div>
+		// Clavonika
+		try {
+			const clav = new Tonika.ClavonikaSVG({
+				mount: "#piano",
+				moduleInfo: { name: "ClavonikaSVG", version: "2.0.0" },
+				mode: "card", octaves: 2, startOctave: 3
+			});
+			console.log("Clavonika Status:", clav.getStatus());
+		} catch (err) { console.error("Failed to initialize Clavonika:", err); }
 
-            <!-- Live Preview -->
-            <div class="tonika-module tonika-layout-preview">
-              <h4>Live Preview</h4>
-              <div id="layout-preview"></div>
-            </div>
-          </div>
+		// TonikaInput
+		try {
+			const tonikaInput = new Tonika.TonikaInput();
+			console.log("TonikaInput Status:", tonikaInput.getStatus());
+		} catch (err) { console.error("Failed to initialize TonikaInput:", err); }
+	});
+</script>
 
-          <!-- Copy HTML (below) -->
-          <div class="tonika-module tonika-layout-code">
-            <h4>Copy HTML</h4>
-            <button
-              class="tonika-btn tonika-btn--sm tonika-mb-sm"
-              onclick="Tonika.UI.copyLayoutCode()"
-            >
-              Copy All
-            </button>
-            <pre><code id="layout-code" class="tonika-code"></code></pre>
-          </div>
-        </section>
+<!-- Catchonika + Rhythonika -->
+<script>
+	new window.Catchonika({ mount: "#catchonika-card", mode: "card", bufferMinutes: 60, defaultBpm: 120, groupByChannel: false });
+	new Rhythonika({ mount: "#rhythonika-mount", mode: "card", autoRefresh: true });
+</script>
 
-        <!-- Settings tab -->
-        <section>
-          <div class="tonika-grid-2">
-            <div class="tonika-module">
-              <h3>Settings UI</h3>
+<!-- MiniClavonika -->
+<script>
+	const mini = Tonika.MiniClavonika.init("mini-container");
+</script>
 
-              <label for="theme-selector">Select Theme:</label>
-              <select
-                class="tonika-select tonika-max-220"
-                id="theme-selector"
-              ></select>
-
-              <div class="tonika-control">
-                <label for="high-contrast-toggle" class="tonika-label"
-                  >High Contrast Mode:</label
-                >
-                <input
-                  type="checkbox"
-                  id="high-contrast-toggle"
-                  class="tonika-checkbox"
-                />
-              </div>
-
-              <p class="tonika-mt-lg">Toggle Light/Dark:</p>
-              <button
-                class="tonika-btn tonika-btn--primary"
-                onclick="TonikaTheme.toggleMode()"
-              >
-                Toggle Mode
-              </button>
-            </div>
-
-            <div class="tonika-module">
-              <h4>Modules</h4>
-              <p>Cards automatically adapt to the current theme.</p>
-              <button class="tonika-btn">Another Action</button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Activity Logs tab -->
-        <section>
-          <div class="tonika-grid-1-stack">
-            <h3>Tonika-Bus Activity</h3>
-            <div
-              class="tonika-module tonika-module--scrollable"
-              id="bus-monitor"
-            >
-              <table class="tonika-table" id="bus-event-table">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Event</th>
-                    <th>Detail</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-            <div class="tonika-module">
-              <h3>Additional Logs</h3>
-              <p>Future: Other activity logs can be added here</p>
-            </div>
-            <div class="tonika-module">
-              <button class="tonika-btn tonika-btn--danger" id="clear-bus-log">
-                Clear Log
-              </button>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <div class="roll88">
-        <div class="piano-placeholder" id="piano"></div>
-      </div>
-    </main>
-    <footer>
-      <p>
-        MIT License © 2025
-        <a href="https://github.com/aa-parky/tonika/tree/main" title="aa-parky"
-          >aa-parky</a
-        >
-      </p>
-    </footer>
-
-    <!-- Load core scripts last -->
-    <script src="js/core/chordify.js"></script>
-    <script src="js/core/tonika-ui.js"></script>
-    <script src="js/core/tonika-theme.js"></script>
-    <script src="js/core/tonika-utils.js"></script>
-    <script src="js/core/tonika-bus.js"></script>
-
-    <!-- New global input handler -->
-    <script src="js/core/tonika-input.js"></script>
-
-    <script src="js/core/soundonika.js"></script>
-    <script src="js/core/jackonika.js"></script>
-    <script src="js/vendor/midiwriter.js"></script>
-    <script src="js/core/catchonika.js"></script>
-    <script src="js/core/rhythonika.js"></script>
-    <script src="js/core/clavonika-svg.js"></script>
-    <script src="js/core/chordonika.js"></script>
-    <script src="js/core/miniclavonika.js"></script>
-
-    <!-- Chordonika init -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        console.log("DOM ready, initializing Chordonika...");
-        const chordModule = new Chordonika({
-          mount: "#chord-selector",
-          mode: "card",
-        });
-        chordModule.on("ui:chordselected", (e) => {
-          const chord = e.detail;
-          const log = document.getElementById("chord-event-log");
-          if (!log) return;
-          const li = document.createElement("li");
-          li.textContent = chord
-            ? `${chord.symbol}: ${chord.notes.join(" - ")}`
-            : "Cleared";
-          log.prepend(li);
-        });
-        const clearBtn = document.getElementById("clear-event-log");
-        if (clearBtn) {
-          clearBtn.addEventListener("click", () => {
-            const log = document.getElementById("chord-event-log");
-            if (log) log.innerHTML = "";
-          });
-        }
-        Tonika.TonikaModule.setDebugMode(true);
-        console.log("Chordonika Status:", chordModule.getStatus());
-        console.log("All Modules:", Tonika.TonikaModule.discoverModules());
-      });
-    </script>
-
-    <!-- Initialize Catchonika -->
-    <script>
-      new window.Catchonika({
-        mount: "#catchonika-card",
-        mode: "card",
-        bufferMinutes: 60,
-        defaultBpm: 120,
-        groupByChannel: false,
-      });
-      new Rhythonika({
-        mount: "#rhythonika-mount",
-        mode: "card",
-        autoRefresh: true,
-      });
-    </script>
-
-    <!-- Initialize MiniClavonika -->
-    <script>
-      const mini = Tonika.MiniClavonika.init("mini-container");
-    </script>
-
-    <!-- Bus Monitor -->
-    <script>
-      (function setupBusMonitor() {
-        const table = document
-          .getElementById("bus-event-table")
-          .querySelector("tbody");
-        const clearBtn = document.getElementById("clear-bus-log");
-        if (!table) return;
-        function logEvent(type, detail) {
-          const tr = document.createElement("tr");
-          const time = new Date().toLocaleTimeString();
-          tr.innerHTML = `
-            <td>${time}</td>
-            <td>${type}</td>
-            <td>
-              <pre class="tonika-code"><code>${JSON.stringify(detail, null, 2)}</code></pre>
-            </td>`;
-          table.prepend(tr);
-        }
-        const origDispatch = Tonika.Bus.dispatchEvent.bind(Tonika.Bus);
-        Tonika.Bus.dispatchEvent = function (event) {
-          logEvent(event.type, event.detail);
-          return origDispatch(event);
-        };
-        clearBtn?.addEventListener("click", () => (table.innerHTML = ""));
-      })();
-    </script>
-
-    <!-- Initialize Clavonika (pure TonikaModule) -->
-    <script>
-      try {
-        const clav = new Tonika.ClavonikaSVG({
-          mount: "#piano",
-          moduleInfo: { name: "ClavonikaSVG", version: "2.0.0" },
-          mode: "card",
-          octaves: 2,
-          startOctave: 3,
-        });
-        console.log("Clavonika Status:", clav.getStatus());
-      } catch (err) {
-        console.error("Failed to initialize Clavonika:", err);
-      }
-      try {
-        const tonikaInput = new Tonika.TonikaInput();
-        console.log("TonikaInput Status:", tonikaInput.getStatus());
-      } catch (err) {
-        console.error("Failed to initialize TonikaInput:", err);
-      }
-    </script>
-  </body>
+<!-- Bus Monitor -->
+<script>
+	(function setupBusMonitor() {
+		const table = document.getElementById("bus-event-table").querySelector("tbody");
+		const clearBtn = document.getElementById("clear-bus-log");
+		if (!table) return;
+		function logEvent(type, detail) {
+			const tr = document.createElement("tr");
+			const time = new Date().toLocaleTimeString();
+			tr.innerHTML = `<td>${time}</td><td>${type}</td><td><pre class="tonika-code"><code>${JSON.stringify(detail, null, 2)}</code></pre></td>`;
+			table.prepend(tr);
+		}
+		const origDispatch = Tonika.Bus.dispatchEvent.bind(Tonika.Bus);
+		Tonika.Bus.dispatchEvent = function (event) {
+			logEvent(event.type, event.detail);
+			return origDispatch(event);
+		};
+		clearBtn?.addEventListener("click", () => (table.innerHTML = ""));
+	})();
+</script>
+</body>
 </html>

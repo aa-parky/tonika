@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Jackonika Demo</title>
+	<link rel="stylesheet" href="test.css" />
+	<style>
+		/* Jackonika card styling */
+		.jackonika-card {
+			width: 300px;
+			background: url("lumon_plastic_tile.png") repeat;
+			border-radius: 8px;
+			border: 2px solid var(--lumon-primary-text);
+			padding: 20px;
+			color: var(--lumon-primary-text);
+			font-family: 'Inter', sans-serif;
+		}
+
+		.jackonika-card h2 {
+			margin-top: 0;
+			color: var(--lumon-primary-text);
+			font-size: 1.4em;
+			letter-spacing: 1px;
+			text-transform: uppercase;
+		}
+
+		.led-row {
+			display: flex;
+			justify-content: space-between;
+			margin-top: 15px;
+		}
+
+		.led {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.led-light {
+			width: 16px;
+			height: 16px;
+			border-radius: 50%;
+			background-color: #222; /* off */
+			border: 1px solid #555;
+			transition: background-color 0.2s ease, box-shadow 0.2s ease;
+		}
+
+		.led-light.on {
+			background-color: limegreen;
+			box-shadow: 0 0 6px limegreen;
+		}
+
+		.led-light.warn {
+			background-color: orange;
+			box-shadow: 0 0 6px orange;
+		}
+
+		.led-light.error {
+			background-color: red;
+			box-shadow: 0 0 6px red;
+		}
+
+		select {
+			margin-top: 15px;
+			width: 100%;
+			padding: 6px;
+			border: none;
+			background: var(--lumon-bg-light);
+			color: var(--lumon-primary-text);
+			font-family: inherit;
+		}
+	</style>
+</head>
+<body>
+<h1>Jackonika Rack Demo</h1>
+
+<div class="jackonika-card pri">
+	<h2>Jackonika</h2>
+	<p>MIDI Bridge Module</p>
+
+	<label for="midiDeviceSelector">MIDI Device:</label>
+	<select id="midiDeviceSelector"></select>
+
+	<div class="led-row">
+		<div class="led"><div class="led-light" id="led-note"></div><span>NOTE</span></div>
+		<div class="led"><div class="led-light" id="led-device"></div><span>DEVICE</span></div>
+		<div class="led"><div class="led-light" id="led-thru"></div><span>THRU</span></div>
+	</div>
+</div>
+
+<script src="../js/core/tonika-bus.js"></script>
+<script src="../js/core/jackonika.js"></script>
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+		const jack = new Tonika.Jackonika({
+			moduleInfo: { name: "Jackonika", version: "2.0.0" },
+			selectorId: "midiDeviceSelector"
+		});
+
+		const ledNote = document.getElementById("led-note");
+		const ledDevice = document.getElementById("led-device");
+		const ledThru = document.getElementById("led-thru");
+
+		// Blink NOTE on note events
+		Tonika.Bus.on("midi:noteon", () => {
+			ledNote.classList.add("on");
+			setTimeout(() => ledNote.classList.remove("on"), 200);
+		});
+		Tonika.Bus.on("midi:noteoff", () => {
+			ledNote.classList.remove("on");
+		});
+
+		// DEVICE status
+		Tonika.Bus.on("midi:devicechange", (e) => {
+			const inputs = e.detail.inputs || [];
+			if (inputs.length > 0) {
+				ledDevice.classList.add("on");
+			} else {
+				ledDevice.classList.remove("on");
+			}
+		});
+
+		// THRU (future proof)
+		// Simulate by listening to outbound (not yet implemented)
+		// ledThru.classList.add("warn");
+	});
+</script>
+</body>
+</html>

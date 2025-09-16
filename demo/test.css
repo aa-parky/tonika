@@ -1,0 +1,78 @@
+:root {
+    /* Lumon Palette */
+    --lumon-bg-light: #f0f6f7; /* Frost */
+    --lumon-primary-text: #002c55; /* Marine */
+    --lumon-secondary-text: #89aec8; /* Slate */
+    --lumon-accent: #7b6727; /* Brass - for a touch of industrial feel */
+
+    /* Outie World Palette */
+    --outie-bg-light: #eeddcf;
+    --outie-primary-text: #4e452a; /* Timber */
+    --outie-secondary-text: #7a7a7a;
+}
+
+body {
+    font-family: 'Roboto', 'Arial', sans-serif; /* Body text */
+    line-height: 1.6;
+    color: var(--lumon-primary-text); /* Default to Lumon text color */
+    background-color: var(--lumon-bg-light); /* Default to Lumon background */
+    margin: 0;
+    padding: 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', 'Helvetica Neue', sans-serif; /* Headings */
+    color: var(--lumon-primary-text);
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    font-weight: 700; /* Bold headings */
+}
+
+h1 { font-size: 2.5em; }
+h2 { font-size: 2em; }
+h3 { font-size: 1.75em; }
+
+p {
+    margin-bottom: 1em;
+}
+
+a {
+    color: var(--lumon-secondary-text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--lumon-secondary-text); /* Subtle underline */
+}
+
+a:hover {
+    color: var(--lumon-accent);
+    border-color: var(--lumon-accent);
+}
+
+button {
+    background-color: var(--lumon-primary-text);
+    color: var(--lumon-bg-light);
+    border: 2px solid var(--lumon-primary-text);
+    padding: 10px 20px;
+    font-family: 'Roboto', sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: none; /* Minimalist, no shadows */
+}
+
+button:hover {
+    background-color: var(--lumon-secondary-text);
+    border-color: var(--lumon-secondary-text);
+}
+
+/* Example for elements suggesting the "outside world" context */
+.outie-section {
+    background-color: var(--outie-bg-light);
+    color: var(--outie-primary-text);
+    padding: 40px;
+    margin-top: 30px;
+    border: none; /* Remove harsh borders */
+}
+
+.outie-section h1, .outie-section h2, .outie-section p {
+    color: var(--outie-primary-text);
+}
