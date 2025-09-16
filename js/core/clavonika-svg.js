@@ -1,20 +1,15 @@
 /**
- * Clavonika SVG - Piano Keyboard Interface (SVG Rendering Edition)
- * Fluid scaling version: keys grow/shrink with container (width and height)
- * Felt strip overlay (drawn last)
- * Simplified fills (no gradients)
+ * Clavonika SVG (TonikaModule edition)
+ * - Refactored to extend Tonika.TonikaModule (tonika-bus.js)
+ * - Uses central Bus for eventing/logging
+ * - Standardized lifecycle + getStatus()
+ * - Backwards compatibility wrapper: Tonika.Clavonika.init(idOrEl, opts)
  */
 
 (function () {
   "use strict";
 
-  const EmitterBase =
-    (typeof window !== "undefined" &&
-      window.Tonika &&
-      window.Tonika.TonikaEmitter) ||
-    EventTarget;
-
-  // ===== CONSTANTS =====
+  // ===== CONSTANTS (unchanged where possible) =====
   const MIDI_CONSTANTS = Object.freeze({
     PIANO_RANGE: { LOWEST_NOTE: 21, HIGHEST_NOTE: 108 },
     MIDDLE_C: 60,
@@ -23,20 +18,7 @@
 
   const MUSIC_CONSTANTS = Object.freeze({
     SEMITONES_PER_OCTAVE: 12,
-    NOTE_NAMES: [
-      "C",
-      "C#",
-      "D",
-      "D#",
-      "E",
-      "F",
-      "F#",
-      "G",
-      "G#",
-      "A",
-      "A#",
-      "B",
-    ],
+    NOTE_NAMES: ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],
     OCTAVE_ADJUSTMENTS: { C3_MODE: -1, C4_MODE: 0, C5_MODE: 1 },
     BASE_OCTAVE_OFFSET: -1,
   });
@@ -104,19 +86,12 @@
 </section>
 `;
 
-  // ====== KEY GENERATION ======
+  // ===== PRECOMPUTE KEYS (MIDI 21..108) =====
   function generateKeys() {
     const out = [];
-    for (
-      let midi = MIDI_CONSTANTS.PIANO_RANGE.LOWEST_NOTE;
-      midi <= MIDI_CONSTANTS.PIANO_RANGE.HIGHEST_NOTE;
-      midi++
-    ) {
-      const name =
-        MUSIC_CONSTANTS.NOTE_NAMES[midi % MUSIC_CONSTANTS.SEMITONES_PER_OCTAVE];
-      const octave =
-        Math.floor(midi / MUSIC_CONSTANTS.SEMITONES_PER_OCTAVE) +
-        MUSIC_CONSTANTS.BASE_OCTAVE_OFFSET;
+    for (let midi = MIDI_CONSTANTS.PIANO_RANGE.LOWEST_NOTE; midi <= MIDI_CONSTANTS.PIANO_RANGE.HIGHEST_NOTE; midi++) {
+      const name = MUSIC_CONSTANTS.NOTE_NAMES[midi % MUSIC_CONSTANTS.SEMITONES_PER_OCTAVE];
+      const octave = Math.floor(midi / MUSIC_CONSTANTS.SEMITONES_PER_OCTAVE) + MUSIC_CONSTANTS.BASE_OCTAVE_OFFSET;
       out.push({
         note: name + octave,
         type: name.includes("#") ? "black" : "white",
@@ -128,49 +103,159 @@
   }
   const KEYS = generateKeys();
 
-  function createClavonikaInstance(container) {
-    const emitter = new EmitterBase();
-    function emit(type, detail) {
-      try {
-        emitter.dispatchEvent(new CustomEvent(type, { detail }));
-      } catch {}
-      try {
-        if (
-          typeof window !== "undefined" &&
-          window.Tonika &&
-          window.Tonika.Bus
-        ) {
-          window.Tonika.Bus.dispatchEvent(new CustomEvent(type, { detail }));
-        }
-      } catch {}
-      try {
-        if (window.Tonika?.Utils?.debugLog) {
-          Tonika.Utils.debugLog("Clavonika", type, detail);
-        }
-      } catch {}
+  // ==========================================================================
+  // CLASS: ClavonikaSVG (TonikaModule)
+  // ==========================================================================
+  class ClavonikaSVG extends (window?.Tonika?.TonikaModule || EventTarget) {
+    constructor(opts = {}) {
+      super({
+        ...opts,
+        moduleInfo: {
+          name: "ClavonikaSVG",
+          version: "2.0.0",
+          description: "SVG-rendered piano keyboard",
+          ...(opts.moduleInfo || {}),
+        },
+      });
+
+      // Internal state
+      this._middleCShift = CONFIG_CONSTANTS.DEFAULT_VALUES.OCTAVE_SHIFT;
+      this._midiAccess = null;
+      this._currentInput = null;
+
+      // DOM refs
+      this._els = {
+        keyboard: null,
+        toggleCOnly: null,
+        toggleAllLabels: null,
+        middleCSelect: null,
+        midiDeviceSelector: null,
+      };
+
+      // SVG root
+      this._svgElement = null;
+
+      // Optional bus unsubs
+      this._offBus = [];
     }
 
-    let middleCShift = CONFIG_CONSTANTS.DEFAULT_VALUES.OCTAVE_SHIFT;
+    // Called automatically by TonikaModule during init
+    _initialize() {
+      if (!this.mount) throw new Error("[ClavonikaSVG] Missing mount element.");
 
-    // DOM refs
-    let keyboard,
-      toggleCOnly,
-      toggleAllLabels,
-      middleCSelect,
-      midiDeviceSelector;
+      // Mount DOM
+      this.mount.classList.add("clavonika");
+      this.mount.innerHTML = HTML_TEMPLATE;
 
-    // MIDI state
-    let midiAccess = null,
-      currentInput = null;
+      // Cache DOM
+      this._cacheDom();
 
-    // SVG ref
-    let svgElement = null;
+      // Render & wire UI
+      this._generateKeyboard();
+      this._initializeEventHandlers();
+      this._initMIDI();
 
-    function calculateKeyPosition(key, keyIndex) {
+      // Listen to global bus (optional): reflect external MIDI note events
+      if (window?.Tonika?.Bus) {
+        const onNoteOn = (e) => {
+          const d = e.detail || {};
+          const midi = d?.midi ?? d?.note ?? d?.noteNumber;
+          if (typeof midi === "number") this._setNoteActive(midi, true);
+        };
+        const onNoteOff = (e) => {
+          const d = e.detail || {};
+          const midi = d?.midi ?? d?.note ?? d?.noteNumber;
+          if (typeof midi === "number") this._setNoteActive(midi, false);
+        };
+        this._offBus.push(window.Tonika.Bus.on("midi:noteon", onNoteOn));
+        this._offBus.push(window.Tonika.Bus.on("midi:noteoff", onNoteOff));
+      }
+
+      this.emit("app:status", { state: "ready", msg: "SVG UI mounted" });
+    }
+
+    // ------------------------ Public API ------------------------
+    noteOn(midiNote, velocity = 1.0) {
+      this._setNoteActive(midiNote, true);
+      this.emit("ui:noteon", { midi: midiNote, velocity });
+    }
+    noteOff(midiNote) {
+      this._setNoteActive(midiNote, false);
+      this.emit("ui:noteoff", { midi: midiNote });
+    }
+    refreshDeviceSelection(preserve = null) {
+      const prev = preserve || this._els.midiDeviceSelector?.value;
+      this._populateDeviceSelector();
+      if (prev && this._getInputsArray().some((i) => i.id === prev)) {
+        this._els.midiDeviceSelector.value = prev;
+        this._attachInputById(prev);
+      }
+    }
+
+    // Extend status with module specifics
+    getStatus() {
+      const base = (super.getStatus && super.getStatus()) || {};
+      return {
+        ...base,
+        state: {
+          ...base.state,
+          labelMode: this._getCurrentLabelMode(),
+          midiDevice: this._currentInput ? (this._currentInput.name || this._currentInput.id) : null,
+          webMIDI: !!navigator.requestMIDIAccess,
+        },
+        api: {
+          ...(base.api || {}),
+          methods: [...(base.api?.methods || []), "noteOn", "noteOff", "refreshDeviceSelection"],
+          events: {
+            emits: [...(base.api?.events?.emits || []), "ui:noteon", "ui:noteoff"],
+            listens: [...(base.api?.events?.listens || []), "midi:noteon", "midi:noteoff"],
+          },
+        },
+      };
+    }
+
+    _getPublicMethods() {
+      const parent = (super._getPublicMethods && super._getPublicMethods()) || [];
+      return [...parent, "noteOn", "noteOff", "refreshDeviceSelection"];
+    }
+    _getEmittedEvents() {
+      const parent = (super._getEmittedEvents && super._getEmittedEvents()) || [];
+      return [...parent, "ui:noteon", "ui:noteoff"];
+    }
+    _getListenedEvents() {
+      const parent = (super._getListenedEvents && super._getListenedEvents()) || [];
+      return [...parent, "midi:noteon", "midi:noteoff"];
+    }
+
+    destroy() {
+      try {
+        // Detach MIDI
+        this._detachCurrentInput();
+        if (this._midiAccess) {
+          this._midiAccess.onstatechange = null;
+        }
+        // Bus listeners
+        this._offBus.forEach((off) => { try { off && off(); } catch (_) {} });
+        this._offBus = [];
+        // Clear DOM (non-destructive to mount)
+        if (this.mount) this.mount.innerHTML = "";
+      } finally {
+        if (super.destroy) super.destroy();
+      }
+    }
+
+    // ------------------------ DOM + Rendering ------------------------
+    _cacheDom() {
+      this._els.keyboard = this.mount.querySelector(UI_CONSTANTS.ELEMENT_IDS.KEYBOARD);
+      this._els.toggleCOnly = this.mount.querySelector(UI_CONSTANTS.ELEMENT_IDS.TOGGLE_C_ONLY);
+      this._els.toggleAllLabels = this.mount.querySelector(UI_CONSTANTS.ELEMENT_IDS.TOGGLE_ALL_LABELS);
+      this._els.middleCSelect = this.mount.querySelector(UI_CONSTANTS.ELEMENT_IDS.MIDDLE_C_SELECT);
+      this._els.midiDeviceSelector = this.mount.querySelector(UI_CONSTANTS.ELEMENT_IDS.MIDI_DEVICE_SELECTOR);
+    }
+
+    _calculateKeyPosition(key, keyIndex) {
       if (key.type === "white") {
-        const whiteKeyIndex = KEYS.slice(0, keyIndex).filter(
-          (k) => k.type === "white",
-        ).length;
+        const whiteKeyIndex = KEYS.slice(0, keyIndex).filter((k) => k.type === "white").length;
         return {
           x: whiteKeyIndex * SVG_LAYOUT_CONSTANTS.WHITE_KEY.SPACING,
           y: 0,
@@ -178,13 +263,9 @@
           height: SVG_LAYOUT_CONSTANTS.WHITE_KEY.HEIGHT,
         };
       } else {
-        const whiteKeysBefore = KEYS.slice(0, keyIndex).filter(
-          (k) => k.type === "white",
-        ).length;
+        const whiteKeysBefore = KEYS.slice(0, keyIndex).filter((k) => k.type === "white").length;
         return {
-          x:
-            whiteKeysBefore * SVG_LAYOUT_CONSTANTS.WHITE_KEY.SPACING +
-            SVG_LAYOUT_CONSTANTS.BLACK_KEY.OFFSET,
+          x: whiteKeysBefore * SVG_LAYOUT_CONSTANTS.WHITE_KEY.SPACING + SVG_LAYOUT_CONSTANTS.BLACK_KEY.OFFSET,
           y: 0,
           width: SVG_LAYOUT_CONSTANTS.BLACK_KEY.WIDTH,
           height: SVG_LAYOUT_CONSTANTS.BLACK_KEY.HEIGHT,
@@ -192,26 +273,17 @@
       }
     }
 
-    function calculateKeyboardWidth() {
+    _calculateKeyboardWidth() {
       const whiteKeyCount = KEYS.filter((k) => k.type === "white").length;
       return whiteKeyCount * SVG_LAYOUT_CONSTANTS.WHITE_KEY.SPACING;
     }
 
-    function createSVGKey(key, keyIndex) {
-      const position = calculateKeyPosition(key, keyIndex);
+    _createSVGKey(key, keyIndex) {
+      const pos = this._calculateKeyPosition(key, keyIndex);
 
-      const keyGroup = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g",
-      );
-      const modifier =
-        key.type === "black"
-          ? UI_CONSTANTS.CSS_CLASSES.BLACK_KEY
-          : UI_CONSTANTS.CSS_CLASSES.WHITE_KEY;
-      keyGroup.setAttribute(
-        "class",
-        `${UI_CONSTANTS.CSS_CLASSES.KEY_BASE} ${modifier}`,
-      );
+      const keyGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const modifier = key.type === "black" ? UI_CONSTANTS.CSS_CLASSES.BLACK_KEY : UI_CONSTANTS.CSS_CLASSES.WHITE_KEY;
+      keyGroup.setAttribute("class", `${UI_CONSTANTS.CSS_CLASSES.KEY_BASE} ${modifier}`);
       keyGroup.setAttribute("data-note", key.note);
       keyGroup.setAttribute("data-octave", String(key.octave));
       keyGroup.setAttribute("data-midi", String(key.midi));
@@ -219,35 +291,23 @@
         keyGroup.classList.add(UI_CONSTANTS.CSS_CLASSES.MIDDLE_C);
       }
 
-      const rect = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect",
-      );
-      rect.setAttribute("x", position.x);
-      rect.setAttribute("y", position.y);
-      rect.setAttribute("width", position.width);
-      rect.setAttribute("height", position.height);
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", pos.x);
+      rect.setAttribute("y", pos.y);
+      rect.setAttribute("width", pos.width);
+      rect.setAttribute("height", pos.height);
       rect.setAttribute("rx", key.type === "black" ? "6" : "4");
       rect.setAttribute("ry", key.type === "black" ? "3" : "4");
       rect.setAttribute("fill", key.type === "black" ? "#111" : "#fff");
       rect.setAttribute("stroke", key.type === "black" ? "#000" : "#ddd");
 
-      const label = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text",
-      );
+      const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
       label.setAttribute("class", UI_CONSTANTS.CSS_CLASSES.KEY_LABEL);
-      label.setAttribute("x", position.x + position.width / 2);
-      label.setAttribute(
-        "y",
-        position.y + position.height - (key.type === "black" ? 8 : 12),
-      );
+      label.setAttribute("x", pos.x + pos.width / 2);
+      label.setAttribute("y", pos.y + pos.height - (key.type === "black" ? 8 : 12));
       label.setAttribute("text-anchor", "middle");
       label.setAttribute("dominant-baseline", "middle");
-      label.textContent = key.note.replace(
-        /\d+$/,
-        String(key.octave + middleCShift),
-      );
+      label.textContent = key.note.replace(/\d+$/, String(key.octave + this._middleCShift));
 
       keyGroup.appendChild(rect);
       keyGroup.appendChild(label);
@@ -255,105 +315,86 @@
       return keyGroup;
     }
 
-    function generateKeyboard() {
+    _generateKeyboard() {
+      const keyboard = this._els.keyboard;
       keyboard.innerHTML = "";
 
-      svgElement = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "svg",
-      );
-      const keyboardWidth = calculateKeyboardWidth();
+      this._svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      const keyboardWidth = this._calculateKeyboardWidth();
 
-      svgElement.setAttribute(
-        "viewBox",
-        `0 0 ${keyboardWidth} ${SVG_LAYOUT_CONSTANTS.KEYBOARD.HEIGHT}`,
-      );
-      svgElement.setAttribute("preserveAspectRatio", "none");
-      svgElement.setAttribute("width", "100%");
-      svgElement.setAttribute("height", "100%");
-      svgElement.style.borderRadius = "8px";
-      svgElement.style.boxSizing = "border-box";
+      this._svgElement.setAttribute("viewBox", `0 0 ${keyboardWidth} ${SVG_LAYOUT_CONSTANTS.KEYBOARD.HEIGHT}`);
+      this._svgElement.setAttribute("preserveAspectRatio", "none");
+      this._svgElement.setAttribute("width", "100%");
+      this._svgElement.setAttribute("height", "100%");
+      this._svgElement.style.borderRadius = "8px";
+      this._svgElement.style.boxSizing = "border-box";
 
       // Draw white keys
-      KEYS.forEach((key, index) => {
-        if (key.type === "white")
-          svgElement.appendChild(createSVGKey(key, index));
+      KEYS.forEach((key, idx) => {
+        if (key.type === "white") this._svgElement.appendChild(this._createSVGKey(key, idx));
       });
       // Draw black keys
-      KEYS.forEach((key, index) => {
-        if (key.type === "black")
-          svgElement.appendChild(createSVGKey(key, index));
+      KEYS.forEach((key, idx) => {
+        if (key.type === "black") this._svgElement.appendChild(this._createSVGKey(key, idx));
       });
 
       // Felt strip overlay
-      const feltStrip = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect",
-      );
+      const feltStrip = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       feltStrip.setAttribute("x", 0);
       feltStrip.setAttribute("y", 0);
       feltStrip.setAttribute("width", keyboardWidth);
-      feltStrip.setAttribute(
-        "height",
-        SVG_LAYOUT_CONSTANTS.KEYBOARD.FELT_HEIGHT,
-      );
+      feltStrip.setAttribute("height", SVG_LAYOUT_CONSTANTS.KEYBOARD.FELT_HEIGHT);
       feltStrip.setAttribute("fill", "#aa0000");
-      svgElement.appendChild(feltStrip);
+      this._svgElement.appendChild(feltStrip);
 
-      keyboard.appendChild(svgElement);
+      keyboard.appendChild(this._svgElement);
     }
 
-    // ----- Label modes (C-only / hide all / normal)
-    function setLabelMode(mode) {
+    // ------------------------ UI Behaviour ------------------------
+    _setLabelMode(mode) {
+      const kb = this._els.keyboard;
+      if (!kb) return;
       if (mode === UI_CONSTANTS.LABEL_MODES.C_ONLY) {
-        keyboard.classList.add(UI_CONSTANTS.CSS_CLASSES.SHOW_C_ONLY);
-        keyboard.classList.remove(UI_CONSTANTS.CSS_CLASSES.HIDE_ALL_LABELS);
+        kb.classList.add(UI_CONSTANTS.CSS_CLASSES.SHOW_C_ONLY);
+        kb.classList.remove(UI_CONSTANTS.CSS_CLASSES.HIDE_ALL_LABELS);
       } else if (mode === UI_CONSTANTS.LABEL_MODES.HIDE_ALL) {
-        keyboard.classList.add(UI_CONSTANTS.CSS_CLASSES.HIDE_ALL_LABELS);
-        keyboard.classList.remove(UI_CONSTANTS.CSS_CLASSES.SHOW_C_ONLY);
+        kb.classList.add(UI_CONSTANTS.CSS_CLASSES.HIDE_ALL_LABELS);
+        kb.classList.remove(UI_CONSTANTS.CSS_CLASSES.SHOW_C_ONLY);
       } else {
-        keyboard.classList.remove(
-          UI_CONSTANTS.CSS_CLASSES.SHOW_C_ONLY,
-          UI_CONSTANTS.CSS_CLASSES.HIDE_ALL_LABELS,
-        );
+        kb.classList.remove(UI_CONSTANTS.CSS_CLASSES.SHOW_C_ONLY, UI_CONSTANTS.CSS_CLASSES.HIDE_ALL_LABELS);
       }
     }
-
-    function getCurrentLabelMode() {
-      if (toggleCOnly.checked) return UI_CONSTANTS.LABEL_MODES.C_ONLY;
-      if (toggleAllLabels.checked) return UI_CONSTANTS.LABEL_MODES.HIDE_ALL;
+    _getCurrentLabelMode() {
+      if (this._els.toggleCOnly?.checked) return UI_CONSTANTS.LABEL_MODES.C_ONLY;
+      if (this._els.toggleAllLabels?.checked) return UI_CONSTANTS.LABEL_MODES.HIDE_ALL;
       return UI_CONSTANTS.LABEL_MODES.NORMAL;
     }
-
-    function initializeEventHandlers() {
-      // Middle C mode
-      middleCSelect.addEventListener("change", (e) => {
+    _initializeEventHandlers() {
+      // Middle C label mode
+      this._els.middleCSelect.addEventListener("change", (e) => {
         const mode = e.target.value;
         const shifts = {
           C3: MUSIC_CONSTANTS.OCTAVE_ADJUSTMENTS.C3_MODE,
           C4: MUSIC_CONSTANTS.OCTAVE_ADJUSTMENTS.C4_MODE,
           C5: MUSIC_CONSTANTS.OCTAVE_ADJUSTMENTS.C5_MODE,
         };
-        middleCShift = shifts[mode];
-        generateKeyboard();
+        this._middleCShift = shifts[mode];
+        this._generateKeyboard();
       });
 
       // Label toggles
-      toggleCOnly.addEventListener("change", () =>
-        setLabelMode(getCurrentLabelMode()),
-      );
-      toggleAllLabels.addEventListener("change", () =>
-        setLabelMode(getCurrentLabelMode()),
-      );
-      setLabelMode(getCurrentLabelMode());
+      this._els.toggleCOnly.addEventListener("change", () => this._setLabelMode(this._getCurrentLabelMode()));
+      this._els.toggleAllLabels.addEventListener("change", () => this._setLabelMode(this._getCurrentLabelMode()));
+      this._setLabelMode(this._getCurrentLabelMode());
     }
 
-    function setNoteActive(midiNote, isActive) {
-      const el = container.querySelector(`[data-midi="${midiNote}"]`);
-      if (el) el.classList.toggle(UI_CONSTANTS.CSS_CLASSES.ACTIVE, isActive);
+    _setNoteActive(midiNote, isActive) {
+      const el = this.mount.querySelector(`[data-midi="${midiNote}"]`);
+      if (el) el.classList.toggle(UI_CONSTANTS.CSS_CLASSES.ACTIVE, !!isActive);
     }
 
-    function handleMIDIMessage(ev) {
+    // ------------------------ MIDI ------------------------
+    _handleMIDIMessage(ev) {
       const [status, note, velocity = 0] = ev.data || [];
       const type = status & MIDI_CONSTANTS.MESSAGE_TYPES.STATUS_MASK;
 
@@ -361,53 +402,48 @@
         type === MIDI_CONSTANTS.MESSAGE_TYPES.NOTE_OFF ||
         (type === MIDI_CONSTANTS.MESSAGE_TYPES.NOTE_ON && velocity === 0)
       ) {
-        setNoteActive(note, false);
-        emit("ui:noteoff", { midi: note });
+        this._setNoteActive(note, false);
+        this.emit("ui:noteoff", { midi: note });
         return;
       }
-
       if (type === MIDI_CONSTANTS.MESSAGE_TYPES.NOTE_ON && velocity > 0) {
-        setNoteActive(note, true);
-        emit("ui:noteon", { midi: note, velocity });
+        this._setNoteActive(note, true);
+        this.emit("ui:noteon", { midi: note, velocity });
       }
     }
 
-    function detachCurrentInput() {
-      if (currentInput)
-        try {
-          currentInput.onmidimessage = null;
-        } catch {}
-      currentInput = null;
+    _detachCurrentInput() {
+      if (this._currentInput) {
+        try { this._currentInput.onmidimessage = null; } catch (_) {}
+      }
+      this._currentInput = null;
     }
 
-    function attachInputById(id) {
-      if (!midiAccess) return;
+    _attachInputById(id) {
+      if (!this._midiAccess) return;
       let found = null;
-      for (const input of midiAccess.inputs.values()) {
+      for (const input of this._midiAccess.inputs.values()) {
         if (input.id === id) {
           found = input;
           break;
         }
       }
       if (!found) return;
-      detachCurrentInput();
-      currentInput = found;
-      currentInput.onmidimessage = handleMIDIMessage;
+      this._detachCurrentInput();
+      this._currentInput = found;
+      this._currentInput.onmidimessage = (e) => this._handleMIDIMessage(e);
       try {
-        localStorage.setItem(
-          CONFIG_CONSTANTS.STORAGE_KEYS.LAST_MIDI_INPUT,
-          currentInput.id,
-        );
-      } catch {}
+        localStorage.setItem(CONFIG_CONSTANTS.STORAGE_KEYS.LAST_MIDI_INPUT, this._currentInput.id);
+      } catch (_) {}
     }
 
-    function createDeviceOption(input) {
+    _createDeviceOption(input) {
       const opt = document.createElement("option");
       opt.value = input.id;
       opt.textContent = input.name || input.manufacturer || `Input ${input.id}`;
       return opt;
     }
-    function createNoInputsOption() {
+    _createNoInputsOption() {
       const opt = document.createElement("option");
       opt.textContent = "No MIDI inputs";
       opt.disabled = true;
@@ -415,139 +451,81 @@
       return opt;
     }
 
-    function getInputsArray() {
-      return midiAccess ? Array.from(midiAccess.inputs.values()) : [];
+    _getInputsArray() {
+      return this._midiAccess ? Array.from(this._midiAccess.inputs.values()) : [];
     }
-
-    function getPreferredInputId(inputs) {
+    _getPreferredInputId(inputs) {
       if (inputs.length === 0) return null;
       let saved = null;
       try {
-        saved = localStorage.getItem(
-          CONFIG_CONSTANTS.STORAGE_KEYS.LAST_MIDI_INPUT,
-        );
-      } catch {}
+        saved = localStorage.getItem(CONFIG_CONSTANTS.STORAGE_KEYS.LAST_MIDI_INPUT);
+      } catch (_) {}
       return inputs.find((i) => i.id === saved) ? saved : inputs[0].id;
     }
 
-    function populateDeviceSelector() {
-      midiDeviceSelector.innerHTML = "";
-      const inputs = getInputsArray();
+    _populateDeviceSelector() {
+      const sel = this._els.midiDeviceSelector;
+      sel.innerHTML = "";
+      const inputs = this._getInputsArray();
       if (inputs.length === 0) {
-        midiDeviceSelector.appendChild(createNoInputsOption());
+        sel.appendChild(this._createNoInputsOption());
         return;
       }
-      inputs.forEach((inp) =>
-        midiDeviceSelector.appendChild(createDeviceOption(inp)),
-      );
-      const candidate = getPreferredInputId(inputs);
-      midiDeviceSelector.value = candidate;
-      attachInputById(candidate);
+      inputs.forEach((inp) => sel.appendChild(this._createDeviceOption(inp)));
+      const candidate = this._getPreferredInputId(inputs);
+      sel.value = candidate;
+      this._attachInputById(candidate);
     }
 
-    function refreshDeviceSelection(preserve = null) {
-      const prev = preserve || midiDeviceSelector.value;
-      populateDeviceSelector();
-      if (prev && getInputsArray().some((i) => i.id === prev)) {
-        midiDeviceSelector.value = prev;
-        attachInputById(prev);
-      }
-    }
-
-    function initMIDI() {
+    _initMIDI() {
+      const sel = this._els.midiDeviceSelector;
       if (!navigator.requestMIDIAccess) {
-        midiDeviceSelector.innerHTML = "";
-        midiDeviceSelector.disabled = true;
-        midiDeviceSelector.classList.add(UI_CONSTANTS.CSS_CLASSES.HIDDEN);
-        emit("app:status", { level: "info", msg: "Web MIDI not supported" });
+        sel.innerHTML = "";
+        sel.disabled = true;
+        sel.classList.add(UI_CONSTANTS.CSS_CLASSES.HIDDEN);
+        this.emit("app:status", { level: "info", msg: "Web MIDI not supported" });
         return;
       }
       navigator
         .requestMIDIAccess({ sysex: false })
         .then((access) => {
-          midiAccess = access;
-          populateDeviceSelector();
-          midiAccess.onstatechange = () => refreshDeviceSelection();
-          midiDeviceSelector.addEventListener("change", (e) =>
-            attachInputById(e.target.value),
-          );
-          emit("app:status", { level: "ready", msg: "MIDI ready" });
+          this._midiAccess = access;
+          this._populateDeviceSelector();
+          this._midiAccess.onstatechange = () => this.refreshDeviceSelection();
+          sel.addEventListener("change", (e) => this._attachInputById(e.target.value));
+          this.emit("app:status", { level: "ready", msg: "MIDI ready" });
         })
         .catch(() => {
-          midiDeviceSelector.disabled = true;
-          midiDeviceSelector.title = "Web MIDI access denied/unavailable";
-          emit("app:status", { level: "error", msg: "MIDI access denied" });
+          sel.disabled = true;
+          sel.title = "Web MIDI access denied/unavailable";
+          this.emit("app:status", { level: "error", msg: "MIDI access denied" });
         });
     }
-
-    function initialize() {
-      keyboard = container.querySelector(UI_CONSTANTS.ELEMENT_IDS.KEYBOARD);
-      toggleCOnly = container.querySelector(
-        UI_CONSTANTS.ELEMENT_IDS.TOGGLE_C_ONLY,
-      );
-      toggleAllLabels = container.querySelector(
-        UI_CONSTANTS.ELEMENT_IDS.TOGGLE_ALL_LABELS,
-      );
-      middleCSelect = container.querySelector(
-        UI_CONSTANTS.ELEMENT_IDS.MIDDLE_C_SELECT,
-      );
-      midiDeviceSelector = container.querySelector(
-        UI_CONSTANTS.ELEMENT_IDS.MIDI_DEVICE_SELECTOR,
-      );
-
-      generateKeyboard();
-      initializeEventHandlers();
-      initMIDI();
-      emit("app:status", { level: "ready", msg: "SVG UI mounted" });
-    }
-
-    return {
-      noteOn(midiNote, velocity = 1.0) {
-        setNoteActive(midiNote, true);
-        emit("ui:noteon", { midi: midiNote, velocity });
-      },
-      noteOff(midiNote) {
-        setNoteActive(midiNote, false);
-        emit("ui:noteoff", { midi: midiNote });
-      },
-      initialize,
-      on(type, handler, options) {
-        emitter.addEventListener(type, handler, options);
-        return () => emitter.removeEventListener(type, handler, options);
-      },
-      off(type, handler, options) {
-        emitter.removeEventListener(type, handler, options);
-      },
-      emit,
-    };
   }
 
-  const Clavonika = {
-    init(containerIdOrEl) {
-      let container;
-      if (typeof containerIdOrEl === "string") {
-        container = document.getElementById(containerIdOrEl);
-        if (!container)
-          throw new Error(`Container with id '${containerIdOrEl}' not found`);
-      } else if (containerIdOrEl && containerIdOrEl.nodeType === 1) {
-        container = containerIdOrEl;
-      } else {
-        throw new Error(
-          "Invalid container: must be an element ID string or DOM element",
-        );
-      }
-
-      container.classList.add("clavonika");
-      container.innerHTML = HTML_TEMPLATE;
-
-      const instance = createClavonikaInstance(container);
-      instance.initialize();
-      return instance;
-    },
-  };
-
+  // ==========================================================================
+  // EXPORTS
+  // ==========================================================================
   if (typeof window !== "undefined") {
     window.Tonika = window.Tonika || {};
-    window.Tonika.Clavonika = Clavonika;
+    window.Tonika.ClavonikaSVG = ClavonikaSVG;
+
+    // Backwards compatibility wrapper for existing code:
+    // Tonika.Clavonika.init("piano", { ... })
+    window.Tonika.Clavonika = {
+      init(containerIdOrEl, opts = {}) {
+        let mountEl = null;
+        if (typeof containerIdOrEl === "string") {
+          // Accept bare id like "piano" or a selector like "#piano"
+          mountEl = document.getElementById(containerIdOrEl) || document.querySelector(containerIdOrEl);
+          if (!mountEl) throw new Error(`Clavonika.init(): could not find mount for "${containerIdOrEl}"`);
+        } else if (containerIdOrEl && containerIdOrEl.nodeType === 1) {
+          mountEl = containerIdOrEl;
+        } else {
+          throw new Error("Clavonika.init(): invalid mount argument");
+        }
+        return new ClavonikaSVG({ mount: mountEl, ...opts });
+      },
+    };
   }
 })();

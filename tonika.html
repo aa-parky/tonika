@@ -355,7 +355,7 @@
       </p>
     </footer>
 
-    <!-- Load core scripts last for better parse of HTML above -->
+    <!-- Load core scripts last -->
     <script src="js/core/chordify.js"></script>
     <script src="js/core/tonika-ui.js"></script>
     <script src="js/core/tonika-theme.js"></script>
@@ -374,39 +374,24 @@
     <script src="js/core/chordonika.js"></script>
     <script src="js/core/miniclavonika.js"></script>
 
+    <!-- Chordonika init -->
     <script>
-      // ===================================================================
-      // CHORDONIKA INIT (updated for clean implementation)
-      // ===================================================================
-
       document.addEventListener("DOMContentLoaded", function () {
         console.log("DOM ready, initializing Chordonika...");
-
-        // ===================================================================
-        // CHORDONIKA INIT (updated for clean implementation)
-        // ===================================================================
         const chordModule = new Chordonika({
           mount: "#chord-selector",
           mode: "card",
-          // Note: onChordSelected callback removed - using a pure event-driven approach
         });
-
-        // Listen for chord selection events (modern event-driven approach)
         chordModule.on("ui:chordselected", (e) => {
           const chord = e.detail;
-
-          // Update the event log in the UI
           const log = document.getElementById("chord-event-log");
           if (!log) return;
-
           const li = document.createElement("li");
           li.textContent = chord
             ? `${chord.symbol}: ${chord.notes.join(" - ")}`
             : "Cleared";
           log.prepend(li);
         });
-
-        // Clear event log button handler
         const clearBtn = document.getElementById("clear-event-log");
         if (clearBtn) {
           clearBtn.addEventListener("click", () => {
@@ -414,31 +399,7 @@
             if (log) log.innerHTML = "";
           });
         }
-
-        // ===================================================================
-        // DEVELOPMENT TOOLS (optional - for testing the new capabilities)
-        // ===================================================================
-
-        // Enable debug mode to see all events in the console
         Tonika.TonikaModule.setDebugMode(true);
-
-        // Test the new public API methods (uncomment to try)
-        // setTimeout(() => {
-        //   console.log('Testing programmatic chord selection...');
-        //   chordModule.selectChord('C', 'major7');
-        //
-        //   setTimeout(() => {
-        //     console.log('Testing note highlighting...');
-        //     chordModule.highlightNotes(['F#', 'A', 'C#']);
-        //   }, 2000);
-        //
-        //   setTimeout(() => {
-        //     console.log('Testing clear selection...');
-        //     chordModule.clearSelection();
-        //   }, 4000);
-        // }, 1000);
-
-        // Log module status for debugging
         console.log("Chordonika Status:", chordModule.getStatus());
         console.log("All Modules:", Tonika.TonikaModule.discoverModules());
       });
@@ -447,13 +408,12 @@
     <!-- Initialize Catchonika -->
     <script>
       new window.Catchonika({
-        mount: "#catchonika-card", // render as a card inside this element
+        mount: "#catchonika-card",
         mode: "card",
         bufferMinutes: 60,
         defaultBpm: 120,
         groupByChannel: false,
       });
-      // initialize rhythonika
       new Rhythonika({
         mount: "#rhythonika-mount",
         mode: "card",
@@ -474,47 +434,40 @@
           .querySelector("tbody");
         const clearBtn = document.getElementById("clear-bus-log");
         if (!table) return;
-
         function logEvent(type, detail) {
           const tr = document.createElement("tr");
           const time = new Date().toLocaleTimeString();
           tr.innerHTML = `
-      <td>${time}</td>
-      <td>${type}</td>
-      <td>
-        <pre class="tonika-code"><code>${JSON.stringify(detail, null, 2)}</code></pre>
-      </td>
-    `;
+            <td>${time}</td>
+            <td>${type}</td>
+            <td>
+              <pre class="tonika-code"><code>${JSON.stringify(detail, null, 2)}</code></pre>
+            </td>`;
           table.prepend(tr);
         }
-
         const origDispatch = Tonika.Bus.dispatchEvent.bind(Tonika.Bus);
         Tonika.Bus.dispatchEvent = function (event) {
           logEvent(event.type, event.detail);
           return origDispatch(event);
         };
-
         clearBtn?.addEventListener("click", () => (table.innerHTML = ""));
       })();
     </script>
 
-    <!-- Initialize Clavonika -->
+    <!-- Initialize Clavonika (pure TonikaModule) -->
     <script>
       try {
-        const clav = Tonika.Clavonika.init("piano", {
+        const clav = new Tonika.ClavonikaSVG({
+          mount: "#piano",
+          moduleInfo: { name: "ClavonikaSVG", version: "2.0.0" },
+          mode: "card",
           octaves: 2,
           startOctave: 3,
-          mode: "card",
         });
-        console.log(
-          "Clavonika Status:",
-          clav && clav.getStatus ? clav.getStatus() : clav,
-        );
+        console.log("Clavonika Status:", clav.getStatus());
       } catch (err) {
         console.error("Failed to initialize Clavonika:", err);
       }
-
-      // Initialize TonikaInput for global keyboard event handling
       try {
         const tonikaInput = new Tonika.TonikaInput();
         console.log("TonikaInput Status:", tonikaInput.getStatus());

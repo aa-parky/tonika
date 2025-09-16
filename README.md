@@ -56,7 +56,7 @@ Chordonika demonstrates full **Bus-ready behavior**:
 ```js
 // Global listener (no coupling to Chordonika)
 const stop = Tonika.Bus.on("ui:chordselected", (e) => {
-  console.log("Chord selected:", e.detail.symbol);
+    console.log("Chord selected:", e.detail.symbol);
 });
 
 // Later
@@ -80,40 +80,23 @@ Each module extends `TonikaModule`:
 - Reports capabilities via `getStatus()`.
 - Can be initialized immediately or deferred.
 
-## Clavonika Integration (v0.2.x)
 
-**Purpose**: Virtual 88-key piano interface, accepts MIDI input and user interaction.
+## ClavonikaSVG (TonikaModule)
+ClavonikaSVG has been refactored to extend `TonikaModule` (see `tonika-bus.js`).
 
-### Event API
+### Events
 
-- Emits `ui:noteon`, `ui:noteoff`, `app:status`.
-- Events are also re-emitted globally on `Tonika.Bus`.
+- **Emits**
+    - `ui:noteon` `{ midi, velocity }`
+    - `ui:noteoff` `{ midi }`
+- **Listens**
+    - `midi:noteon`
+    - `midi:noteoff`
 
-### Initialization
+### Legacy Wrapper
 
-```js
-// ✅ Correct
-Tonika.Clavonika.init("piano", { octaves: 2, startOctave: 3 });
+The old API `Tonika.Clavonika.init("piano", opts)` still exists for compatibility, but new development should use the `new Tonika.ClavonikaSVG({ ... })` constructor.
 
-// ❌ Incorrect (will fail)
-Tonika.Clavonika.init("#piano", { octaves: 2, startOctave: 3 });
-```
-
-> `init()` requires the **raw element ID string**. Passing `#id` will fail.
-
-### Capabilities
-
-- Full 88-key visual keyboard.
-- Configurable octaves, start octave, and label modes.
-- Supports both UI interactions and MIDI device input.
-- Styled with `clavonika.css`.
-
-### Bus Integration
-
-Clavonika has been patched so that its events (`ui:noteon`, `ui:noteoff`, `app:status`) are also re-emitted globally to `Tonika.Bus`.  
-This ensures that activity is visible in the **Bus Activity monitor** (Catchonika tab).
-
----
 
 ## Rhythonika (v0.1.1 – Pre-Release)
 
