@@ -1,13 +1,14 @@
 /*!
  * Jackonika — Web MIDI Input Bridge (TonikaModule Edition)
  * Location: js/core/jackonika.js
- * Version: 2.1.0
+ * Version: 2.2.1
  */
 
 (function () {
   "use strict";
 
-  const LS_KEY = "tonika_jackonika_last_input_id";
+  const LS_KEY_LAST_SINGLE = "tonika_jackonika_last_input_id";
+  const LS_KEY_SELECTED_IDS = "tonika_jackonika_selected_ids";
 
   class Jackonika extends Tonika.TonikaModule {
     constructor(opts = {}) {
@@ -15,15 +16,18 @@
         ...opts,
         moduleInfo: {
           name: "Jackonika",
-          version: "2.1.0",
+          version: "2.2.1",
           description: "Web MIDI input bridge with Tonika.Bus integration",
           ...(opts.moduleInfo || {}),
         },
       });
 
+      this._selectorId = opts.selectorId || "midiDeviceSelector";
+      this._mode = opts.mode || "all"; // "all" | "select"
+      this._selectedIds = new Set(Array.isArray(opts.selectedIds) ? opts.selectedIds : []);
+
       this._midiAccess = null;
       this._currentInput = null;
-      this._selectorId = opts.selectorId || "midiDeviceSelector";
     }
 
     // ---------------------------------------------------------------------------
@@ -54,10 +58,16 @@
         return;
       }
 
-      this._midiAccess.onstatechange = () => this._refreshDevices();
+      this._midiAccess.onstatechange = () => {
+        this._refreshDevices();
+        this._rewireAccordingToMode();
+      };
+
       this._wireSelectorChange();
       this._refreshDevices();
-      this._status("info", "Jackonika ready.");
+      this._rewireAccordingToMode();
+
+      this._status("info", `Jackonika ready in "${this._mode}" mode.`);
     }
 
     // ---------------------------------------------------------------------------
@@ -74,12 +84,8 @@
       if (!el) {
         el = document.createElement("select");
         el.id = this._selectorId;
-        el.className = "tonika-select";
         document.body.insertBefore(el, document.body.firstChild);
-        this._status(
-          "info",
-          `Created <select id="${this._selectorId}"> automatically`
-        );
+        this._status("info", `Created <select id="${this._selectorId}"> automatically`);
       }
       this.mount = el;
       return el;
@@ -89,120 +95,165 @@
       return Array.from(this._midiAccess?.inputs?.values?.() || []);
     }
 
-    _saveLastInputId(id) {
-      try {
-        localStorage.setItem(LS_KEY, id || "");
-      } catch {}
+    _saveLastSingleId(id) {
+      try { localStorage.setItem(LS_KEY_LAST_SINGLE, id || ""); } catch {}
+    }
+    _getLastSingleId() {
+      try { return localStorage.getItem(LS_KEY_LAST_SINGLE) || ""; } catch { return ""; }
     }
 
-    _getLastInputId() {
+    _saveSelectedIds() {
+      try { localStorage.setItem(LS_KEY_SELECTED_IDS, JSON.stringify(Array.from(this._selectedIds))); } catch {}
+    }
+    _getSelectedIds() {
       try {
-        return localStorage.getItem(LS_KEY) || "";
+        const raw = localStorage.getItem(LS_KEY_SELECTED_IDS);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
       } catch {
-        return "";
+        return [];
       }
     }
 
-    _attachInput(input) {
-      if (this._currentInput && this._currentInput.state !== "disconnected") {
-        this._currentInput.onmidimessage = null;
+    _detachAllInputs() {
+      for (const input of this._listInputs()) {
+        try { input.onmidimessage = null; } catch {}
       }
-      this._currentInput = input || null;
-      if (!this._currentInput) return;
+    }
 
-      this._currentInput.onmidimessage = (ev) => {
-        const [statusByte, data1, data2] = ev.data || [];
-        const type = statusByte & 0xf0;
-        const channel = statusByte & 0x0f;
+    _attachAllInputs() {
+      this._detachAllInputs();
+      const inputs = this._listInputs();
+      for (const input of inputs) {
+        input.onmidimessage = (ev) => this._handleMidi(ev, input);
+      }
+      const labels = inputs.map(i => `${i.id} (${i.name})`).join(", ") || "(none)";
+      this._status("info", `Listening to ALL MIDI inputs: ${labels}`);
+    }
 
-        switch (type) {
-          case 0x80: // Note Off
-            this.emit("midi:noteoff", { midi: data1, velocity: data2, channel });
-            break;
-          case 0x90: // Note On
-            if (data2 > 0) {
-              this.emit("midi:noteon", { midi: data1, velocity: data2, channel });
-            } else {
-              this.emit("midi:noteoff", { midi: data1, velocity: 0, channel });
-            }
-            break;
-          case 0xA0: // Polyphonic Aftertouch
-            this.emit("midi:aftertouch", { midi: data1, pressure: data2, channel });
-            break;
-          case 0xB0: // Control Change
-            this.emit("midi:cc", { controller: data1, value: data2, channel });
-            break;
-          case 0xC0: // Program Change
-            this.emit("midi:programchange", { program: data1, channel });
-            break;
-          case 0xD0: // Channel Pressure (Aftertouch)
-            this.emit("midi:channelpressure", { pressure: data1, channel });
-            break;
-          case 0xE0: // Pitch Bend
-            const value = (data2 << 7) | data1; // 14-bit
-            this.emit("midi:pitchbend", { value, channel });
-            break;
-          default:
-            this.emit("midi:unknown", { statusByte, data1, data2 });
-            break;
+    _attachSelectedInputs(ids) {
+      this._detachAllInputs();
+      const set = new Set(ids);
+      const inputs = this._listInputs();
+      const attached = [];
+      for (const input of inputs) {
+        if (set.has(input.id)) {
+          input.onmidimessage = (ev) => this._handleMidi(ev, input);
+          attached.push(`${input.id} (${input.name})`);
         }
-      };
+      }
+      this._status("info", `Listening to selected inputs: ${attached.join(", ") || "(none)"}`);
+    }
+
+    _handleMidi(ev, input) {
+      const [statusByte, data1, data2] = ev.data || [];
+      const type = statusByte & 0xf0;
+      const channel = statusByte & 0x0f;
+      const meta = { deviceId: input.id, deviceName: input.name, channel };
+
+      switch (type) {
+        case 0x80: this.emit("midi:noteoff", { midi: data1, velocity: data2, ...meta }); break;
+        case 0x90: data2 > 0
+          ? this.emit("midi:noteon", { midi: data1, velocity: data2, ...meta })
+          : this.emit("midi:noteoff", { midi: data1, velocity: 0, ...meta });
+          break;
+        case 0xA0: this.emit("midi:aftertouch", { midi: data1, pressure: data2, ...meta }); break;
+        case 0xB0: this.emit("midi:cc", { controller: data1, value: data2, ...meta }); break;
+        case 0xC0: this.emit("midi:programchange", { program: data1, ...meta }); break;
+        case 0xD0: this.emit("midi:channelpressure", { pressure: data1, ...meta }); break;
+        case 0xE0: { const value = (data2 << 7) | data1;
+          this.emit("midi:pitchbend", { value, ...meta }); break; }
+        default: this.emit("midi:unknown", { statusByte, data1, data2, ...meta }); break;
+      }
     }
 
     _refreshDevices() {
       const selector = this._ensureSelector();
-      const prevValue = selector.value;
       const inputs = this._listInputs();
 
       selector.innerHTML = "";
-      inputs.forEach((inp) => {
+      for (const inp of inputs) {
         const opt = document.createElement("option");
         opt.value = inp.id;
-        opt.textContent = `${inp.name} ${
-          inp.manufacturer ? "— " + inp.manufacturer : ""
-        }`;
+        opt.textContent = `${inp.name}${inp.manufacturer ? " — " + inp.manufacturer : ""}`;
         selector.appendChild(opt);
-      });
+      }
 
       this.emit("midi:devicechange", {
         inputs: inputs.map((i) => ({ id: i.id, name: i.name })),
       });
 
-      if (inputs.length === 0) {
-        selector.disabled = true;
-        this._status("warn", "No MIDI inputs available. Connect a device and try again.");
-        this._attachInput(null);
-        return;
-      }
-
-      selector.disabled = false;
-
-      let targetId = "";
-      const lastUsed = this._getLastInputId();
-      if (prevValue && inputs.some((i) => i.id === prevValue)) {
-        targetId = prevValue;
-      } else if (lastUsed && inputs.some((i) => i.id === lastUsed)) {
-        targetId = lastUsed;
+      if (this._mode === "select") {
+        selector.multiple = true;
+        const fromStore = new Set(this._getSelectedIds());
+        for (const opt of selector.options) {
+          opt.selected = fromStore.has(opt.value);
+        }
       } else {
-        targetId = inputs[0].id;
+        selector.multiple = false;
+        const prev = selector.value;
+        const lastUsed = this._getLastSingleId();
+        const ids = inputs.map((i) => i.id);
+        let targetId = prev && ids.includes(prev) ? prev :
+          lastUsed && ids.includes(lastUsed) ? lastUsed :
+            (ids[0] || "");
+        selector.value = targetId;
       }
-
-      selector.value = targetId;
-      const target = inputs.find((i) => i.id === targetId);
-      this._attachInput(target);
-      this._saveLastInputId(targetId);
-      this._status("info", `Selected MIDI input: ${target?.name || "(none)"}`);
     }
 
     _wireSelectorChange() {
       const selector = this._ensureSelector();
+
       selector.addEventListener("change", () => {
-        const id = selector.value;
-        const found = this._listInputs().find((i) => i.id === id);
-        this._attachInput(found || null);
-        this._saveLastInputId(found?.id || "");
-        this._status("info", `Switched to: ${found?.name || "(none)"}`);
+        if (this._mode === "select") {
+          const ids = Array.from(selector.selectedOptions).map((o) => o.value);
+          this._selectedIds = new Set(ids);
+          this._saveSelectedIds();
+          this._attachSelectedInputs(ids);
+        } else {
+          const id = selector.value;
+          const found = this._listInputs().find((i) => i.id === id) || null;
+          this._currentInput = found;
+          this._saveLastSingleId(found?.id || "");
+          this._status("info", `Info selection (all mode): ${found ? `${found.id} (${found.name})` : "(none)"}`);
+        }
       });
+    }
+
+    _rewireAccordingToMode() {
+      if (this._mode === "select") {
+        const ids = Array.from(this._selectedIds);
+        this._attachSelectedInputs(ids);
+      } else {
+        this._attachAllInputs();
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // PUBLIC API
+    // ---------------------------------------------------------------------------
+    setMode(mode) {
+      if (mode !== "all" && mode !== "select") return;
+      this._mode = mode;
+      const selector = this._ensureSelector();
+      selector.multiple = mode === "select";
+      this._rewireAccordingToMode();
+      this._status("info", `Mode switched to "${mode}".`);
+    }
+
+    setSelectedDevices(ids = []) {
+      this._selectedIds = new Set(ids);
+      this._saveSelectedIds();
+      if (this._mode === "select") {
+        const selector = this._ensureSelector();
+        for (const opt of selector.options) opt.selected = this._selectedIds.has(opt.value);
+        this._attachSelectedInputs(ids);
+      }
+    }
+
+    getSelectedDevices() {
+      return Array.from(this._selectedIds);
     }
 
     // ---------------------------------------------------------------------------
@@ -210,23 +261,33 @@
     // ---------------------------------------------------------------------------
     getStatus() {
       const base = super.getStatus();
+      const inputs = this._listInputs();
+      const attached = [];
+
+      for (const inp of inputs) {
+        if (typeof inp.onmidimessage === "function") {
+          attached.push({ id: inp.id, name: inp.name });
+        }
+      }
+
       return {
         ...base,
         jackonika: {
+          mode: this._mode,
+          selectedDeviceIds: Array.from(this._selectedIds),
+          attachedInputs: attached,
           currentInput: this._currentInput
             ? { id: this._currentInput.id, name: this._currentInput.name }
             : null,
-          availableInputs: this._listInputs().map((i) => ({
-            id: i.id,
-            name: i.name,
-          })),
+          availableInputs: inputs.map((i) => ({ id: i.id, name: i.name })),
         },
       };
     }
 
     _getPublicMethods() {
-      return [...super._getPublicMethods(), "getStatus"];
+      return [...super._getPublicMethods(), "getStatus", "setMode", "setSelectedDevices", "getSelectedDevices"];
     }
+
     _getEmittedEvents() {
       return [
         ...super._getEmittedEvents(),
@@ -243,9 +304,6 @@
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // REGISTRATION
-  // ---------------------------------------------------------------------------
   if (typeof window !== "undefined") {
     window.Tonika = window.Tonika || {};
     window.Tonika.Jackonika = Jackonika;

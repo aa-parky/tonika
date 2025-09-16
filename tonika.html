@@ -45,7 +45,13 @@
 				<div id="catchonika-card"></div>
 				<div class="tonika-grid-1-stack">
 					<div id="rhythonika-mount"></div>
-					<div class="tonika-module"> R2 C2</div>
+					<div class="tonika-module">
+						<h3>Jackonika Input</h3>
+						<div style="display: flex; align-items: center; gap: 10px;">
+							<label for="jackonika-selector">Select MIDI Device:</label>
+							<select id="jackonika-selector" class="tonika-select"></select>
+						</div>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -246,7 +252,7 @@
 		try {
 			const jack = new Tonika.Jackonika({
 				moduleInfo: { name: "Jackonika", version: "2.0.0" },
-				selectorId: "midiDeviceSelector"
+				selectorId: "jackonika-selector"
 			});
 			console.log("Jackonika Status:", jack.getStatus());
 		} catch (err) { console.error("Failed to initialize Jackonika:", err); }
