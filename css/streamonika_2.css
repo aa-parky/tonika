@@ -1,0 +1,228 @@
+/* synthonika */
+.synthonika-d18fb1cb84ef {
+    position: relative;
+    width: 370px;
+    height: 350px;
+    background: #FFFFFFFF;
+    border-radius: 0px 0px 0px 0px;
+    overflow: hidden;
+    display: grid;
+    align-items: center;
+    align-content: stretch;
+    justify-items: center;
+    justify-content: stretch;
+    z-index: 0;
+    grid-template-rows: 88px 88px 88px 86px;
+    grid-template-columns: 92px 92px 92px 94px;
+}
+
+/* syn_rot_04 */
+.synrot04-d18f107ecab8 {
+    width: 41px;
+    height: 41px;
+    background: #B1B2B5FF;
+    border-radius: 50%;
+    grid-column: 4;
+    grid-row: 4;
+}
+
+/* syn_rot_03 */
+.synrot03-d18f0dfdb891 {
+    width: 41px;
+    height: 41px;
+    background: #B1B2B5FF;
+    border-radius: 50%;
+    grid-column: 3;
+    grid-row: 4;
+}
+
+/* syn_rot_02 */
+.synrot02-d18f07d4ee44 {
+    width: 41px;
+    height: 41px;
+    background: #B1B2B5FF;
+    border-radius: 50%;
+    grid-column: 2;
+    grid-row: 4;
+}
+
+/* syn_rot_01 */
+.synrot01-d18ef5b8c7cf {
+    width: 41px;
+    height: 41px;
+    background: #B1B2B5FF;
+    border-radius: 50%;
+    grid-column: 1;
+    grid-row: 4;
+}
+
+/* syn_toch_bar */
+.syntochb-d18ed1c7b317 {
+    width: 358px;
+    height: 70px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 1 / 5;
+    grid-row: 3;
+}
+
+/* syn_but_08 */
+.synbut08-d18e8677992d {
+    width: 45px;
+    height: 46px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 4;
+    grid-row: 2;
+}
+
+/* syn_but_07 */
+.synbut07-d18e914ae82a {
+    width: 45px;
+    height: 46px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 3;
+    grid-row: 2;
+}
+
+/* syn_but_06 */
+.synbut06-d18e72c25a9d {
+    width: 45px;
+    height: 46px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 2;
+    grid-row: 2;
+}
+
+/* syn_but_05 */
+.synbut05-d18e8c59097e {
+    width: 45px;
+    height: 46px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 1;
+    grid-row: 2;
+}
+
+/* syn_but_04 */
+.synbut04-d18e83ed493e {
+    width: 45px;
+    height: 46px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 4;
+    grid-row: 1;
+}
+
+/* syn_but_03 */
+.synbut03-d18e7a6cf1b0 {
+    width: 45px;
+    height: 46px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 3;
+    grid-row: 1;
+}
+
+/* syn_but_02 */
+.synbut02-d18e8037a1bd {
+    width: 45px;
+    height: 46px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+/* syn_but_01 */
+.synbut01-d14f55527f41 {
+    width: 45px;
+    height: 46px;
+    background: #B1B2B5FF;
+    border-radius: 0px 0px 0px 0px;
+    grid-column: 1;
+    grid-row: 1;
+}
+
+/* Texture dropdown */
+/* 🎨 Design Tokens */
+:root {
+    --device-radius: 2%;
+    --device-border: 0.3vmin;
+
+    --button-radius: 6%;
+    --button-border: 0.3vmin;
+
+    --touchbar-radius: 0.4vmin;
+    --touchbar-border: 0.3vmin;
+
+    --rotary-radius: 50%;
+    --rotary-border: 0.3vmin;
+
+    --rotbg-radius: 15%;
+    --rotbg-border: 0.4vmin;
+
+    --color-bg: #2c2c2c;
+    --color-fg: #000;
+    --color-border: #4d4d4d;
+    --color-text: #fff;
+}
+
+.texture-select {
+    position: fixed;
+    top: 1rem;
+    right: 9rem; /* push left of the debug toggle */
+    background: var(--color-fg);
+    color: var(--color-text);
+    border: var(--device-border) solid var(--color-border);
+    border-radius: var(--button-radius);
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    z-index: 9999;
+}
+
+/* Dev Header Bar */
+.dev-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #222;
+    color: var(--color-text);
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    border-bottom: 2px solid var(--color-border);
+    z-index: 10000;
+    font-family: sans-serif;
+}
+
+/* Controls inside header */
+.dev-header select,
+.dev-header button {
+    background: var(--color-fg);
+    color: var(--color-text);
+    border: var(--device-border) solid var(--color-border);
+    border-radius: var(--button-radius);
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.dev-header button:hover,
+.dev-header select:hover {
+    background: #333;
+}
+
+.dev-header input[type="color"] {
+    width: 40px;
+    height: 30px;
+    border: var(--device-border) solid var(--color-border);
+    border-radius: var(--button-radius);
+    background: none;
+    cursor: pointer;
+    padding: 0;
+}

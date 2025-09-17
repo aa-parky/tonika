@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Synthonika Board Demo (Updated)</title>
+	<link rel="stylesheet" href="../css/streamonika_2.css">
+	<style>
+		body {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			margin: 0;
+			background: #222;
+		}
+		.synthonika-d18fb1cb84ef > div {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			font-size: 10px;
+			color: #333;
+		}
+		/* Tiny toggle button */
+		.debug-toggle {
+			position: fixed;
+			top: 1rem;
+			right: 1rem;
+			background: #333;
+			color: #fff;
+			border: 1px solid #666;
+			padding: 0.5rem 1rem;
+			border-radius: 6px;
+			cursor: pointer;
+			font-size: 0.9rem;
+			z-index: 9999;
+			transition: background 0.2s;
+		}
+		.debug-toggle:hover {
+			background: #555;
+		}
+
+		/* Debug mode: outline each grid cell */
+		.synthonika-d18fb1cb84ef.debug-on > div {
+			outline: 1px dashed red;
+			color: red;
+		}
+
+		.synthonika-d18fb1cb84ef.debug-on {
+			background-image:
+					linear-gradient(to right, rgba(255,0,0,.3) 1px, transparent 1px),
+					linear-gradient(to bottom, rgba(255,0,0,.3) 1px, transparent 1px);
+			background-size: 92px 88px; /* match your grid-template sizes */
+		}
+	</style>
+</head>
+<body>
+
+<!-- Dev Header -->
+<div class="dev-header">
+	<select id="textureSelect">
+		<option value="">Default</option>
+		<option value="../developers/beige-paper.png">Beige Paper</option>
+		<option value="../developers/dotnoise-light-grey.png">Dot Noise</option>
+		<option value="../developers/noise.webp">Noise</option>
+	</select>
+
+	<input type="color" id="bgColorPicker" value="#2c2c2c" />
+
+	<select id="textureMode">
+		<option value="tile">Tile</option>
+		<option value="stretch">Stretch</option>
+	</select>
+
+	<select id="textureScale">
+		<option value="100">100px</option>
+		<option value="200" selected>200px</option>
+		<option value="400">400px</option>
+	</select>
+
+	<button id="debugToggle">Toggle Debug</button>
+</div>
+
+<div class="synthonika-d18fb1cb84ef">
+
+	<!-- Buttons Row 1 -->
+	<div class="synbut01-d14f55527f41">B1</div>
+	<div class="synbut02-d18e8037a1bd">B2</div>
+	<div class="synbut03-d18e7a6cf1b0">B3</div>
+	<div class="synbut04-d18e83ed493e">B4</div>
+
+	<!-- Buttons Row 2 -->
+	<div class="synbut05-d18e8c59097e">B5</div>
+	<div class="synbut06-d18e72c25a9d">B6</div>
+	<div class="synbut07-d18e914ae82a">B7</div>
+	<div class="synbut08-d18e8677992d">B8</div>
+
+	<!-- Touch Bar -->
+	<div class="syntochb-d18ed1c7b317">Touch Bar</div>
+
+	<!-- Rotary Encoders -->
+	<div class="synrot01-d18ef5b8c7cf">R1</div>
+	<div class="synrot02-d18f07d4ee44">R2</div>
+	<div class="synrot03-d18f0dfdb891">R3</div>
+	<div class="synrot04-d18f107ecab8">R4</div>
+
+</div>
+
+</body>
+
+<script>
+	// Toggle debug-on class on click
+	const btn = document.getElementById("debugToggle");
+	const container = document.querySelector(".synthonika-d18fb1cb84ef");
+
+	if (btn && container) {
+		btn.addEventListener("click", () => {
+			container.classList.toggle("debug-on");
+		});
+	}
+</script>
+
+<script>
+	const textureSelect = document.getElementById("textureSelect");
+	const textureMode = document.getElementById("textureMode");
+	const textureScale = document.getElementById("textureScale");
+	const background = document.querySelector(".synthonika-d18fb1cb84ef");
+
+	function applyTexture() {
+		const file = textureSelect.value;
+		const mode = textureMode.value;
+		const scale = textureScale.value;
+
+		if (!file) {
+			background.style.background = "var(--color-bg)";
+			background.style.backgroundSize = "auto";
+			return;
+		}
+
+		if (mode === "tile") {
+			background.style.background = `url('${file}') repeat`;
+			background.style.backgroundSize = `${scale}px ${scale}px`;
+		} else {
+			background.style.background = `url('${file}') center/cover no-repeat`;
+			background.style.backgroundSize = "cover";
+		}
+	}
+
+	[textureSelect, textureMode, textureScale].forEach((el) =>
+			el.addEventListener("change", applyTexture)
+	);
+</script>
+
+<script>
+	const bgColorPicker = document.getElementById("bgColorPicker");
+
+	function adjustTint(color) {
+		let r = parseInt(color.substr(1, 2), 16);
+		let g = parseInt(color.substr(3, 2), 16);
+		let b = parseInt(color.substr(5, 2), 16);
+		let brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+		if (brightness < 80) {
+			r = Math.min(255, r + 60);
+			g = Math.min(255, g + 60);
+			b = Math.min(255, b + 60);
+		}
+		return `rgba(${r}, ${g}, ${b}, 0.3)`;
+	}
+
+	bgColorPicker.addEventListener("input", (e) => {
+		const color = e.target.value;
+		background.style.backgroundColor = color;
+		const tint = adjustTint(color);
+
+		document.querySelectorAll('[class*="but"]').forEach((el) => {
+			el.style.boxShadow = `0 0 6px ${tint} inset, 0 0 10px ${tint}`;
+		});
+
+		document.querySelectorAll('[class*="rot"]').forEach((el) => {
+			el.style.boxShadow = `0 0 10px ${tint} inset, 0 0 18px ${tint}`;
+		});
+
+		document.querySelectorAll('[class*="tch"]').forEach((el) => {
+			el.style.boxShadow = `0 0 3px ${tint} inset, 0 0 6px ${tint}`;
+		});
+	});
+</script>
+</html>
