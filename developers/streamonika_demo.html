@@ -75,7 +75,6 @@
 		.tonika-control-inline .tonika-label {
 			margin: 0;
 		}
-
 	</style>
 </head>
 <body>
@@ -175,6 +174,10 @@
 <!-- Reset styles -->
 <script>
 	const resetBtn = document.getElementById("resetStyles");
+	const textureSelect = document.getElementById("textureSelect");
+	const textureMode = document.getElementById("textureMode");
+	const textureScale = document.getElementById("textureScale");
+
 	resetBtn.addEventListener("click", () => {
 		Tonika.Utils.resetModuleStyles(container, {
 			bgColorPicker, textureSelect, textureMode, textureScale
@@ -184,34 +187,17 @@
 
 <!-- Texture selection -->
 <script>
-	const textureSelect = document.getElementById("textureSelect");
-	const textureMode = document.getElementById("textureMode");
-	const textureScale = document.getElementById("textureScale");
-	const backgroundEl = document.querySelector(".synthonika");
-
-	function applyTexture() {
-		const file = textureSelect.value;
-		const mode = textureMode.value;
-		const scale = textureScale.value;
-
-		if (!file) {
-			backgroundEl.style.background = "var(--color-bg)";
-			backgroundEl.style.backgroundSize = "auto";
-			return;
-		}
-		if (mode === "tile") {
-			backgroundEl.style.background = `url('${file}') repeat`;
-			backgroundEl.style.backgroundSize = `${scale}px ${scale}px`;
-		} else {
-			backgroundEl.style.background = `url('${file}') center/cover no-repeat`;
-			backgroundEl.style.backgroundSize = "cover";
-		}
-	}
 	[textureSelect, textureMode, textureScale].forEach(el =>
-			el.addEventListener("change", applyTexture)
+			el.addEventListener("change", () => {
+				Tonika.Utils.applyTexture(
+						container,
+						textureSelect.value,
+						textureMode.value,
+						textureScale.value
+				);
+			})
 	);
 </script>
-
 
 </body>
 </html>

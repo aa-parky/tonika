@@ -149,6 +149,30 @@
     });
   }
 
+  /**
+   * Apply a texture background to a container.
+   * @param {HTMLElement} container - The module container.
+   * @param {string} file - URL of the texture (or "" for none).
+   * @param {string} mode - "tile" or "stretch".
+   * @param {string|number} scale - Size in px for tiling.
+   */
+  function applyTexture(container, file, mode = "tile", scale = 200) {
+    if (!container) return;
+
+    if (!file) {
+      container.style.background = "var(--color-bg)";
+      container.style.backgroundSize = "auto";
+      return;
+    }
+    if (mode === "tile") {
+      container.style.background = `url('${file}') repeat`;
+      container.style.backgroundSize = `${scale}px ${scale}px`;
+    } else {
+      container.style.background = `url('${file}') center/cover no-repeat`;
+      container.style.backgroundSize = "cover";
+    }
+  }
+
   // ==========================================================================
   // EXPORT STRUCTURE
   // ==========================================================================
@@ -161,6 +185,7 @@
     toggleDebug: toggleDebug,
     resetModuleStyles: resetModuleStyles,
     applyBleedTint: applyBleedTint,
+    applyTexture: applyTexture,
   };
 
   // --- Exports ---------------------------------------------------------------
