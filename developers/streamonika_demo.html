@@ -11,126 +11,53 @@
 	<link href="../css/tonika-tokens.css" rel="stylesheet" />
 	<link href="../css/tonika-accessibility.css" rel="stylesheet" />
 
-	<!-- Synthonika styles -->
+	<!-- Tonika Synth Development Core Styles -->
+	<link href="../css/tonika-synth-development.css" rel="stylesheet" />
+
+	<!-- Synthonika styles (module-specific) -->
 	<link href="../css/streamonika.css" rel="stylesheet" />
-
-	<!-- Dev-shell overrides (scoped) -->
-	<style>
-		body {
-			background: #222;
-			margin: 0;
-			min-height: 100vh;
-			display: flex;
-			flex-direction: column;
-		}
-		.tonika-container {
-			width: auto;
-			max-width: 640px;
-			margin: 2rem auto;
-		}
-		.tonika-container .tabs { width: 100%; }
-		.tonika-container .tab-content {
-			width: 100%;
-			height: auto;
-			min-height: 420px;
-			margin: 0;
-			padding: var(--spacing-lg);
-			box-sizing: border-box;
-		}
-		.synthonika > div {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			font-size: 10px;
-			color: #333;
-		}
-		.dev-header {
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			gap: 8px;
-			padding: 8px;
-			background: var(--color-bg-secondary, #333);
-			color: var(--color-text-primary, #fff);
-			border-bottom: 1px solid var(--color-border, #555);
-		}
-		.dev-header select,
-		.dev-header input[type="color"],
-		.dev-header button {
-			margin: 0;
-		}
-		.tonika-control-inline {
-			display: inline-flex;
-			align-items: center;
-			gap: 6px;
-			cursor: pointer;
-		}
-		.tonika-control-inline .tonika-label {
-			margin: 0;
-		}
-
-		/* Sandbox preview */
-		.dev-layout-sandbox {
-			margin: 2rem auto;
-			max-width: 1200px;
-			color: var(--color-text-primary);
-		}
-		.tab-preview {
-			width: 1140px;
-			height: 670px;
-			margin-top: 1rem;
-			border: 1px dashed var(--color-border);
-			display: grid;
-			gap: 8px;
-			padding: 8px;
-			background: var(--color-bg-secondary);
-		}
-		.tab-preview__cell {
-			border: 1px solid var(--color-border);
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			background: var(--color-bg);
-			overflow: hidden;
-		}
-		.tab-preview--1x1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
-		.tab-preview--1x2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
-		.tab-preview--2x2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-	</style>
 </head>
 <body>
 
-<!-- Dev Header -->
-<div class="dev-header">
-	<select id="textureSelect">
+<!-- Unified Dev Header -->
+<div class="dev-header" role="toolbar" aria-label="Developer tools">
+	<select id="textureSelect" aria-label="Background texture">
 		<option value="">Default</option>
 		<option value="../developers/beige-paper.png">Beige Paper</option>
 		<option value="../developers/dotnoise-light-grey.png">Dot Noise</option>
 		<option value="../developers/noise.webp">Noise</option>
 	</select>
 
-	<input type="color" id="bgColorPicker" value="#2c2c2c" />
+	<input type="color" id="bgColorPicker" value="#2c2c2c" aria-label="Bleed tint color" />
 
-	<select id="textureMode">
+	<select id="textureMode" aria-label="Texture mode">
 		<option value="tile">Tile</option>
 		<option value="stretch">Stretch</option>
 	</select>
 
-	<select id="textureScale">
+	<select id="textureScale" aria-label="Texture scale">
 		<option value="100">100px</option>
 		<option value="200" selected>200px</option>
 		<option value="400">400px</option>
 	</select>
 
-	<button id="debugToggle">Toggle Debug</button>
-	<button id="resetStyles">Reset Styles</button>
+	<button id="debugToggle" type="button">Toggle Debug</button>
+	<button id="resetStyles" type="button">Reset Styles</button>
 
-	<select id="theme-selector" class="tonika-select" style="max-width:180px"></select>
-	<button class="tonika-btn" data-action="toggle-theme">Toggle Light/Dark</button>
-	<label for="high-contrast-toggle" class="tonika-control-inline">
+	<select id="theme-selector" class="tonika-select" style="max-width:180px" aria-label="Theme preset"></select>
+	<button class="tonika-btn" data-action="toggle-theme" type="button">Light/Dark</button>
+
+	<label for="high-contrast-toggle">
 		<input type="checkbox" id="high-contrast-toggle" class="tonika-checkbox" />
 		<span class="tonika-label">High Contrast</span>
 	</label>
+
+	<label for="layoutSelect">Layout:</label>
+	<select id="layoutSelect">
+		<option value="1x1">1 x 1 (single full tab)</option>
+		<option value="1x2">1 x 2 (split horizontally)</option>
+		<option value="2x2">2 x 2 (four quadrants)</option>
+	</select>
 </div>
 
 <!-- Tonika-style tab shell -->
@@ -164,16 +91,9 @@
 </div>
 
 <!-- Dev Layout Sandbox -->
-<div class="dev-layout-sandbox">
-	<h3>Tab Layout Preview</h3>
-	<label for="layoutSelect">Choose layout:</label>
-	<select id="layoutSelect">
-		<option value="1x1">1 x 1 (single full tab)</option>
-		<option value="1x2">1 x 2 (split horizontally)</option>
-		<option value="2x2">2 x 2 (four quadrants)</option>
-	</select>
-
-	<div id="layoutPreview" class="tab-preview tab-preview--1x1">
+<div class="tonika__development-layout-sandbox">
+	<div id="layoutPreview"
+	     class="tonika__development-tab-preview tonika__development-tab-preview--1x1">
 		<!-- cells will be populated by JS -->
 	</div>
 </div>
@@ -229,7 +149,8 @@
 		const originalSynthonika = document.querySelector(".synthonika");
 
 		function renderLayout(layout) {
-			layoutPreview.className = "tab-preview tab-preview--" + layout;
+			layoutPreview.className =
+					"tonika__development-tab-preview tonika__development-tab-preview--" + layout;
 			layoutPreview.innerHTML = ""; // clear old cells
 
 			let cells = 1;
@@ -238,7 +159,7 @@
 
 			for (let i = 0; i < cells; i++) {
 				const cell = document.createElement("div");
-				cell.className = "tab-preview__cell";
+				cell.className = "tonika__development-tab-preview-cell";
 
 				// only clone into first cell for demo
 				if (i === 0 && originalSynthonika) {

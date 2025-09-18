@@ -1,0 +1,93 @@
+/*!
+ * Tonika Synth Development CSS
+ * Purpose: Dev-only scaffolding for module demos (e.g. streamonika_demo.html)
+ * Scope: Everything outside the module itself (debug header, sandbox, preview grids, etc.)
+ */
+
+/* Body background for dev environment */
+body {
+    background: #222;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Dev header styling */
+.dev-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: var(--color-bg-secondary, #333);
+    color: var(--color-text-primary, #fff);
+    border-bottom: 1px solid var(--color-border, #555);
+}
+.dev-header select,
+.dev-header input[type="color"],
+.dev-header button {
+    margin: 0;
+}
+.tonika-control-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+.tonika-control-inline .tonika-label {
+    margin: 0;
+}
+
+/* Sandbox preview */
+.tonika__development-layout-sandbox {
+    margin: 0 auto;          /* no wasted top space */
+    padding-top: 0;          /* flush alignment */
+    max-width: 1200px;
+    color: var(--color-text-primary);
+}
+.tonika__development-tab-preview {
+    width: 1140px;
+    height: 670px;
+    margin-top: 0.5rem;      /* controlled small gap */
+    border: 1px dashed var(--color-border);
+    display: grid;
+    gap: 8px;
+    padding: 8px;
+    background: var(--color-bg-secondary);
+}
+.tonika__development-tab-preview-cell {
+    border: 1px solid var(--color-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--color-bg);
+    overflow: hidden;
+}
+.tonika__development-tab-preview--1x1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.tonika__development-tab-preview--1x2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.tonika__development-tab-preview--2x2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+/* Layout preview header inline (better alignment) */
+.tonika__development-layout-sandbox-header {
+    display: flex;
+    align-items: center;   /* vertical alignment */
+    gap: 0.5rem;           /* spacing between items */
+    margin-bottom: 0.5rem; /* consistent spacing below header */
+}
+
+.tonika__development-layout-sandbox-header h3 {
+    margin: 0;
+    font-size: 1rem;       /* compact heading */
+}
+
+/* Dev header labels (High Contrast, Layout, etc.) */
+.dev-header label {
+    font-size: 0.85rem;        /* slightly smaller */
+    font-weight: 500;          /* medium weight, keeps it readable */
+    margin: 0;                 /* reset margins */
+    display: inline-flex;      /* align inline with inputs */
+    align-items: center;
+    gap: 0.25rem;              /* spacing between label text and input */
+    color: var(--color-text-primary);
+}
