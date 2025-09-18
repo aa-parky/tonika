@@ -14,17 +14,24 @@
 
 <!-- Dev Header -->
 <div class="tonika__dev-header" role="toolbar" aria-label="Developer tools">
-	<button onclick="TonikaUtils.toggleDebugMode()">Toggle Debug</button>
-	<button onclick="TonikaUtils.resetStyles()">Reset Styles</button>
-	<select id="themeSelect" onchange="TonikaTheme.setTheme(this.value)">
+	<button id="devToggleDebug" type="button">Toggle Debug</button>
+	<button id="devResetStyles" type="button">Reset Styles</button>
+
+	<select id="themeSelect" aria-label="Theme preset">
 		<option>Brown 01</option>
 		<option>Brown 02</option>
 		<option>Glacier Pulse</option>
 	</select>
-	<button onclick="TonikaTheme.toggleLightDark()">Light/Dark</button>
-	<label><input type="checkbox" id="highContrastToggle" onchange="TonikaTheme.toggleHighContrast()"> High Contrast</label>
-	<label>Layout:
-		<select id="layoutSelect" onchange="updateLayout(this.value)">
+
+	<button id="devLightDark" type="button">Light/Dark</button>
+
+	<label class="tonika__dev-label">
+		<input type="checkbox" id="highContrastToggle"> High Contrast
+	</label>
+
+	<label class="tonika__dev-label">
+		Layout:
+		<select id="layoutSelect">
 			<option value="1x1">1 x 1 (single full tab)</option>
 			<option value="1x2">1 x 2 (split horizontally)</option>
 			<option value="2x2">2 x 2 (four quadrants)</option>
@@ -85,16 +92,14 @@
 	function openTab(event, tabId) {
 		document.querySelectorAll('.tab-content section').forEach(sec => sec.classList.remove('active'));
 		document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-
 		document.getElementById(tabId).classList.add('active');
 		event.currentTarget.classList.add('active');
 	}
 
 	/* --- File loading & CSS scoping --- */
-
-	const htmlInput = document.getElementById('htmlLoader');
-	const cssInput  = document.getElementById('cssLoader');
-	const synthHost = document.getElementById('userSynthContainer');
+	const htmlInput   = document.getElementById('htmlLoader');
+	const cssInput    = document.getElementById('cssLoader');
+	const synthHost   = document.getElementById('userSynthContainer');
 	const previewHost = document.getElementById('previewCell');
 
 	// Load & inject user HTML into both main host and preview
@@ -105,13 +110,13 @@
 		const reader = new FileReader();
 		reader.onload = function (ev) {
 			const html = ev.target.result;
-			synthHost.innerHTML = html;
+			synthHost.innerHTML  = html;
 			previewHost.innerHTML = html;
 		};
 		reader.readAsText(file);
 	});
 
-	// Load CSS, scope it to BOTH containers so styles apply in main and preview
+	// Load CSS, scope it to BOTH containers (main + preview)
 	cssInput.addEventListener('change', function (e) {
 		const file = e.target.files[0];
 		if (!file) return;
@@ -119,16 +124,13 @@
 		const reader = new FileReader();
 		reader.onload = function (ev) {
 			const rawCss = ev.target.result;
-
-			// Prefix each selector with both #userSynthContainer and #previewCell
-			// Basic approach: rewrite simple rule selectors; skip top-level @-rules.
 			const containers = ['#userSynthContainer', '#previewCell'];
 
+			// Prefix selectors; skip top-level @ rules
 			const scopedCss = rawCss.replace(/(^|})\s*([^@][^{]+)\{/g, (m, brace, selectorChunk) => {
-				// Split multiple selectors: ".a, .b, .c"
 				const expanded = selectorChunk.split(',')
 						.map(sel => sel.trim())
-						.filter(sel => sel.length)
+						.filter(Boolean)
 						.map(sel => containers.map(c => `${c} ${sel}`).join(', '))
 						.join(', ');
 				return `${brace} ${expanded}{`;
@@ -144,6 +146,60 @@
 		};
 		reader.readAsText(file);
 	});
+
+	/* --- Dev header wiring: align with Tonika.Utils API --- */
+	const btnDebug     = document.getElementById('devToggleDebug');
+	const btnReset     = document.getElementById('devResetStyles');
+	const btnLightDark = document.getElementById('devLightDark');
+	const themeSelect  = document.getElementById('themeSelect');
+	const hcToggle     = document.getElementById('highContrastToggle');
+
+	// Toggle debug grid/outlines on the synth host
+	btnDebug.addEventListener('click', () => {
+		if (window.Tonika?.Utils?.toggleDebug) {
+			Tonika.Utils.toggleDebug(synthHost);
+		}
+	});
+
+	// Reset module styles to clean dev state
+	btnReset.addEventListener('click', () => {
+		if (window.Tonika?.Utils?.resetModuleStyles) {
+			Tonika.Utils.resetModuleStyles(synthHost, {});
+		}
+	});
+
+	// Theme preset select
+	themeSelect.addEventListener('change', (e) => {
+		if (window.Tonika?.Theme?.setTheme) {
+			Tonika.Theme.setTheme(e.target.value);
+		} else {
+			// Fallback: set data-theme on <html>
+			document.documentElement.setAttribute(
+					'data-theme',
+					e.target.value.toLowerCase().replace(/\s+/g,'-')
+			);
+		}
+	});
+
+	// Light/Dark toggle
+	btnLightDark.addEventListener('click', () => {
+		if (window.Tonika?.Theme?.toggleLightDark) {
+			Tonika.Theme.toggleLightDark();
+		} else {
+			const root = document.documentElement;
+			root.dataset.mode = (root.dataset.mode === 'dark') ? 'light' : 'dark';
+		}
+	});
+
+	// High Contrast toggle
+	hcToggle.addEventListener('change', (e) => {
+		if (window.Tonika?.Theme?.toggleHighContrast) {
+			Tonika.Theme.toggleHighContrast(e.target.checked);
+		} else {
+			document.documentElement.classList.toggle('tonika--high-contrast', e.target.checked);
+		}
+	});
 </script>
+
 </body>
 </html>
