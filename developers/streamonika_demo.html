@@ -23,14 +23,11 @@
 			display: flex;
 			flex-direction: column;
 		}
-
-		/* Narrower container for hardware UI dev */
 		.tonika-container {
 			width: auto;
 			max-width: 640px;
 			margin: 2rem auto;
 		}
-		/* Override curated app's fixed width rules for dev */
 		.tonika-container .tabs { width: 100%; }
 		.tonika-container .tab-content {
 			width: 100%;
@@ -40,8 +37,6 @@
 			padding: var(--spacing-lg);
 			box-sizing: border-box;
 		}
-
-		/* Demo legibility */
 		.synthonika > div {
 			display: flex;
 			justify-content: center;
@@ -49,8 +44,6 @@
 			font-size: 10px;
 			color: #333;
 		}
-
-		/* Dev header styling */
 		.dev-header {
 			display: flex;
 			flex-wrap: wrap;
@@ -81,7 +74,6 @@
 
 <!-- Dev Header -->
 <div class="dev-header">
-	<!-- Texture controls -->
 	<select id="textureSelect">
 		<option value="">Default</option>
 		<option value="../developers/beige-paper.png">Beige Paper</option>
@@ -105,7 +97,6 @@
 	<button id="debugToggle">Toggle Debug</button>
 	<button id="resetStyles">Reset Styles</button>
 
-	<!-- Theme / Accessibility controls -->
 	<select id="theme-selector" class="tonika-select" style="max-width:180px"></select>
 	<button class="tonika-btn" data-action="toggle-theme">Toggle Light/Dark</button>
 	<label for="high-contrast-toggle" class="tonika-control-inline">
@@ -125,22 +116,15 @@
 		<section class="active">
 			<div class="tonika-module">
 				<div class="synthonika">
-					<!-- Buttons Row 1 -->
 					<div class="synthonika__button synthonika__button--1">B1</div>
 					<div class="synthonika__button synthonika__button--2">B2</div>
 					<div class="synthonika__button synthonika__button--3">B3</div>
 					<div class="synthonika__button synthonika__button--4">B4</div>
-
-					<!-- Buttons Row 2 -->
 					<div class="synthonika__button synthonika__button--5">B5</div>
 					<div class="synthonika__button synthonika__button--6">B6</div>
 					<div class="synthonika__button synthonika__button--7">B7</div>
 					<div class="synthonika__button synthonika__button--8">B8</div>
-
-					<!-- Touch Bar -->
 					<div class="synthonika__touchbar">Touch Bar</div>
-
-					<!-- Rotary Encoders -->
 					<div class="synthonika__rotary synthonika__rotary--1">R1</div>
 					<div class="synthonika__rotary synthonika__rotary--2">R2</div>
 					<div class="synthonika__rotary synthonika__rotary--3">R3</div>
@@ -156,47 +140,46 @@
 <script src="../js/core/tonika-theme.js"></script>
 <script src="../js/core/tonika-utils.js"></script>
 
-<!-- Debug toggle -->
+<!-- Init block -->
 <script>
-	const btn = document.getElementById("debugToggle");
-	const container = document.querySelector(".synthonika");
-	btn.addEventListener("click", () => Tonika.Utils.toggleDebug(container));
-</script>
+	(function () {
+		const container = document.querySelector(".synthonika");
 
-<!-- Background tint/bleed -->
-<script>
-	const bgColorPicker = document.getElementById("bgColorPicker");
-	bgColorPicker.addEventListener("input", (e) => {
-		Tonika.Utils.applyBleedTint(container, e.target.value);
-	});
-</script>
+		// Controls
+		const btnDebug = document.getElementById("debugToggle");
+		const btnReset = document.getElementById("resetStyles");
+		const bgColorPicker = document.getElementById("bgColorPicker");
+		const textureSelect = document.getElementById("textureSelect");
+		const textureMode = document.getElementById("textureMode");
+		const textureScale = document.getElementById("textureScale");
 
-<!-- Reset styles -->
-<script>
-	const resetBtn = document.getElementById("resetStyles");
-	const textureSelect = document.getElementById("textureSelect");
-	const textureMode = document.getElementById("textureMode");
-	const textureScale = document.getElementById("textureScale");
+		// Debug toggle
+		btnDebug.addEventListener("click", () => Tonika.Utils.toggleDebug(container));
 
-	resetBtn.addEventListener("click", () => {
-		Tonika.Utils.resetModuleStyles(container, {
-			bgColorPicker, textureSelect, textureMode, textureScale
+		// Background tint / bleed
+		bgColorPicker.addEventListener("input", (e) => {
+			Tonika.Utils.applyBleedTint(container, e.target.value);
 		});
-	});
-</script>
 
-<!-- Texture selection -->
-<script>
-	[textureSelect, textureMode, textureScale].forEach(el =>
-			el.addEventListener("change", () => {
-				Tonika.Utils.applyTexture(
-						container,
-						textureSelect.value,
-						textureMode.value,
-						textureScale.value
-				);
-			})
-	);
+		// Reset styles
+		btnReset.addEventListener("click", () => {
+			Tonika.Utils.resetModuleStyles(container, {
+				bgColorPicker, textureSelect, textureMode, textureScale
+			});
+		});
+
+		// Texture selection
+		[textureSelect, textureMode, textureScale].forEach(el =>
+				el.addEventListener("change", () => {
+					Tonika.Utils.applyTexture(
+							container,
+							textureSelect.value,
+							textureMode.value,
+							textureScale.value
+					);
+				})
+		);
+	})();
 </script>
 
 </body>
