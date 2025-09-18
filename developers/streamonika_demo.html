@@ -68,6 +68,34 @@
 		.tonika-control-inline .tonika-label {
 			margin: 0;
 		}
+
+		/* Sandbox preview */
+		.dev-layout-sandbox {
+			margin: 2rem auto;
+			max-width: 1200px;
+			color: var(--color-text-primary);
+		}
+		.tab-preview {
+			width: 1140px;
+			height: 670px;
+			margin-top: 1rem;
+			border: 1px dashed var(--color-border);
+			display: grid;
+			gap: 8px;
+			padding: 8px;
+			background: var(--color-bg-secondary);
+		}
+		.tab-preview__cell {
+			border: 1px solid var(--color-border);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: var(--color-bg);
+			overflow: hidden;
+		}
+		.tab-preview--1x1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+		.tab-preview--1x2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+		.tab-preview--2x2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 	</style>
 </head>
 <body>
@@ -135,6 +163,21 @@
 	</div>
 </div>
 
+<!-- Dev Layout Sandbox -->
+<div class="dev-layout-sandbox">
+	<h3>Tab Layout Preview</h3>
+	<label for="layoutSelect">Choose layout:</label>
+	<select id="layoutSelect">
+		<option value="1x1">1 x 1 (single full tab)</option>
+		<option value="1x2">1 x 2 (split horizontally)</option>
+		<option value="2x2">2 x 2 (four quadrants)</option>
+	</select>
+
+	<div id="layoutPreview" class="tab-preview tab-preview--1x1">
+		<!-- cells will be populated by JS -->
+	</div>
+</div>
+
 <!-- Load helpers -->
 <script src="../js/core/tonika-ui.js"></script>
 <script src="../js/core/tonika-theme.js"></script>
@@ -179,6 +222,37 @@
 					);
 				})
 		);
+
+		// Layout sandbox
+		const layoutSelect = document.getElementById("layoutSelect");
+		const layoutPreview = document.getElementById("layoutPreview");
+		const originalSynthonika = document.querySelector(".synthonika");
+
+		function renderLayout(layout) {
+			layoutPreview.className = "tab-preview tab-preview--" + layout;
+			layoutPreview.innerHTML = ""; // clear old cells
+
+			let cells = 1;
+			if (layout === "1x2") cells = 2;
+			if (layout === "2x2") cells = 4;
+
+			for (let i = 0; i < cells; i++) {
+				const cell = document.createElement("div");
+				cell.className = "tab-preview__cell";
+
+				// only clone into first cell for demo
+				if (i === 0 && originalSynthonika) {
+					const clone = originalSynthonika.cloneNode(true);
+					cell.appendChild(clone);
+				}
+				layoutPreview.appendChild(cell);
+			}
+		}
+
+		layoutSelect.addEventListener("change", (e) => renderLayout(e.target.value));
+
+		// initial render
+		renderLayout(layoutSelect.value);
 	})();
 </script>
 
