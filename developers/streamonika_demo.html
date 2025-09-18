@@ -27,16 +27,16 @@
 		/* Narrower container for hardware UI dev */
 		.tonika-container {
 			width: auto;
-			max-width: 640px;      /* was 600; a touch wider feels nicer */
+			max-width: 640px;
 			margin: 2rem auto;
 		}
 		/* Override curated app's fixed width rules for dev */
 		.tonika-container .tabs { width: 100%; }
 		.tonika-container .tab-content {
-			width: 100%;           /* override 1140px from tonika-layout.css */
+			width: 100%;
 			height: auto;
 			min-height: 420px;
-			margin: 0;             /* no centering gap */
+			margin: 0;
 			padding: var(--spacing-lg);
 			box-sizing: border-box;
 		}
@@ -50,21 +50,39 @@
 			color: #333;
 		}
 
-		/* Tiny debug button */
-		.debug-toggle {
-			position: fixed; top: 1rem; right: 1rem;
-			background: #333; color: #fff;
-			border: 1px solid #666; padding: 0.5rem 1rem;
-			border-radius: 6px; cursor: pointer; font-size: 0.9rem; z-index: 9999;
-			transition: background 0.2s;
+		/* Dev header styling */
+		.dev-header {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 8px;
+			padding: 8px;
+			background: var(--color-bg-secondary, #333);
+			color: var(--color-text-primary, #fff);
+			border-bottom: 1px solid var(--color-border, #555);
 		}
-		.debug-toggle:hover { background: #555; }
+		.dev-header select,
+		.dev-header input[type="color"],
+		.dev-header button {
+			margin: 0;
+		}
+		.tonika-control-inline {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			cursor: pointer;
+		}
+		.tonika-control-inline .tonika-label {
+			margin: 0;
+		}
+
 	</style>
 </head>
 <body>
-		    </div>
+
 <!-- Dev Header -->
-<div class="dev-header" style="padding:8px">
+<div class="dev-header">
+	<!-- Texture controls -->
 	<select id="textureSelect">
 		<option value="">Default</option>
 		<option value="../developers/beige-paper.png">Beige Paper</option>
@@ -86,6 +104,15 @@
 	</select>
 
 	<button id="debugToggle">Toggle Debug</button>
+	<button id="resetStyles">Reset Styles</button>
+
+	<!-- Theme / Accessibility controls -->
+	<select id="theme-selector" class="tonika-select" style="max-width:180px"></select>
+	<button class="tonika-btn" data-action="toggle-theme">Toggle Light/Dark</button>
+	<label for="high-contrast-toggle" class="tonika-control-inline">
+		<input type="checkbox" id="high-contrast-toggle" class="tonika-checkbox" />
+		<span class="tonika-label">High Contrast</span>
+	</label>
 </div>
 
 <!-- Tonika-style tab shell -->
@@ -125,7 +152,7 @@
 	</div>
 </div>
 
-<!-- (Optional) pull in UI helpers if you want them available -->
+<!-- Load helpers -->
 <script src="../js/core/tonika-ui.js"></script>
 <script src="../js/core/tonika-theme.js"></script>
 <script src="../js/core/tonika-utils.js"></script>
@@ -195,6 +222,29 @@
 		document.querySelectorAll('.synthonika__touchbar').forEach(el => {
 			el.style.boxShadow = `0 0 3px ${tint} inset, 0 0 6px ${tint}`;
 		});
+	});
+</script>
+
+<!-- Reset styles -->
+<script>
+	const resetBtn = document.getElementById("resetStyles");
+	resetBtn.addEventListener("click", () => {
+		// Reset background to theme default
+		backgroundEl.style.background = "var(--color-bg)";
+		backgroundEl.style.backgroundColor = "";
+		backgroundEl.style.backgroundSize = "auto";
+
+		// Reset texture select
+		textureSelect.value = "";
+		textureMode.value = "tile";
+		textureScale.value = "200";
+
+		// Reset color picker
+		bgColorPicker.value = "#2c2c2c";
+
+		// Remove tint/bleed shadows
+		document.querySelectorAll('.synthonika__button, .synthonika__rotary, .synthonika__touchbar')
+				.forEach(el => el.style.boxShadow = "");
 	});
 </script>
 </body>
