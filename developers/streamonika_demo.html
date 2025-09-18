@@ -161,11 +161,25 @@
 <script>
 	const btn = document.getElementById("debugToggle");
 	const container = document.querySelector(".synthonika");
-	if (btn && container) {
-		btn.addEventListener("click", () => {
-			container.classList.toggle("synthonika--debug");
+	btn.addEventListener("click", () => Tonika.Utils.toggleDebug(container));
+</script>
+
+<!-- Background tint/bleed -->
+<script>
+	const bgColorPicker = document.getElementById("bgColorPicker");
+	bgColorPicker.addEventListener("input", (e) => {
+		Tonika.Utils.applyBleedTint(container, e.target.value);
+	});
+</script>
+
+<!-- Reset styles -->
+<script>
+	const resetBtn = document.getElementById("resetStyles");
+	resetBtn.addEventListener("click", () => {
+		Tonika.Utils.resetModuleStyles(container, {
+			bgColorPicker, textureSelect, textureMode, textureScale
 		});
-	}
+	});
 </script>
 
 <!-- Texture selection -->
@@ -198,54 +212,6 @@
 	);
 </script>
 
-<!-- Background tint -->
-<script>
-	const bgColorPicker = document.getElementById("bgColorPicker");
-	function adjustTint(color) {
-		let r = parseInt(color.substr(1, 2), 16);
-		let g = parseInt(color.substr(3, 2), 16);
-		let b = parseInt(color.substr(5, 2), 16);
-		let brightness = 0.299*r + 0.587*g + 0.114*b;
-		if (brightness < 80) { r = Math.min(255, r+60); g = Math.min(255, g+60); b = Math.min(255, b+60); }
-		return `rgba(${r}, ${g}, ${b}, 0.3)`;
-	}
-	bgColorPicker.addEventListener("input", (e) => {
-		const color = e.target.value;
-		backgroundEl.style.backgroundColor = color;
-		const tint = adjustTint(color);
-		document.querySelectorAll('.synthonika__button').forEach(el => {
-			el.style.boxShadow = `0 0 6px ${tint} inset, 0 0 10px ${tint}`;
-		});
-		document.querySelectorAll('.synthonika__rotary').forEach(el => {
-			el.style.boxShadow = `0 0 10px ${tint} inset, 0 0 18px ${tint}`;
-		});
-		document.querySelectorAll('.synthonika__touchbar').forEach(el => {
-			el.style.boxShadow = `0 0 3px ${tint} inset, 0 0 6px ${tint}`;
-		});
-	});
-</script>
 
-<!-- Reset styles -->
-<script>
-	const resetBtn = document.getElementById("resetStyles");
-	resetBtn.addEventListener("click", () => {
-		// Reset background to theme default
-		backgroundEl.style.background = "var(--color-bg)";
-		backgroundEl.style.backgroundColor = "";
-		backgroundEl.style.backgroundSize = "auto";
-
-		// Reset texture select
-		textureSelect.value = "";
-		textureMode.value = "tile";
-		textureScale.value = "200";
-
-		// Reset color picker
-		bgColorPicker.value = "#2c2c2c";
-
-		// Remove tint/bleed shadows
-		document.querySelectorAll('.synthonika__button, .synthonika__rotary, .synthonika__touchbar')
-				.forEach(el => el.style.boxShadow = "");
-	});
-</script>
 </body>
 </html>
