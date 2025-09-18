@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="brown-01" data-mode="dark">
+<head>
+	<meta charset="UTF-8">
+	<title>Tonika Synth Development</title>
+	<link rel="stylesheet" href="../css/tonika-tokens.css">
+	<link rel="stylesheet" href="../css/tonika-theme-base.css">
+	<link rel="stylesheet" href="../css/tonika-layout.css">
+	<link rel="stylesheet" href="../css/tonika-components.css">
+	<link rel="stylesheet" href="../css/tonika-accessibility.css">
+	<link rel="stylesheet" href="../css/tonika-synth-development.css">
+</head>
+<body>
+
+<!-- Dev Header -->
+<div class="tonika__dev-header" role="toolbar" aria-label="Developer tools">
+	<button onclick="TonikaUtils.toggleDebugMode()">Toggle Debug</button>
+	<button onclick="TonikaUtils.resetStyles()">Reset Styles</button>
+	<select id="themeSelect" onchange="TonikaTheme.setTheme(this.value)">
+		<option>Brown 01</option>
+		<option>Brown 02</option>
+		<option>Glacier Pulse</option>
+	</select>
+	<button onclick="TonikaTheme.toggleLightDark()">Light/Dark</button>
+	<label><input type="checkbox" id="highContrastToggle" onchange="TonikaTheme.toggleHighContrast()"> High Contrast</label>
+	<label>Layout:
+		<select id="layoutSelect" onchange="updateLayout(this.value)">
+			<option value="1x1">1 x 1 (single full tab)</option>
+			<option value="1x2">1 x 2 (split horizontally)</option>
+			<option value="2x2">2 x 2 (four quadrants)</option>
+		</select>
+	</label>
+</div>
+
+<!-- Tonika-style tab shell -->
+<div class="tonika-container">
+	<div class="tabs">
+		<button class="active" onclick="openTab(event, 'userSynth')">User Synth Module</button>
+		<button onclick="openTab(event, 'other')">Load Files</button>
+	</div>
+
+	<div class="tab-content">
+		<!-- User Synth Module Tab -->
+		<section id="userSynth" class="active">
+			<div class="tonika-module" id="userSynthContainer">
+				<p style="opacity:0.6">Load a synth module via the "Other" tab.</p>
+			</div>
+		</section>
+
+		<!-- Load Files Tab -->
+		<section id="other">
+			<h3>Load Synth Module</h3>
+			<div class="tonika__file-loader">
+				<label>
+					Load Synth (HTML):
+					<input type="file" id="htmlLoader" accept=".html">
+				</label>
+				<label>
+					Load Synth (CSS):
+					<input type="file" id="cssLoader" accept=".css">
+				</label>
+			</div>
+		</section>
+	</div>
+</div>
+
+<!-- Dev Layout Sandbox -->
+<div class="tonika__development-layout-sandbox">
+	<div id="tabPreview" class="tonika__development-tab-preview tonika__development-tab-preview--1x1">
+		<div class="tonika__development-tab-preview-cell" id="previewCell"></div>
+	</div>
+</div>
+
+<script src="../js/core/tonika-utils.js"></script>
+<script src="../js/core/tonika-theme.js"></script>
+<script src="../js/core/tonika-ui.js"></script>
+<script>
+	/* Handle layout switching */
+	function updateLayout(layout) {
+		const preview = document.getElementById('tabPreview');
+		preview.className = 'tonika__development-tab-preview tonika__development-tab-preview--' + layout;
+	}
+
+	/* Handle tab switching */
+	function openTab(event, tabId) {
+		document.querySelectorAll('.tab-content section').forEach(sec => sec.classList.remove('active'));
+		document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
+
+		document.getElementById(tabId).classList.add('active');
+		event.currentTarget.classList.add('active');
+	}
+
+	/* --- File loading & CSS scoping --- */
+
+	const htmlInput = document.getElementById('htmlLoader');
+	const cssInput  = document.getElementById('cssLoader');
+	const synthHost = document.getElementById('userSynthContainer');
+	const previewHost = document.getElementById('previewCell');
+
+	// Load & inject user HTML into both main host and preview
+	htmlInput.addEventListener('change', function (e) {
+		const file = e.target.files[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = function (ev) {
+			const html = ev.target.result;
+			synthHost.innerHTML = html;
+			previewHost.innerHTML = html;
+		};
+		reader.readAsText(file);
+	});
+
+	// Load CSS, scope it to BOTH containers so styles apply in main and preview
+	cssInput.addEventListener('change', function (e) {
+		const file = e.target.files[0];
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.onload = function (ev) {
+			const rawCss = ev.target.result;
+
+			// Prefix each selector with both #userSynthContainer and #previewCell
+			// Basic approach: rewrite simple rule selectors; skip top-level @-rules.
+			const containers = ['#userSynthContainer', '#previewCell'];
+
+			const scopedCss = rawCss.replace(/(^|})\s*([^@][^{]+)\{/g, (m, brace, selectorChunk) => {
+				// Split multiple selectors: ".a, .b, .c"
+				const expanded = selectorChunk.split(',')
+						.map(sel => sel.trim())
+						.filter(sel => sel.length)
+						.map(sel => containers.map(c => `${c} ${sel}`).join(', '))
+						.join(', ');
+				return `${brace} ${expanded}{`;
+			});
+
+			let styleTag = document.getElementById('userSynthScopedStyles');
+			if (!styleTag) {
+				styleTag = document.createElement('style');
+				styleTag.id = 'userSynthScopedStyles';
+				document.head.appendChild(styleTag);
+			}
+			styleTag.textContent = scopedCss;
+		};
+		reader.readAsText(file);
+	});
+</script>
+</body>
+</html>
