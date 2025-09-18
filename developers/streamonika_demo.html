@@ -1,63 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Synthonika Board Demo (Updated)</title>
-	<link rel="stylesheet" href="../css/streamonika.css">
+	<meta charset="utf-8" />
+	<title>Synthonika – Dev Shell</title>
+
+	<!-- Core Tonika styles -->
+	<link href="../css/tonika-theme-base.css" rel="stylesheet" />
+	<link href="../css/tonika-layout.css" rel="stylesheet" />
+	<link href="../css/tonika-components.css" rel="stylesheet" />
+	<link href="../css/tonika-tokens.css" rel="stylesheet" />
+	<link href="../css/tonika-accessibility.css" rel="stylesheet" />
+
+	<!-- Synthonika styles -->
+	<link href="../css/streamonika.css" rel="stylesheet" />
+
+	<!-- Dev-shell overrides (scoped) -->
 	<style>
 		body {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			height: 100vh;
-			margin: 0;
 			background: #222;
+			margin: 0;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
 		}
-		.synthonika-d18fb1cb84ef > div {
+
+		/* Narrower container for hardware UI dev */
+		.tonika-container {
+			width: auto;
+			max-width: 640px;      /* was 600; a touch wider feels nicer */
+			margin: 2rem auto;
+		}
+		/* Override curated app's fixed width rules for dev */
+		.tonika-container .tabs { width: 100%; }
+		.tonika-container .tab-content {
+			width: 100%;           /* override 1140px from tonika-layout.css */
+			height: auto;
+			min-height: 420px;
+			margin: 0;             /* no centering gap */
+			padding: var(--spacing-lg);
+			box-sizing: border-box;
+		}
+
+		/* Demo legibility */
+		.synthonika > div {
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			font-size: 10px;
 			color: #333;
 		}
-		/* Tiny toggle button */
+
+		/* Tiny debug button */
 		.debug-toggle {
-			position: fixed;
-			top: 1rem;
-			right: 1rem;
-			background: #333;
-			color: #fff;
-			border: 1px solid #666;
-			padding: 0.5rem 1rem;
-			border-radius: 6px;
-			cursor: pointer;
-			font-size: 0.9rem;
-			z-index: 9999;
+			position: fixed; top: 1rem; right: 1rem;
+			background: #333; color: #fff;
+			border: 1px solid #666; padding: 0.5rem 1rem;
+			border-radius: 6px; cursor: pointer; font-size: 0.9rem; z-index: 9999;
 			transition: background 0.2s;
 		}
-		.debug-toggle:hover {
-			background: #555;
-		}
-
-		/* Debug mode: outline each grid cell */
-		.synthonika-d18fb1cb84ef.debug-on > div {
-			outline: 1px dashed red;
-			color: red;
-		}
-
-		.synthonika-d18fb1cb84ef.debug-on {
-			background-image:
-					linear-gradient(to right, rgba(255,0,0,.3) 1px, transparent 1px),
-					linear-gradient(to bottom, rgba(255,0,0,.3) 1px, transparent 1px);
-			background-size: 92px 88px; /* match your grid-template sizes */
-		}
+		.debug-toggle:hover { background: #555; }
 	</style>
 </head>
 <body>
-
+		    </div>
 <!-- Dev Header -->
-<div class="dev-header">
+<div class="dev-header" style="padding:8px">
 	<select id="textureSelect">
 		<option value="">Default</option>
 		<option value="../developers/beige-paper.png">Beige Paper</option>
@@ -81,50 +88,65 @@
 	<button id="debugToggle">Toggle Debug</button>
 </div>
 
-<div class="synthonika-d18fb1cb84ef">
+<!-- Tonika-style tab shell -->
+<div class="tonika-container">
+	<div class="tabs">
+		<button class="active">Synthonika</button>
+		<button disabled>Other (stub)</button>
+	</div>
 
-	<!-- Buttons Row 1 -->
-	<div class="synbut01-d14f55527f41">B1</div>
-	<div class="synbut02-d18e8037a1bd">B2</div>
-	<div class="synbut03-d18e7a6cf1b0">B3</div>
-	<div class="synbut04-d18e83ed493e">B4</div>
+	<div class="tab-content">
+		<section class="active">
+			<div class="tonika-module">
+				<div class="synthonika">
+					<!-- Buttons Row 1 -->
+					<div class="synthonika__button synthonika__button--1">B1</div>
+					<div class="synthonika__button synthonika__button--2">B2</div>
+					<div class="synthonika__button synthonika__button--3">B3</div>
+					<div class="synthonika__button synthonika__button--4">B4</div>
 
-	<!-- Buttons Row 2 -->
-	<div class="synbut05-d18e8c59097e">B5</div>
-	<div class="synbut06-d18e72c25a9d">B6</div>
-	<div class="synbut07-d18e914ae82a">B7</div>
-	<div class="synbut08-d18e8677992d">B8</div>
+					<!-- Buttons Row 2 -->
+					<div class="synthonika__button synthonika__button--5">B5</div>
+					<div class="synthonika__button synthonika__button--6">B6</div>
+					<div class="synthonika__button synthonika__button--7">B7</div>
+					<div class="synthonika__button synthonika__button--8">B8</div>
 
-	<!-- Touch Bar -->
-	<div class="syntochb-d18ed1c7b317">Touch Bar</div>
+					<!-- Touch Bar -->
+					<div class="synthonika__touchbar">Touch Bar</div>
 
-	<!-- Rotary Encoders -->
-	<div class="synrot01-d18ef5b8c7cf">R1</div>
-	<div class="synrot02-d18f07d4ee44">R2</div>
-	<div class="synrot03-d18f0dfdb891">R3</div>
-	<div class="synrot04-d18f107ecab8">R4</div>
-
+					<!-- Rotary Encoders -->
+					<div class="synthonika__rotary synthonika__rotary--1">R1</div>
+					<div class="synthonika__rotary synthonika__rotary--2">R2</div>
+					<div class="synthonika__rotary synthonika__rotary--3">R3</div>
+					<div class="synthonika__rotary synthonika__rotary--4">R4</div>
+				</div>
+			</div>
+		</section>
+	</div>
 </div>
 
-</body>
+<!-- (Optional) pull in UI helpers if you want them available -->
+<script src="../js/core/tonika-ui.js"></script>
+<script src="../js/core/tonika-theme.js"></script>
+<script src="../js/core/tonika-utils.js"></script>
 
+<!-- Debug toggle -->
 <script>
-	// Toggle debug-on class on click
 	const btn = document.getElementById("debugToggle");
-	const container = document.querySelector(".synthonika-d18fb1cb84ef");
-
+	const container = document.querySelector(".synthonika");
 	if (btn && container) {
 		btn.addEventListener("click", () => {
-			container.classList.toggle("debug-on");
+			container.classList.toggle("synthonika--debug");
 		});
 	}
 </script>
 
+<!-- Texture selection -->
 <script>
 	const textureSelect = document.getElementById("textureSelect");
 	const textureMode = document.getElementById("textureMode");
 	const textureScale = document.getElementById("textureScale");
-	const background = document.querySelector(".synthonika-d18fb1cb84ef");
+	const backgroundEl = document.querySelector(".synthonika");
 
 	function applyTexture() {
 		const file = textureSelect.value;
@@ -132,57 +154,48 @@
 		const scale = textureScale.value;
 
 		if (!file) {
-			background.style.background = "var(--color-bg)";
-			background.style.backgroundSize = "auto";
+			backgroundEl.style.background = "var(--color-bg)";
+			backgroundEl.style.backgroundSize = "auto";
 			return;
 		}
-
 		if (mode === "tile") {
-			background.style.background = `url('${file}') repeat`;
-			background.style.backgroundSize = `${scale}px ${scale}px`;
+			backgroundEl.style.background = `url('${file}') repeat`;
+			backgroundEl.style.backgroundSize = `${scale}px ${scale}px`;
 		} else {
-			background.style.background = `url('${file}') center/cover no-repeat`;
-			background.style.backgroundSize = "cover";
+			backgroundEl.style.background = `url('${file}') center/cover no-repeat`;
+			backgroundEl.style.backgroundSize = "cover";
 		}
 	}
-
-	[textureSelect, textureMode, textureScale].forEach((el) =>
+	[textureSelect, textureMode, textureScale].forEach(el =>
 			el.addEventListener("change", applyTexture)
 	);
 </script>
 
+<!-- Background tint -->
 <script>
 	const bgColorPicker = document.getElementById("bgColorPicker");
-
 	function adjustTint(color) {
 		let r = parseInt(color.substr(1, 2), 16);
 		let g = parseInt(color.substr(3, 2), 16);
 		let b = parseInt(color.substr(5, 2), 16);
-		let brightness = 0.299 * r + 0.587 * g + 0.114 * b;
-		if (brightness < 80) {
-			r = Math.min(255, r + 60);
-			g = Math.min(255, g + 60);
-			b = Math.min(255, b + 60);
-		}
+		let brightness = 0.299*r + 0.587*g + 0.114*b;
+		if (brightness < 80) { r = Math.min(255, r+60); g = Math.min(255, g+60); b = Math.min(255, b+60); }
 		return `rgba(${r}, ${g}, ${b}, 0.3)`;
 	}
-
 	bgColorPicker.addEventListener("input", (e) => {
 		const color = e.target.value;
-		background.style.backgroundColor = color;
+		backgroundEl.style.backgroundColor = color;
 		const tint = adjustTint(color);
-
-		document.querySelectorAll('[class*="but"]').forEach((el) => {
+		document.querySelectorAll('.synthonika__button').forEach(el => {
 			el.style.boxShadow = `0 0 6px ${tint} inset, 0 0 10px ${tint}`;
 		});
-
-		document.querySelectorAll('[class*="rot"]').forEach((el) => {
+		document.querySelectorAll('.synthonika__rotary').forEach(el => {
 			el.style.boxShadow = `0 0 10px ${tint} inset, 0 0 18px ${tint}`;
 		});
-
-		document.querySelectorAll('[class*="tch"]').forEach((el) => {
+		document.querySelectorAll('.synthonika__touchbar').forEach(el => {
 			el.style.boxShadow = `0 0 3px ${tint} inset, 0 0 6px ${tint}`;
 		});
 	});
 </script>
+</body>
 </html>
