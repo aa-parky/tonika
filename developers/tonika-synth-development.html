@@ -1,21 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="brown-01" data-mode="dark">
 <head>
-	<meta charset="UTF-8">
+	<meta charset="UTF-8" />
 	<title>Tonika Synth Development</title>
-	<link rel="stylesheet" href="../css/tonika-tokens.css">
-	<link rel="stylesheet" href="../css/tonika-theme-base.css">
-	<link rel="stylesheet" href="../css/tonika-layout.css">
-	<link rel="stylesheet" href="../css/tonika-components.css">
-	<link rel="stylesheet" href="../css/tonika-accessibility.css">
-	<link rel="stylesheet" href="../css/tonika-synth-development.css">
+	<link rel="stylesheet" href="../css/tonika-tokens.css" />
+	<link rel="stylesheet" href="../css/tonika-theme-base.css" />
+	<link rel="stylesheet" href="../css/tonika-layout.css" />
+	<link rel="stylesheet" href="../css/tonika-components.css" />
+	<link rel="stylesheet" href="../css/tonika-accessibility.css" />
+	<link rel="stylesheet" href="../css/tonika-synth-development.css" />
 </head>
 <body>
-
 <!-- Dev Header -->
 <div class="tonika__dev-header" role="toolbar" aria-label="Developer tools">
 	<button id="devToggleDebug" type="button">Toggle Debug</button>
 	<button id="devResetStyles" type="button">Reset Styles</button>
+
+	<select id="textureSelect" aria-label="Background texture">
+		<option value="">Default</option>
+		<option value="../developers/beige-paper.png">Beige Paper</option>
+		<option value="../developers/dotnoise-light-grey.png">Dot Noise</option>
+		<option value="../developers/noise.webp">Noise</option>
+	</select>
+
+	<input
+			type="color"
+			id="bgColorPicker"
+			value="#2c2c2c"
+			aria-label="Bleed tint color"
+	/>
+
+	<select id="textureMode" aria-label="Texture mode">
+		<option value="tile">Tile</option>
+		<option value="stretch">Stretch</option>
+	</select>
+
+	<select id="textureScale" aria-label="Texture scale">
+		<option value="100">100px</option>
+		<option value="200" selected>200px</option>
+		<option value="400">400px</option>
+	</select>
 
 	<select id="themeSelect" aria-label="Theme preset">
 		<option>Brown 01</option>
@@ -26,7 +50,7 @@
 	<button id="devLightDark" type="button">Light/Dark</button>
 
 	<label class="tonika__dev-label">
-		<input type="checkbox" id="highContrastToggle"> High Contrast
+		<input type="checkbox" id="highContrastToggle" /> High Contrast
 	</label>
 
 	<label class="tonika__dev-label">
@@ -42,7 +66,9 @@
 <!-- Tonika-style tab shell -->
 <div class="tonika-container">
 	<div class="tabs">
-		<button class="active" onclick="openTab(event, 'userSynth')">User Synth Module</button>
+		<button class="active" onclick="openTab(event, 'userSynth')">
+			User Synth Module
+		</button>
 		<button onclick="openTab(event, 'other')">Load Files</button>
 	</div>
 
@@ -50,7 +76,9 @@
 		<!-- User Synth Module Tab -->
 		<section id="userSynth" class="active">
 			<div class="tonika-module" id="userSynthContainer">
-				<p style="opacity:0.6">Load a synth module via the "Other" tab.</p>
+				<p style="opacity: 0.6">
+					Load a synth module via the "Load Files" tab.
+				</p>
 			</div>
 		</section>
 
@@ -60,11 +88,11 @@
 			<div class="tonika__file-loader">
 				<label>
 					Load Synth (HTML):
-					<input type="file" id="htmlLoader" accept=".html">
+					<input type="file" id="htmlLoader" accept=".html" />
 				</label>
 				<label>
 					Load Synth (CSS):
-					<input type="file" id="cssLoader" accept=".css">
+					<input type="file" id="cssLoader" accept=".css" />
 				</label>
 			</div>
 		</section>
@@ -73,8 +101,14 @@
 
 <!-- Dev Layout Sandbox -->
 <div class="tonika__development-layout-sandbox">
-	<div id="tabPreview" class="tonika__development-tab-preview tonika__development-tab-preview--1x1">
-		<div class="tonika__development-tab-preview-cell" id="previewCell"></div>
+	<div
+			id="tabPreview"
+			class="tonika__development-tab-preview tonika__development-tab-preview--1x1"
+	>
+		<div
+				class="tonika__development-tab-preview-cell"
+				id="previewCell"
+		></div>
 	</div>
 </div>
 
@@ -84,62 +118,78 @@
 <script>
 	/* Handle layout switching */
 	function updateLayout(layout) {
-		const preview = document.getElementById('tabPreview');
-		preview.className = 'tonika__development-tab-preview tonika__development-tab-preview--' + layout;
+		const preview = document.getElementById("tabPreview");
+		preview.className =
+				"tonika__development-tab-preview tonika__development-tab-preview--" +
+				layout;
 	}
 
 	/* Handle tab switching */
 	function openTab(event, tabId) {
-		document.querySelectorAll('.tab-content section').forEach(sec => sec.classList.remove('active'));
-		document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-		document.getElementById(tabId).classList.add('active');
-		event.currentTarget.classList.add('active');
+		document
+				.querySelectorAll(".tab-content section")
+				.forEach((sec) => sec.classList.remove("active"));
+		document
+				.querySelectorAll(".tabs button")
+				.forEach((btn) => btn.classList.remove("active"));
+		document.getElementById(tabId).classList.add("active");
+		event.currentTarget.classList.add("active");
 	}
 
 	/* --- File loading & CSS scoping --- */
-	const htmlInput   = document.getElementById('htmlLoader');
-	const cssInput    = document.getElementById('cssLoader');
-	const synthHost   = document.getElementById('userSynthContainer');
-	const previewHost = document.getElementById('previewCell');
+	const htmlInput = document.getElementById("htmlLoader");
+	const cssInput = document.getElementById("cssLoader");
+	const synthHost = document.getElementById("userSynthContainer");
+	const previewHost = document.getElementById("previewCell");
+
+	// Store the current synth configuration
+	let currentSynthConfig = null;
 
 	// Load & inject user HTML into both main host and preview
-	htmlInput.addEventListener('change', function (e) {
+	htmlInput.addEventListener("change", function (e) {
 		const file = e.target.files[0];
 		if (!file) return;
 
 		const reader = new FileReader();
 		reader.onload = function (ev) {
 			const html = ev.target.result;
-			synthHost.innerHTML  = html;
+			synthHost.innerHTML = html;
 			previewHost.innerHTML = html;
+
+			// Try to extract configuration from the loaded HTML
+			currentSynthConfig = extractSynthConfig(synthHost);
 		};
 		reader.readAsText(file);
 	});
 
 	// Load CSS, scope it to BOTH containers (main + preview)
-	cssInput.addEventListener('change', function (e) {
+	cssInput.addEventListener("change", function (e) {
 		const file = e.target.files[0];
 		if (!file) return;
 
 		const reader = new FileReader();
 		reader.onload = function (ev) {
 			const rawCss = ev.target.result;
-			const containers = ['#userSynthContainer', '#previewCell'];
+			const containers = ["#userSynthContainer", "#previewCell"];
 
 			// Prefix selectors; skip top-level @ rules
-			const scopedCss = rawCss.replace(/(^|})\s*([^@][^{]+)\{/g, (m, brace, selectorChunk) => {
-				const expanded = selectorChunk.split(',')
-						.map(sel => sel.trim())
-						.filter(Boolean)
-						.map(sel => containers.map(c => `${c} ${sel}`).join(', '))
-						.join(', ');
-				return `${brace} ${expanded}{`;
-			});
+			const scopedCss = rawCss.replace(
+					/(^|})\s*([^@][^{]+)\{/g,
+					(m, brace, selectorChunk) => {
+						const expanded = selectorChunk
+								.split(",")
+								.map((sel) => sel.trim())
+								.filter(Boolean)
+								.map((sel) => containers.map((c) => `${c} ${sel}`).join(", "))
+								.join(", ");
+						return `${brace} ${expanded}{`;
+					},
+			);
 
-			let styleTag = document.getElementById('userSynthScopedStyles');
+			let styleTag = document.getElementById("userSynthScopedStyles");
 			if (!styleTag) {
-				styleTag = document.createElement('style');
-				styleTag.id = 'userSynthScopedStyles';
+				styleTag = document.createElement("style");
+				styleTag.id = "userSynthScopedStyles";
 				document.head.appendChild(styleTag);
 			}
 			styleTag.textContent = scopedCss;
@@ -147,59 +197,118 @@
 		reader.readAsText(file);
 	});
 
+	/* Extract configuration from loaded synth HTML */
+	function extractSynthConfig(container) {
+		// Look for data-tonika-config attribute on the root element
+		const rootElement = container.firstElementChild;
+		if (rootElement && rootElement.dataset.tonikaConfig) {
+			try {
+				return JSON.parse(rootElement.dataset.tonikaConfig);
+			} catch (e) {
+				console.warn("Invalid tonika-config JSON:", e);
+			}
+		}
+
+		// Fallback: return null (no configuration found)
+		return null;
+	}
+
 	/* --- Dev header wiring: align with Tonika.Utils API --- */
-	const btnDebug     = document.getElementById('devToggleDebug');
-	const btnReset     = document.getElementById('devResetStyles');
-	const btnLightDark = document.getElementById('devLightDark');
-	const themeSelect  = document.getElementById('themeSelect');
-	const hcToggle     = document.getElementById('highContrastToggle');
+	const btnDebug = document.getElementById("devToggleDebug");
+	const btnReset = document.getElementById("devResetStyles");
+	const btnLightDark = document.getElementById("devLightDark");
+	const themeSelect = document.getElementById("themeSelect");
+	const hcToggle = document.getElementById("highContrastToggle");
+	const bgColorPicker = document.getElementById("bgColorPicker");
+	const textureSelect = document.getElementById("textureSelect");
+	const textureMode = document.getElementById("textureMode");
+	const textureScale = document.getElementById("textureScale");
 
 	// Toggle debug grid/outlines on the synth host
-	btnDebug.addEventListener('click', () => {
+	btnDebug.addEventListener("click", () => {
 		if (window.Tonika?.Utils?.toggleDebug) {
 			Tonika.Utils.toggleDebug(synthHost);
 		}
 	});
 
 	// Reset module styles to clean dev state
-	btnReset.addEventListener('click', () => {
+	btnReset.addEventListener("click", () => {
 		if (window.Tonika?.Utils?.resetModuleStyles) {
-			Tonika.Utils.resetModuleStyles(synthHost, {});
+			Tonika.Utils.resetModuleStyles(synthHost, {
+				config: currentSynthConfig,
+				bgColorPicker,
+				textureSelect,
+				textureMode,
+				textureScale,
+			});
 		}
 	});
 
+	// Background tint / bleed
+	bgColorPicker.addEventListener("input", (e) => {
+		if (window.Tonika?.Utils?.applyBleedTint && currentSynthConfig) {
+			Tonika.Utils.applyBleedTint(
+					synthHost,
+					e.target.value,
+					currentSynthConfig,
+			);
+		}
+	});
+
+	// Texture selection
+	[textureSelect, textureMode, textureScale].forEach((el) =>
+			el.addEventListener("change", () => {
+				if (window.Tonika?.Utils?.applyTexture) {
+					Tonika.Utils.applyTexture(
+							synthHost,
+							textureSelect.value,
+							textureMode.value,
+							textureScale.value,
+					);
+				}
+			}),
+	);
+
 	// Theme preset select
-	themeSelect.addEventListener('change', (e) => {
+	themeSelect.addEventListener("change", (e) => {
 		if (window.Tonika?.Theme?.setTheme) {
 			Tonika.Theme.setTheme(e.target.value);
 		} else {
 			// Fallback: set data-theme on <html>
 			document.documentElement.setAttribute(
-					'data-theme',
-					e.target.value.toLowerCase().replace(/\s+/g,'-')
+					"data-theme",
+					e.target.value.toLowerCase().replace(/\s+/g, "-"),
 			);
 		}
 	});
 
 	// Light/Dark toggle
-	btnLightDark.addEventListener('click', () => {
+	btnLightDark.addEventListener("click", () => {
 		if (window.Tonika?.Theme?.toggleLightDark) {
 			Tonika.Theme.toggleLightDark();
 		} else {
 			const root = document.documentElement;
-			root.dataset.mode = (root.dataset.mode === 'dark') ? 'light' : 'dark';
+			root.dataset.mode = root.dataset.mode === "dark" ? "light" : "dark";
 		}
 	});
 
 	// High Contrast toggle
-	hcToggle.addEventListener('change', (e) => {
+	hcToggle.addEventListener("change", (e) => {
 		if (window.Tonika?.Theme?.toggleHighContrast) {
 			Tonika.Theme.toggleHighContrast(e.target.checked);
 		} else {
-			document.documentElement.classList.toggle('tonika--high-contrast', e.target.checked);
+			document.documentElement.classList.toggle(
+					"tonika--high-contrast",
+					e.target.checked,
+			);
 		}
 	});
-</script>
 
+	// Layout selection
+	const layoutSelect = document.getElementById("layoutSelect");
+	layoutSelect.addEventListener("change", (e) =>
+			updateLayout(e.target.value),
+	);
+</script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+
 /*!
  * Tonika Utils — Shared utility functions for Tonika modules
  * Location: js/core/tonika-utils.js
@@ -22,34 +23,6 @@
   "use strict";
 
   // ==========================================================================
-  // MUSIC THEORY UTILITIES
-  // ==========================================================================
-
-  // ==========================================================================
-  // TIMING AND RHYTHM UTILITIES
-  // ==========================================================================
-
-  // ==========================================================================
-  // DOM AND UI UTILITIES
-  // ==========================================================================
-
-  // ==========================================================================
-  // AUDIO CONTEXT UTILITIES
-  // ==========================================================================
-
-  // ==========================================================================
-  // VALIDATION AND TYPE CHECKING
-  // ==========================================================================
-
-  // ==========================================================================
-  // ARRAY AND OBJECT UTILITIES
-  // ==========================================================================
-
-  // ==========================================================================
-  // STORAGE AND PERSISTENCE
-  // ==========================================================================
-
-  // ==========================================================================
   // ERROR HANDLING AND LOGGING
   // ==========================================================================
 
@@ -70,10 +43,6 @@
   }
 
   // ==========================================================================
-  // PERFORMANCE UTILITIES
-  // ==========================================================================
-
-  // ==========================================================================
   // DEV/DEMO UTILITIES
   // ==========================================================================
   /**
@@ -83,22 +52,19 @@
    */
   function toggleDebug(container, enabled) {
     if (!container) return;
+    const debugClass = 'tonika--debug'; // Generic class
     if (typeof enabled === "boolean") {
-      container.classList.toggle("synthonika--debug", enabled);
+      container.classList.toggle(debugClass, enabled);
     } else {
-      container.classList.toggle("synthonika--debug");
+      container.classList.toggle(debugClass);
     }
   }
 
   /**
    * Reset styles (background, textures, shadows) on a module container.
-   * Used to restore a "clean" default dev state without a page refresh.
    * @param {HTMLElement} container - The module container.
    * @param {object} [options] - Optional references to controls to reset.
-   * @param {HTMLInputElement} [options.bgColorPicker]
-   * @param {HTMLSelectElement} [options.textureSelect]
-   * @param {HTMLSelectElement} [options.textureMode]
-   * @param {HTMLSelectElement} [options.textureScale]
+   * @param {object} [options.config] - Configuration with selectors for buttons, rotaries, etc.
    */
   function resetModuleStyles(container, options = {}) {
     if (!container) return;
@@ -107,10 +73,15 @@
     container.style.backgroundColor = "";
     container.style.backgroundSize = "auto";
 
-    // Clear shadows
-    container.querySelectorAll("div").forEach(el => {
-      el.style.boxShadow = "";
-    });
+    // Clear shadows from configured elements
+    if (options.config) {
+      const selectors = Object.values(options.config).join(',');
+      if (selectors) {
+        container.querySelectorAll(selectors).forEach(el => {
+          el.style.boxShadow = "";
+        });
+      }
+    }
 
     // Reset controls if provided
     if (options.bgColorPicker) options.bgColorPicker.value = "#2c2c2c";
@@ -123,8 +94,12 @@
    * Apply a tinted bleed effect to elements inside a container.
    * @param {HTMLElement} container - The module container.
    * @param {string} color - Hex color string (#rrggbb).
+   * @param {object} config - Configuration object with selectors.
+   * @param {string} [config.buttons] - Selector for button elements.
+   * @param {string} [config.rotaries] - Selector for rotary elements.
+   * @param {string} [config.touchbars] - Selector for touchbar elements.
    */
-  function applyBleedTint(container, color) {
+  function applyBleedTint(container, color, config = {}) {
     if (!container || !color) return;
 
     let r = parseInt(color.substr(1, 2), 16);
@@ -138,15 +113,21 @@
     }
     const tint = `rgba(${r}, ${g}, ${b}, 0.3)`;
 
-    container.querySelectorAll('.synthonika__button').forEach(el => {
-      el.style.boxShadow = `0 0 6px ${tint} inset, 0 0 10px ${tint}`;
-    });
-    container.querySelectorAll('.synthonika__rotary').forEach(el => {
-      el.style.boxShadow = `0 0 10px ${tint} inset, 0 0 18px ${tint}`;
-    });
-    container.querySelectorAll('.synthonika__touchbar').forEach(el => {
-      el.style.boxShadow = `0 0 3px ${tint} inset, 0 0 6px ${tint}`;
-    });
+    if (config.buttons) {
+      container.querySelectorAll(config.buttons).forEach(el => {
+        el.style.boxShadow = `0 0 6px ${tint} inset, 0 0 10px ${tint}`;
+      });
+    }
+    if (config.rotaries) {
+      container.querySelectorAll(config.rotaries).forEach(el => {
+        el.style.boxShadow = `0 0 10px ${tint} inset, 0 0 18px ${tint}`;
+      });
+    }
+    if (config.touchbars) {
+      container.querySelectorAll(config.touchbars).forEach(el => {
+        el.style.boxShadow = `0 0 3px ${tint} inset, 0 0 6px ${tint}`;
+      });
+    }
   }
 
   /**
@@ -200,3 +181,4 @@
   }
 
 })();
+
