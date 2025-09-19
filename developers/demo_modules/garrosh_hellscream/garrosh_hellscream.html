@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Garish Hellscream VU Meter</title>
+	<link rel="stylesheet" href="garrosh_hellscream.css" />
+</head>
+<body>
+<div class="vu-meter">
+	<div class="needle"></div>
+</div>
+
+<!-- Load Tonika bus and Jackonika -->
+<script src="../../../js/core/tonika-bus.js"></script>
+<script src="../../../js/core/jackonika.js"></script>
+
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+		// Init Jackonika
+		const jack = new Tonika.Jackonika({
+			moduleInfo: { name: "Jackonika", version: "2.0.0" },
+			mode: "all",
+		});
+
+		const needle = document.querySelector(".needle");
+
+		function velocityToAngle(velocity) {
+			const minAngle = -45;
+			const maxAngle = 45;
+			return minAngle + (velocity / 127) * (maxAngle - minAngle);
+		}
+
+		let currentValue = 0;   // smoothed velocity
+		let targetValue = 0;    // target value from MIDI
+
+		function animate() {
+			if (currentValue < targetValue) {
+				// Fast rise (attack)
+				const attack = 0.4; // higher = faster
+				currentValue += (targetValue - currentValue) * attack;
+			} else {
+				// Slow fall (decay)
+				const decay = 0.02; // lower = slower
+				currentValue += (targetValue - currentValue) * decay;
+			}
+
+			// Always decay target back toward zero
+			targetValue *= 0.97;
+
+			// Update needle
+			const angle = velocityToAngle(currentValue);
+			needle.style.transform = `rotate(${angle}deg)`;
+
+			requestAnimationFrame(animate);
+		}
+
+		animate();
+
+		// On noteon, raise the target
+		Tonika.Bus.addEventListener("midi:noteon", (event) => {
+			const { velocity } = event.detail;
+			targetValue = Math.max(targetValue, velocity); // bump up if higher
+		});
+	});
+</script>
+</body>
+</html>
