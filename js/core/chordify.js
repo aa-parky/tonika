@@ -35,10 +35,10 @@
     chordify.stats.textContent = `${filteredCount} / ${totalCount} songs`;
   }
 
-  function createRow(item, idx) {
+  function createRow(item, originalIndex) {
     const tr = document.createElement("tr");
     tr.className = "chordify--table__row chordify--table__row--clickable";
-    tr.dataset.index = String(idx);
+    tr.dataset.index = String(originalIndex);
     tr.innerHTML = `
     <td class="chordify--table__cell chordify--table__cell--song">
       <div class="chordify--song-info">
@@ -71,8 +71,10 @@
 
   function renderTable(data) {
     chordify.tbody.innerHTML = "";
-    chordify.rows = data.map((item, idx) => {
-      const row = createRow(item, idx);
+    chordify.rows = data.map((item) => {
+      // Find the original index of this item in the full data array
+      const originalIndex = chordify.data.indexOf(item);
+      const row = createRow(item, originalIndex);
       chordify.tbody.appendChild(row);
       return row;
     });
