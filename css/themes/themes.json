@@ -1,0 +1,11 @@
+[
+  { "name": "Brown 01", "value": "brown-01", "file": "brown_01.css" },
+  { "name": "Brown 02", "value": "brown-02", "file": "brown_02.css" },
+  { "name": "Aubade", "value": "aubade", "file": "aubade.css" },
+  { "name": "Aurora Clash", "value": "aurora-clash", "file": "aurora-clash.css" },
+  { "name": "Crimson Noir", "value": "crimson-noir", "file": "crimson-noir.css" },
+  { "name": "Crimson Veil", "value": "crimson-veil", "file": "crimson-veil.css" },
+  { "name": "Ember Forge", "value": "ember-forge", "file": "ember-forge.css" },
+  { "name": "Glacier Pulse", "value": "glacier-pulse", "file": "glacier-pulse.css" },
+  { "name": "Nocturne", "value": "nocturne", "file": "nocturne.css" }
+]

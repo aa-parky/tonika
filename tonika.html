@@ -5,6 +5,8 @@
     <meta charset="utf-8" />
     <title>Tonika - Curated</title>
     <link href="css/tonika-theme-base.css" rel="stylesheet" />
+
+	  <!-- Module CSS files-->
     <link href="css/tonika-layout.css" rel="stylesheet" />
     <link href="css/tonika-components.css" rel="stylesheet" />
     <link href="css/tonika-tokens.css" rel="stylesheet" />
@@ -140,33 +142,32 @@
         </section>
 
         <!-- Synthonika tab -->
-	      <section>
-		      <div class="tonika-module">
-			      <div class="synthonika">
+        <section>
+          <div class="tonika-module">
+            <div class="synthonika">
+              <!-- Buttons Row 1 -->
+              <div class="synthonika__button synthonika__button--1">B1</div>
+              <div class="synthonika__button synthonika__button--2">B2</div>
+              <div class="synthonika__button synthonika__button--3">B3</div>
+              <div class="synthonika__button synthonika__button--4">B4</div>
 
-		        <!-- Buttons Row 1 -->
-		        <div class="synthonika__button synthonika__button--1">B1</div>
-		        <div class="synthonika__button synthonika__button--2">B2</div>
-		        <div class="synthonika__button synthonika__button--3">B3</div>
-		        <div class="synthonika__button synthonika__button--4">B4</div>
+              <!-- Buttons Row 2 -->
+              <div class="synthonika__button synthonika__button--5">B5</div>
+              <div class="synthonika__button synthonika__button--6">B6</div>
+              <div class="synthonika__button synthonika__button--7">B7</div>
+              <div class="synthonika__button synthonika__button--8">B8</div>
 
-		        <!-- Buttons Row 2 -->
-		        <div class="synthonika__button synthonika__button--5">B5</div>
-		        <div class="synthonika__button synthonika__button--6">B6</div>
-		        <div class="synthonika__button synthonika__button--7">B7</div>
-		        <div class="synthonika__button synthonika__button--8">B8</div>
+              <!-- Touch Bar -->
+              <div class="synthonika__touchbar">Touch Bar</div>
 
-		        <!-- Touch Bar -->
-		        <div class="synthonika__touchbar">Touch Bar</div>
-
-		        <!-- Rotary Encoders -->
-		        <div class="synthonika__rotary synthonika__rotary--1">R1</div>
-		        <div class="synthonika__rotary synthonika__rotary--2">R2</div>
-		        <div class="synthonika__rotary synthonika__rotary--3">R3</div>
-		        <div class="synthonika__rotary synthonika__rotary--4">R4</div>
-		    </div>
-	        </div>
-	      </section>
+              <!-- Rotary Encoders -->
+              <div class="synthonika__rotary synthonika__rotary--1">R1</div>
+              <div class="synthonika__rotary synthonika__rotary--2">R2</div>
+              <div class="synthonika__rotary synthonika__rotary--3">R3</div>
+              <div class="synthonika__rotary synthonika__rotary--4">R4</div>
+            </div>
+          </div>
+        </section>
 
         <!-- Chordify tab -->
         <section>
@@ -507,7 +508,7 @@
         // MiniClavonika
         try {
           const mini = new Tonika.MiniClavonika({
-            mount: "#mini-container"
+            mount: "#mini-container",
           });
           console.log("MiniClavonika Status:", mini.getStatus());
         } catch (err) {
