@@ -3,7 +3,7 @@
   "slug": "garrosh_hellscream",
   "version": "1.0.0",
   "description": "A simple VU meter reacting to MIDI note-on velocity.",
-  "entry_js": "garrosh-vu.js",
+  "entry_js": "garrosh_hellscream.js",
   "entry_css": "garrosh_hellscream.css",
   "demo_html": "garrosh_hellscream.html",
   "requires": ["tonika-bus", "jackonika"],
