@@ -91,3 +91,34 @@ body {
     gap: 0.25rem;              /* spacing between label text and input */
     color: var(--color-text-primary);
 }
+
+
+/* Debug mode styles - grid/outline visualization */
+.tonika--debug {
+    outline: 2px dashed #f30000 !important;
+    position: relative;
+}
+
+.tonika--debug::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+            linear-gradient(rgba(255, 0, 128, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 0, 128, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.tonika--debug * {
+    outline: 1px solid rgb(243, 0, 0) !important;
+    background: rgba(255, 255, 0, 0.05) !important;
+}
+
+.tonika--debug .tonika-module {
+    border: 2px solid #00ff00 !important;
+}

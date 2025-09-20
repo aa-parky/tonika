@@ -11,24 +11,16 @@
 	<link rel="stylesheet" href="../css/tonika-synth-development.css" />
 </head>
 <body>
-<!-- Dev Header -->
-<div class="tonika__dev-header" role="toolbar" aria-label="Developer tools">
-	<button id="devToggleDebug" type="button">Toggle Debug</button>
-	<button id="devResetStyles" type="button">Reset Styles</button>
-
+<!-- Unified Dev Header -->
+<div class="dev-header" role="toolbar" aria-label="Developer tools">
 	<select id="textureSelect" aria-label="Background texture">
 		<option value="">Default</option>
-		<option value="../developers/beige-paper.png">Beige Paper</option>
-		<option value="../developers/dotnoise-light-grey.png">Dot Noise</option>
-		<option value="../developers/noise.webp">Noise</option>
+		<option value="../assets/textures/beige-paper.png">Beige Paper</option>
+		<option value="../assets/textures/dotnoise-light-grey.png">Dot Noise</option>
+		<option value="../assets/textures/noise.webp">Noise</option>
 	</select>
 
-	<input
-			type="color"
-			id="bgColorPicker"
-			value="#2c2c2c"
-			aria-label="Bleed tint color"
-	/>
+	<input type="color" id="bgColorPicker" value="#2c2c2c" aria-label="Bleed tint color" />
 
 	<select id="textureMode" aria-label="Texture mode">
 		<option value="tile">Tile</option>
@@ -41,26 +33,27 @@
 		<option value="400">400px</option>
 	</select>
 
-	<select id="themeSelect" aria-label="Theme preset">
+	<button id="devToggleDebug" type="button">Toggle Debug</button>
+	<button id="devResetStyles" type="button">Reset Styles</button>
+
+	<select id="themeSelect" class="tonika-select" style="max-width:180px" aria-label="Theme preset">
 		<option>Brown 01</option>
 		<option>Brown 02</option>
 		<option>Glacier Pulse</option>
 	</select>
+	<button class="tonika-btn" id="devLightDark" type="button">Light/Dark</button>
 
-	<button id="devLightDark" type="button">Light/Dark</button>
-
-	<label class="tonika__dev-label">
-		<input type="checkbox" id="highContrastToggle" /> High Contrast
+	<label for="highContrastToggle">
+		<input type="checkbox" id="highContrastToggle" class="tonika-checkbox" />
+		<span class="tonika-label">High Contrast</span>
 	</label>
 
-	<label class="tonika__dev-label">
-		Layout:
-		<select id="layoutSelect">
-			<option value="1x1">1 x 1 (single full tab)</option>
-			<option value="1x2">1 x 2 (split horizontally)</option>
-			<option value="2x2">2 x 2 (four quadrants)</option>
-		</select>
-	</label>
+	<label for="layoutSelect">Layout:</label>
+	<select id="layoutSelect">
+		<option value="1x1">1 x 1 (single full tab)</option>
+		<option value="1x2">1 x 2 (split horizontally)</option>
+		<option value="2x2">2 x 2 (four quadrants)</option>
+	</select>
 </div>
 
 <!-- Tonika-style tab shell -->
