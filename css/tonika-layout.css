@@ -6,6 +6,10 @@
      - css/themes/*.css
    ====================================================================== */
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -17,18 +21,24 @@ body {
     font-family: var(--font-family-sans), serif;
 }
 
-/* Header + Footer now theme-compliant */
+/* Header + Footer now theme-compliant and full-width */
 header {
     background-color: var(--color-bg-secondary);
     color: var(--color-text-primary);
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0;
     text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 header h1 {
     margin: 0;
     font-size: 1.25rem;
     line-height: 1.5;
+    max-width: 1140px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 0.5rem;
 }
 
 footer {
@@ -36,13 +46,19 @@ footer {
     background-color: var(--color-bg-secondary);
     color: var(--color-text-primary);
     text-align: center;
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0;
     font-size: 0.9rem;
     line-height: 1.4;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 footer p {
     margin: 0;
+    max-width: 1140px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 0.5rem;
 }
 
 /* ======================================================================

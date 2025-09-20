@@ -13,7 +13,7 @@
 (function () {
   "use strict";
 
-  const MANIFEST_URL = "css/themes/themes.json";
+  const MANIFEST_URL = "/css/themes/themes.json";
   const STORAGE_KEYS = {
     theme: "tonika-theme",
     mode: "tonika-mode",
@@ -61,7 +61,7 @@
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.id = id;
-    link.href = `css/themes/${file}`;
+    link.href = `/css/themes/${file}`;
     document.head.appendChild(link);
     return link;
   }

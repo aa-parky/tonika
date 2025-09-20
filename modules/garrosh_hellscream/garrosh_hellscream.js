@@ -36,22 +36,29 @@
 
       // absolute root (served from repo root)
       "/js/core/tonika-bus.js",
-      "/js/core/jackonika.js"
+      "/js/core/jackonika.js",
     ];
 
     // load in order: bus first, then jackonika
     const orderedGroups = [
-      coreCandidates.filter(p => p.includes("tonika-bus")),
-      coreCandidates.filter(p => p.includes("jackonika"))
+      coreCandidates.filter((p) => p.includes("tonika-bus")),
+      coreCandidates.filter((p) => p.includes("jackonika")),
     ];
 
     for (const group of orderedGroups) {
       let loaded = false;
       for (const src of group) {
-        try { await loadScript(src); loaded = true; break; } catch {}
+        try {
+          await loadScript(src);
+          loaded = true;
+          break;
+        } catch {}
       }
       if (!loaded) {
-        throw new Error("Could not locate " + (group[0].includes("bus") ? "tonika-bus.js" : "jackonika.js"));
+        throw new Error(
+          "Could not locate " +
+            (group[0].includes("bus") ? "tonika-bus.js" : "jackonika.js"),
+        );
       }
     }
   }
@@ -62,7 +69,8 @@
     const velEl = document.getElementById("vel");
     const needle = document.querySelector(".garrosh-hellscream-needle");
 
-    const secure = location.protocol === "https:" || location.hostname === "localhost";
+    const secure =
+      location.protocol === "https:" || location.hostname === "localhost";
     if (!secure && midiStateEl) {
       midiStateEl.textContent = "serve over https or localhost for WebMIDI";
     }
@@ -71,25 +79,31 @@
       await ensureTonikaCore();
     } catch (e) {
       console.error(e);
-      if (midiStateEl) midiStateEl.textContent = "Tonika core not found (see console)";
+      if (midiStateEl)
+        midiStateEl.textContent = "Tonika core not found (see console)";
       return;
     }
 
     // init Jackonika (global MIDI)
     try {
       new Tonika.Jackonika({ mode: "all" });
-      if (midiStateEl) midiStateEl.textContent = "waiting for input… (allow MIDI access)";
+      if (midiStateEl)
+        midiStateEl.textContent = "waiting for input… (allow MIDI access)";
     } catch (e) {
       console.error("Jackonika failed:", e);
-      if (midiStateEl) midiStateEl.textContent = "Jackonika failed to init (see console)";
+      if (midiStateEl)
+        midiStateEl.textContent = "Jackonika failed to init (see console)";
     }
 
     // animation with attack/decay
-    let currentValue = 0, targetValue = 0;
-    const minAngle = -45, maxAngle = 45;
-    const attack = 0.40, decay = 0.02;
+    let currentValue = 0,
+      targetValue = 0;
+    const minAngle = -50,
+      maxAngle = 65;
+    const attack = 0.4,
+      decay = 0.02;
 
-    const toAngle = v => minAngle + (v / 127) * (maxAngle - minAngle);
+    const toAngle = (v) => minAngle + (v / 127) * (maxAngle - minAngle);
 
     function animate() {
       if (currentValue < targetValue) {
@@ -98,7 +112,8 @@
         currentValue += (targetValue - currentValue) * decay;
       }
       targetValue *= 0.97;
-      if (needle) needle.style.transform = `rotate(${toAngle(currentValue)}deg)`;
+      if (needle)
+        needle.style.transform = `rotate(${toAngle(currentValue)}deg)`;
       requestAnimationFrame(animate);
     }
     animate();
@@ -114,9 +129,11 @@
     // keyboard test
     window.addEventListener("keydown", (e) => {
       if (e.key.toLowerCase() === "v") {
-        Tonika.Bus.dispatchEvent(new CustomEvent("midi:noteon", {
-          detail: { midi: 60, velocity: 110, channel: 1 }
-        }));
+        Tonika.Bus.dispatchEvent(
+          new CustomEvent("midi:noteon", {
+            detail: { midi: 60, velocity: 110, channel: 1 },
+          }),
+        );
       }
     });
   });
