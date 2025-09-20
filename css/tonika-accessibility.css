@@ -94,7 +94,38 @@ body.tonika--high-contrast {
     gap: var(--spacing-sm, 8px);
     margin-top: var(--spacing-md, 12px);
 }
+/* High Contrast Mode */
+.tonika--high-contrast {
+  --color-bg: #000000 !important;
+  --color-fg: #ffffff !important;
+  --color-accent: #ffff00 !important;
+  --color-border: #ffffff !important;
+}
 
+.tonika--high-contrast * {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.tonika--high-contrast input,
+.tonika--high-contrast select,
+.tonika--high-contrast button {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+.tonika--high-contrast button:hover,
+.tonika--high-contrast button:focus {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.tonika--high-contrast .active {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
 .tonika-control .tonika-label {
     flex: 0 0 auto;
 }

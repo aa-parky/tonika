@@ -227,7 +227,11 @@
 	// Reset module styles to clean dev state
 	btnReset.addEventListener("click", () => {
 		if (window.Tonika?.Utils?.resetModuleStyles) {
-			Tonika.Utils.resetModuleStyles(synthHost, {
+			// Find the loaded synth element inside the container
+			const loadedSynth = synthHost.firstElementChild;
+			const target = loadedSynth && loadedSynth.tagName !== 'P' ? loadedSynth : synthHost;
+
+			Tonika.Utils.resetModuleStyles(target, {
 				config: currentSynthConfig,
 				bgColorPicker,
 				textureSelect,
@@ -240,8 +244,12 @@
 	// Background tint / bleed
 	bgColorPicker.addEventListener("input", (e) => {
 		if (window.Tonika?.Utils?.applyBleedTint && currentSynthConfig) {
+			// Find the loaded synth element inside the container
+			const loadedSynth = synthHost.firstElementChild;
+			const target = loadedSynth && loadedSynth.tagName !== 'P' ? loadedSynth : synthHost;
+
 			Tonika.Utils.applyBleedTint(
-					synthHost,
+					target,
 					e.target.value,
 					currentSynthConfig,
 			);
@@ -252,8 +260,12 @@
 	[textureSelect, textureMode, textureScale].forEach((el) =>
 			el.addEventListener("change", () => {
 				if (window.Tonika?.Utils?.applyTexture) {
+					// Find the loaded synth element inside the container
+					const loadedSynth = synthHost.firstElementChild;
+					const target = loadedSynth && loadedSynth.tagName !== 'P' ? loadedSynth : synthHost;
+
 					Tonika.Utils.applyTexture(
-							synthHost,
+							target,
 							textureSelect.value,
 							textureMode.value,
 							textureScale.value,
@@ -290,7 +302,8 @@
 		if (window.Tonika?.Theme?.toggleHighContrast) {
 			Tonika.Theme.toggleHighContrast(e.target.checked);
 		} else {
-			document.documentElement.classList.toggle(
+			// Apply to body element instead of documentElement
+			document.body.classList.toggle(
 					"tonika--high-contrast",
 					e.target.checked,
 			);
