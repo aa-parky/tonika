@@ -503,6 +503,16 @@
         } catch (err) {
           console.error("Failed to initialize TonikaInput:", err);
         }
+
+        // MiniClavonika
+        try {
+          const mini = new Tonika.MiniClavonika({
+            mount: "#mini-container"
+          });
+          console.log("MiniClavonika Status:", mini.getStatus());
+        } catch (err) {
+          console.error("Failed to initialize MiniClavonika:", err);
+        }
       });
     </script>
 
@@ -520,11 +530,6 @@
         mode: "card",
         autoRefresh: true,
       });
-    </script>
-
-    <!-- MiniClavonika -->
-    <script>
-      const mini = Tonika.MiniClavonika.init("mini-container");
     </script>
 
     <!-- Bus Monitor -->
