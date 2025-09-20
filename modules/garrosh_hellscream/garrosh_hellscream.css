@@ -1,0 +1,19 @@
+body {
+    background: var(--background, #111);
+    display: flex; justify-content: center; align-items: center; height: 100vh;
+}
+
+.garrosh-hellscream-vu-meter {
+    position: relative; width: 250px; height: 130px;
+    background: url("velocity.png") no-repeat center/cover;
+    border: 4px solid var(--panel-border, #333);
+    box-shadow: 0 0 25px color-mix(in srgb, var(--accent, red) 60%, transparent);
+}
+
+.garrosh-hellscream-needle {
+    position: absolute; bottom: 20px; left: 50%;
+    width: 3px; height: 90px; background: var(--accent, red);
+    transform-origin: bottom center; transform: rotate(-45deg);
+    transition: transform 0.15s cubic-bezier(0.25, 1.5, 0.5, 1);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--accent, red) 80%, transparent);
+}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Garrosh Hellscream VU Meter</title>
+	<link rel="stylesheet" href="garrosh_hellscream.css" />
+</head>
+<body>
+<div class="garrosh-hellscream-vu-meter" role="group" aria-label="VU meter">
+	<div class="garrosh-hellscream-needle" aria-hidden="true"></div>
+</div>
+
+<div id="status" style="
+    position: fixed; bottom: 14px; left: 14px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color: #ddd; opacity: 0.9; background: rgba(0,0,0,0.35);
+    padding: 8px 10px; border-radius: 6px; border: 1px solid #333;">
+	MIDI: <span id="midi-state">initialising…</span> — Last velocity: <span id="vel">0</span>
+	<span style="opacity:.7">| press <b>V</b> to simulate</span>
+</div>
+
+<script>
+	// --- tiny script loader -------------------------------------------------
+	function loadScript(src) {
+		return new Promise((resolve, reject) => {
+			const s = document.createElement("script");
+			s.src = src; s.defer = true;
+			s.onload = () => resolve(src);
+			s.onerror = () => reject(new Error("Failed: " + src));
+			document.head.appendChild(s);
+		});
+	}
+
+	async function ensureTonikaCore() {
+		// if already present, nothing to do
+		if (window.Tonika && Tonika.Bus && Tonika.Jackonika) return;
+
+		// candidates relative to common layouts
+		const coreCandidates = [
+			// typical when opened from modules/<slug> inside repo root
+			"../../js/core/tonika-bus.js",
+			"../../js/core/jackonika.js",
+
+			// fallback if someone moved the folder
+			"../js/core/tonika-bus.js",
+			"../js/core/jackonika.js",
+
+			// absolute root (served from repo root)
+			"/js/core/tonika-bus.js",
+			"/js/core/jackonika.js"
+		];
+
+		// load in order: bus first, then jackonika
+		const orderedGroups = [
+			coreCandidates.filter(p => p.includes("tonika-bus")),
+			coreCandidates.filter(p => p.includes("jackonika"))
+		];
+
+		for (const group of orderedGroups) {
+			let loaded = false;
+			for (const src of group) {
+				try { await loadScript(src); loaded = true; break; } catch {}
+			}
+			if (!loaded) {
+				throw new Error("Could not locate " + (group[0].includes("bus") ? "tonika-bus.js" : "jackonika.js"));
+			}
+		}
+	}
+
+	// --- main ---------------------------------------------------------------
+	document.addEventListener("DOMContentLoaded", async () => {
+		const midiStateEl = document.getElementById("midi-state");
+		const velEl = document.getElementById("vel");
+		const needle = document.querySelector(".garrosh-hellscream-needle");
+
+		const secure = location.protocol === "https:" || location.hostname === "localhost";
+		if (!secure) {
+			midiStateEl.textContent = "serve over https or localhost for WebMIDI";
+		}
+
+		try {
+			await ensureTonikaCore();
+		} catch (e) {
+			console.error(e);
+			midiStateEl.textContent = "Tonika core not found (see console)";
+			return;
+		}
+
+		// init Jackonika (global MIDI)
+		let jack = null;
+		try {
+			jack = new Tonika.Jackonika({ mode: "all" });
+			midiStateEl.textContent = "waiting for input… (allow MIDI access)";
+		} catch (e) {
+			console.error("Jackonika failed:", e);
+			midiStateEl.textContent = "Jackonika failed to init (see console)";
+		}
+
+		// animation with attack/decay
+		let currentValue = 0, targetValue = 0;
+		const minAngle = -45, maxAngle = 45;
+		const attack = 0.40, decay = 0.02;
+
+		const toAngle = v => minAngle + (v / 127) * (maxAngle - minAngle);
+
+		function animate() {
+			if (currentValue < targetValue) {
+				currentValue += (targetValue - currentValue) * attack;
+			} else {
+				currentValue += (targetValue - currentValue) * decay;
+			}
+			targetValue *= 0.97;
+			needle.style.transform = `rotate(${toAngle(currentValue)}deg)`;
+			requestAnimationFrame(animate);
+		}
+		animate();
+
+		Tonika.Bus.addEventListener("midi:noteon", (ev) => {
+			const { velocity = 0 } = ev.detail || {};
+			targetValue = Math.max(targetValue, velocity);
+			velEl.textContent = velocity.toFixed(0);
+			midiStateEl.textContent = "receiving MIDI…";
+		});
+
+		// keyboard test
+		window.addEventListener("keydown", (e) => {
+			if (e.key.toLowerCase() === "v") {
+				Tonika.Bus.dispatchEvent(new CustomEvent("midi:noteon", {
+					detail: { midi: 60, velocity: 110, channel: 1 }
+				}));
+			}
+		});
+	});
+</script>
+</body>
+</html>
