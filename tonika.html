@@ -56,67 +56,13 @@
             <div class="tonika-grid-1-stack">
               <div id="rhythonika-mount"></div>
               <div class="tonika-module">
-                <h3>Jackonika Input</h3>
-                <div style="display: flex; flex-direction: column; gap: 15px">
-                  <div>
-                    <label
-                      style="
-                        font-weight: 600;
-                        margin-bottom: 8px;
-                        display: block;
-                      "
-                      >Input Mode:</label
-                    >
-                    <div style="display: flex; gap: 15px">
-                      <label
-                        style="
-                          display: flex;
-                          align-items: center;
-                          gap: 5px;
-                          cursor: pointer;
-                        "
-                      >
-                        <input
-                          type="radio"
-                          name="jackonika-mode"
-                          value="all"
-                          checked
-                          class="tonika-radio"
-                        />
-                        Listen to All
-                      </label>
-                      <label
-                        style="
-                          display: flex;
-                          align-items: center;
-                          gap: 5px;
-                          cursor: pointer;
-                        "
-                      >
-                        <input
-                          type="radio"
-                          name="jackonika-mode"
-                          value="select"
-                          class="tonika-radio"
-                        />
-                        Listen to Selected
-                      </label>
-                    </div>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 10px">
-                    <label
-                      for="jackonika-selector"
-                      id="jackonika-selector-label"
-                      style="opacity: 0.5"
-                      >Select MIDI Device:</label
-                    >
-                    <select
-                      id="jackonika-selector"
-                      class="tonika-select"
-                      disabled
-                      style="opacity: 0.5"
-                    ></select>
-                  </div>
+                <h3>Rack Components</h3>
+                <div class="garrosh-hellscream-vu-meter">
+                  <div class="garrosh-hellscream-needle"></div>
+                  <script
+                    src="modules/garrosh_hellscream/garrosh_hellscream.js"
+                    defer
+                  ></script>
                 </div>
               </div>
             </div>
@@ -130,13 +76,67 @@
               <div id="chord-selector"></div>
             </div>
             <div class="tonika-module">
-              <h3>R1 C2</h3>
-              <div class="garrosh-hellscream-vu-meter">
-                <div class="garrosh-hellscream-needle"></div>
-                <script
-                  src="modules/garrosh_hellscream/garrosh_hellscream.js"
-                  defer
-                ></script>
+              <h3>Jackonika Input</h3>
+              <div style="display: flex; flex-direction: column; gap: 15px">
+                <div>
+                  <label
+                    style="
+                      font-weight: 600;
+                      margin-bottom: 8px;
+                      display: block;
+                    "
+                    >Input Mode:</label
+                  >
+                  <div style="display: flex; gap: 15px">
+                    <label
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        cursor: pointer;
+                      "
+                    >
+                      <input
+                        type="radio"
+                        name="jackonika-mode"
+                        value="all"
+                        checked
+                        class="tonika-radio"
+                      />
+                      Listen to All
+                    </label>
+                    <label
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        cursor: pointer;
+                      "
+                    >
+                      <input
+                        type="radio"
+                        name="jackonika-mode"
+                        value="select"
+                        class="tonika-radio"
+                      />
+                      Listen to Selected
+                    </label>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <label
+                    for="jackonika-selector"
+                    id="jackonika-selector-label"
+                    style="opacity: 0.5"
+                    >Select MIDI Device:</label
+                  >
+                  <select
+                    id="jackonika-selector"
+                    class="tonika-select"
+                    disabled
+                    style="opacity: 0.5"
+                  ></select>
+                </div>
               </div>
             </div>
             <div class="tonika-module">
