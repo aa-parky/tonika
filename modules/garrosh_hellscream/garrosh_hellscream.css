@@ -7,7 +7,6 @@ body {
     position: relative; width: 250px; height: 130px;
     background: url("velocity.png") no-repeat center/cover;
     border: 4px solid var(--panel-border, #333);
-    box-shadow: 0 0 25px color-mix(in srgb, var(--accent, red) 60%, transparent);
 }
 
 .garrosh-hellscream-needle {
